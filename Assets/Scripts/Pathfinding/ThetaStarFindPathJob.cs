@@ -15,6 +15,7 @@ public partial struct ThetaStarFindPathJob : IJobEntity
     [NativeDisableContainerSafetyRestriction] public BufferLookup<PathPositions> pathPositions;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<PathNode> pathNodeArray;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float3> unitEndPositionOffsets;
+    public quaternion targetRotation;
     public int2 gridSize;
     public float3 mouseEndPos;
     public float3 gridOriginPos;
@@ -24,7 +25,7 @@ public partial struct ThetaStarFindPathJob : IJobEntity
     private int gridWidth;
 
     [BurstCompile]
-    public void Execute(Entity pEntity, in LocalTransform pLocalTransform, [EntityIndexInQuery] int entityInQueryIndex)
+    public void Execute(Entity pEntity, ref PathFollow pathFollow, in LocalTransform pLocalTransform, [EntityIndexInQuery] int entityInQueryIndex)
     {
         pathPositions[pEntity].Clear();
 
@@ -46,7 +47,7 @@ public partial struct ThetaStarFindPathJob : IJobEntity
         }
 
         //Get start pos
-        int2 startNodePos = GetNearestCornerXZ(pLocalTransform.Position); // + new float3(0.25f, 0, 0.25f) 
+        int2 startNodePos = GetNearestCornerXZ(pLocalTransform.Position);
         ValidateGridPosition(gridSize[1], ref startNodePos.x, ref startNodePos.y);
         int startNodeIndex = CalculateIndex(startNodePos.x, startNodePos.y);
         PathNode startNode = tmpPathNodeArray[startNodeIndex];
@@ -153,6 +154,7 @@ public partial struct ThetaStarFindPathJob : IJobEntity
                 });
             }
             CalculatePath(tmpPathNodeArray, endNode, pathPositions[pEntity]);
+            pathFollow.targetRotation = targetRotation;
         }
 
         neighbourOffsetArray.Dispose();
@@ -369,24 +371,30 @@ public partial struct ThetaStarFindPathJob : IJobEntity
         float3 worldPosBotLeft = GetWorldPositionXZ(cellPosBotLeft.x, cellPosBotLeft.y);
         float3 woldPosCenter = worldPosBotLeft + new float3(gridCellSize / 2, 0, gridCellSize / 2);
 
-        if (pWorldPos.x > woldPosCenter.x && pWorldPos.y > woldPosCenter.y)
+        if (pWorldPos.x > woldPosCenter.x)
         {
-            float3 worldPosTopRight = worldPosBotLeft + new float3(gridCellSize, 0, gridCellSize);
-            return new int2((int)math.floor((worldPosTopRight - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosTopRight - gridOriginPos).z / gridCellSize));
-        }
-        else if (pWorldPos.x <= woldPosCenter.x && pWorldPos.y > woldPosCenter.y)
-        {
-            float3 worldPosTopLeft = worldPosBotLeft + new float3(0, 0, gridCellSize);
-            return new int2((int)math.floor((worldPosTopLeft - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosTopLeft - gridOriginPos).z / gridCellSize));
-        }
-        else if (pWorldPos.x > woldPosCenter.x && pWorldPos.y <= woldPosCenter.y)
-        {
-            float3 worldPosBotRight = worldPosBotLeft + new float3(gridCellSize, 0, 0);
-            return new int2((int)math.floor((worldPosBotRight - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosBotRight - gridOriginPos).z / gridCellSize));
+            if (pWorldPos.y > woldPosCenter.y)
+            {
+                float3 worldPosTopRight = worldPosBotLeft + new float3(gridCellSize, 0, gridCellSize);
+                return new int2((int)math.floor((worldPosTopRight - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosTopRight - gridOriginPos).z / gridCellSize));
+            }
+            else
+            {
+                float3 worldPosBotRight = worldPosBotLeft + new float3(gridCellSize, 0, 0);
+                return new int2((int)math.floor((worldPosBotRight - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosBotRight - gridOriginPos).z / gridCellSize));
+            }
         }
         else
         {
-            return cellPosBotLeft;
+            if (pWorldPos.y > woldPosCenter.y)
+            {
+                float3 worldPosTopLeft = worldPosBotLeft + new float3(0, 0, gridCellSize);
+                return new int2((int)math.floor((worldPosTopLeft - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosTopLeft - gridOriginPos).z / gridCellSize));
+            }
+            else
+            {
+                return cellPosBotLeft;
+            }
         }
     }
 
