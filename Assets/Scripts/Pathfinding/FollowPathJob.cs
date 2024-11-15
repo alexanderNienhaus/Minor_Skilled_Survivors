@@ -35,30 +35,25 @@ public partial struct FollowpathJob : IJobEntity
             float3 moveDir = math.normalizesafe(moveVec, float3.zero);
             pPhysicsVelocity.Linear = moveDir * pathFollow.movementSpeed * deltaTime;
 
-
-            if (length > 2)
+            if (length > 2 && PassedNode(new float2(lastPos.x, lastPos.z), new float2(nextPos.x, nextPos.z), new float2(currentPos.x, currentPos.z)))
             {
-                if (PassedNode(new float2(lastPos.x, lastPos.z), new float2(nextPos.x, nextPos.z), new float2(currentPos.x, currentPos.z)))
-                {
-                    //Reached next waypoint
-                    pathPositions.RemoveAt(length - 1);
-                }
+                //Reached next waypoint
+                pathPositions.RemoveAt(length - 1);
             }
-            else if (length == 2)
+            else if (length == 2 && math.distance(currentPos, nextPos) < pathFollow.checkDistanceFinal)
             {
-                if (math.distance(currentPos, nextPos) < pathFollow.checkDistanceFinal)
-                {
-                    //Reached last waypoint
-                    pPhysicsVelocity.Linear = float3.zero;
-                }
+                //Reached last waypoint
+                pPhysicsVelocity.Linear = float3.zero;
             }
 
             if (math.all(pPhysicsVelocity.Linear == float3.zero))
             {
+                //Final rotation = group rotation
                 pLocalTransform.Rotation = math.slerp(pLocalTransform.Rotation, pathFollow.targetRotation, pathFollow.rotationSpeed * deltaTime);
             }
             else
             {
+                //Path rotation = towards next node
                 quaternion targetRot = quaternion.LookRotationSafe(nextPos - currentPos, pLocalTransform.Up());
                 pLocalTransform.Rotation = math.slerp(pLocalTransform.Rotation, targetRot, pathFollow.rotationSpeed * deltaTime);
             }

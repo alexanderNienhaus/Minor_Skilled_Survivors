@@ -6,8 +6,13 @@ using Unity.Jobs;
 using Unity.Burst;
 
 [BurstCompile]
-public partial class PathFindingSystem : SystemBase
+public partial class SelectedUnitPathFindingSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireForUpdate<SelectedUnitTag>();
+    }
+
     protected override void OnUpdate()
     {
         if (Input.GetMouseButtonDown(1) && PathfindingGridSetup.Instance != null)
@@ -19,22 +24,24 @@ public partial class PathFindingSystem : SystemBase
             float3 mouseEndPos = GetMouseWorldPos();
             mouseEndPos.y = 0;
 
-            SelectedUnitCountSystem selectedUnitCountSystem = World.GetOrCreateSystemManaged<SelectedUnitCountSystem>();
+            SelectedUnitInformationSystem selectedUnitCountSystem = World.GetOrCreateSystemManaged<SelectedUnitInformationSystem>();
+            selectedUnitCountSystem.UpdateSelectedUnitInfo();
             float3 groupStartPos = selectedUnitCountSystem.GetGroupStartPos();
             float3 currentGroupMovement = mouseEndPos - groupStartPos;
             quaternion targetRotation = quaternion.LookRotationSafe(currentGroupMovement, new float3(0, 1, 0));
             int selectedUnitCount = selectedUnitCountSystem.GetSelectedUnitCount();
 
-            ThetaStarFindPathJob findPathJob = new ThetaStarFindPathJob
+            FindGroupPathJob findPathJob = new FindGroupPathJob
             {
                 pathPositions = GetBufferLookup<PathPositions>(),
                 pathNodeArray = GetPathNodeArray(grid, gridSize),
                 unitEndPositionOffsets = CalculateEndPositionOffsetsPointRotation(selectedUnitCount, gridCellSize * 2, currentGroupMovement),
                 gridSize = gridSize,
-                mouseEndPos = mouseEndPos,
+                endPos = mouseEndPos,
                 gridOriginPos = gridOriginPos,
                 gridCellSize = gridCellSize,
-                targetRotation = targetRotation
+                targetRotation = targetRotation,
+                thetaStar = new ThetaStar()
             };
 
             findPathJob.ScheduleParallel();

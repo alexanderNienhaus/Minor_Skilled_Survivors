@@ -28,8 +28,8 @@ public class PathFollowAuthoring : MonoBehaviour
 public struct PathFollow : IComponentData
 {
     public float movementSpeed;
-    public float rotationSpeed;
     public float checkDistanceFinal;
+    public float rotationSpeed;
     public quaternion targetRotation;
 }
 

@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(UnitSelectionSystem))]
-public partial class SelectedUnitCountSystem : SystemBase
+public partial class SelectedUnitInformationSystem : SystemBase
 {
     private int count;
     private float3 groupStartPos;
@@ -24,7 +24,7 @@ public partial class SelectedUnitCountSystem : SystemBase
         RequireForUpdate<SelectedUnitTag>();
     }
 
-    protected override void OnUpdate()
+    public void UpdateSelectedUnitInfo()
     {
         int c = 0;
         float3 cumulativePos = float3.zero;
@@ -37,5 +37,9 @@ public partial class SelectedUnitCountSystem : SystemBase
         groupStartPos = cumulativePos / c;
         count = c;
         EventBus<OnSelectedUnitCountChangeEvent>.Publish(new OnSelectedUnitCountChangeEvent(count));
+    }
+
+    protected override void OnUpdate()
+    {
     }
 }
