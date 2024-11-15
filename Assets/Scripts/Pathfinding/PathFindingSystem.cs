@@ -29,7 +29,7 @@ public partial class PathFindingSystem : SystemBase
             {
                 pathPositions = GetBufferLookup<PathPositions>(),
                 pathNodeArray = GetPathNodeArray(grid, gridSize),
-                unitEndPositionOffsets = CalculateEndPositionOffsets(selectedUnitCount, gridCellSize * 2, currentGroupMovement),
+                unitEndPositionOffsets = CalculateEndPositionOffsetsPointRotation(selectedUnitCount, gridCellSize * 2, currentGroupMovement),
                 gridSize = gridSize,
                 mouseEndPos = mouseEndPos,
                 gridOriginPos = gridOriginPos,
@@ -82,9 +82,10 @@ public partial class PathFindingSystem : SystemBase
     }
 
     [BurstCompile]
-    private NativeArray<float3> CalculateEndPositionOffsets(int selectedUnitCount, float pSpread, float3 currentGroupMovement)
+    private NativeArray<float3> CalculateEndPositionOffsetsPointRotation(int selectedUnitCount, float pSpread, float3 currentGroupMovement)
     {
         int boxSize = (int)math.ceil(math.sqrt(selectedUnitCount));
+        int excessPositions = boxSize * boxSize - selectedUnitCount;
 
         NativeArray<float3> endPositionOffsets = new NativeArray<float3>(boxSize * boxSize, Allocator.Persistent);
         if (boxSize == 1)
@@ -95,17 +96,26 @@ public partial class PathFindingSystem : SystemBase
         
         float groupRotation = math.atan2(currentGroupMovement.z, currentGroupMovement.x);
 
-        float2 middleOffset = new float2(boxSize * 0.25f, boxSize * 0.25f);
 
         int i = 0;
-        for (int x = boxSize; x > 0; x--)
+        int zMax = boxSize;
+        int xMax = boxSize;
+        float2 middleOffset = new float2(xMax * 0.5f + 0.5f, zMax * 0.5f + 0.5f);
+        float2 offset = middleOffset;
+        for (int x = xMax; x > 0; x--)
         {
-            for (int z = boxSize; z > 0; z--)
+            int positionsToFill = xMax * x - xMax;
+            if (excessPositions > positionsToFill)
+            {
+                offset.y += (excessPositions - positionsToFill) * 0.5f;
+            }
+
+            for (int z = zMax; z > 0; z--)
             {
                 float2 pos = new float2(x, z);
-                pos -= middleOffset;
+                pos -= offset;
                 pos *= pSpread;
-                float2 rotatedPos = RotatePoint(pos, middleOffset, groupRotation);
+                float2 rotatedPos = RotatePoint(pos, groupRotation);
                 endPositionOffsets[i] = new float3(rotatedPos.x, 0, rotatedPos.y);
                 i++;
             }
@@ -114,11 +124,11 @@ public partial class PathFindingSystem : SystemBase
     }
 
     [BurstCompile]
-    private float2 RotatePoint(float2 pointToRotate, float2 centerPoint, float angle)
+    private float2 RotatePoint(float2 pointToRotate, float angle)
     {
         float cosTheta = math.cos(angle);
         float sinTheta = math.sin(angle);
-        return new float2(cosTheta * (pointToRotate.x - centerPoint.x) - sinTheta * (pointToRotate.y - centerPoint.y) + centerPoint.x,
-            sinTheta * (pointToRotate.x - centerPoint.x) + cosTheta * (pointToRotate.y - centerPoint.y) + centerPoint.y);
+        return new float2(cosTheta * pointToRotate.x - sinTheta * pointToRotate.y,
+                          sinTheta * pointToRotate.x + cosTheta * pointToRotate.y);
     }
 }
