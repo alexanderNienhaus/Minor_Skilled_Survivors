@@ -18,7 +18,8 @@ public class PathFollowAuthoring : MonoBehaviour
             {
                 movementSpeed = pAuthoring.movementSpeed,
                 rotationSpeed = pAuthoring.rotationSpeed,
-                checkDistanceFinal = pAuthoring.checkDistanceFinal
+                checkDistanceFinal = pAuthoring.checkDistanceFinal,
+                enemyPos = float3.zero
             });
         }
     }
@@ -31,5 +32,6 @@ public struct PathFollow : IComponentData
     public float checkDistanceFinal;
     public float rotationSpeed;
     public quaternion targetRotation;
+    public float3 enemyPos;
 }
 

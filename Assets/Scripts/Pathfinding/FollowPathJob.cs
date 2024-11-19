@@ -21,6 +21,14 @@ public partial struct FollowpathJob : IJobEntity
             return;
         }
 
+        if (!math.all(pathFollow.enemyPos == float3.zero))
+        {
+            pPhysicsVelocity.Linear = float3.zero;
+            quaternion targetRot = quaternion.LookRotationSafe(pathFollow.enemyPos - pLocalTransform.Position, pLocalTransform.Up());
+            pLocalTransform.Rotation = math.slerp(pLocalTransform.Rotation, targetRot, pathFollow.rotationSpeed * deltaTime);
+            return;
+        }
+
         DynamicBuffer<PathPositions> pathPositions = allPathPositions[pEntity];
         int length = pathPositions.Length;
 

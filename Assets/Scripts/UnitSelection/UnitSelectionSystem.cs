@@ -35,7 +35,7 @@ public partial class UnitSelectionSystem : SystemBase
     private float3 mouseStartPos;
     private bool isDragging;
     private int minDragDistance = 25;
-    private float selectionAreaDepth = 200;
+    private float selectionAreaDepth = 300;
     private string selectionVolumeName = "SelectionVolume";
 
     public bool GetIsDragging()

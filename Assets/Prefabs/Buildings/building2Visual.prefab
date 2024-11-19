@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2382419788130265397}
   m_Layer: 0
-  m_Name: building2Visual
+  m_Name: Building2Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
