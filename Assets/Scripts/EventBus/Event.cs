@@ -1,11 +1,11 @@
 using Unity.Collections;
 using Unity.Entities;
 
-public class Event
+public class CustomEvent
 {
 }
 
-public class OnSelectedPlacableObjectChanged : Event
+public class OnSelectedPlacableObjectChanged : CustomEvent
 {
 
     public OnSelectedPlacableObjectChanged()
@@ -13,7 +13,7 @@ public class OnSelectedPlacableObjectChanged : Event
     }
 }
 
-public class OnMoveCommandIssued : Event
+public class OnMoveCommandIssued : CustomEvent
 {
     public NativeArray<Entity> units;
 
@@ -23,7 +23,7 @@ public class OnMoveCommandIssued : Event
     }
 }
 
-public class OnSelectedUnitCountChangeEvent : Event
+public class OnSelectedUnitCountChangeEvent : CustomEvent
 {
     public int selectedUnitCount;
 

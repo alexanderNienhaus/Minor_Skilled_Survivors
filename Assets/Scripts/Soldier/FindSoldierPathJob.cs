@@ -11,20 +11,20 @@ public partial struct FindSoldierPathJob : IJobEntity
 {
     [NativeDisableContainerSafetyRestriction] public BufferLookup<PathPositions> pathPositions;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<PathNode> pathNodeArray;
-    //[DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float3> unitEndPositionOffsets;
+
     public quaternion targetRotation;
     public int2 gridSize;
     public float3 endPos;
     public float3 gridOriginPos;
     public float gridCellSize;
     public ThetaStar thetaStar;
+    public bool isInAttackMode;
 
     private float3 cellMiddleOffset;
     private int gridWidth;
 
     [BurstCompile]
     public void Execute(Entity pEntity, ref PathFollow pathFollow, in LocalTransform pLocalTransform, in FormationPosition formationPosition)
-        //, [EntityIndexInQuery] int entityInQueryIndex)
     {
         pathPositions[pEntity].Clear();
 
@@ -84,6 +84,7 @@ public partial struct FindSoldierPathJob : IJobEntity
             }
             CalculatePath(tmpPathNodeArray, endNode, pathPositions[pEntity]);
             pathFollow.targetRotation = targetRotation;
+            pathFollow.isInAttackMode = isInAttackMode;
         }
     }
 

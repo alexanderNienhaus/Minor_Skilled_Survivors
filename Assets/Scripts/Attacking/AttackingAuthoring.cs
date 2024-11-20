@@ -17,7 +17,8 @@ public class AttackingAuthoring : MonoBehaviour
             {
                 dmg = pAuthoring.dmg,
                 range = pAuthoring.range,
-                attackSpeed = pAuthoring.attackSpeed
+                attackSpeed = pAuthoring.attackSpeed,
+                currentTime = pAuthoring.attackSpeed
             });
         }
     }
@@ -29,4 +30,5 @@ public struct Attacking : IComponentData
     public float dmg;
     public float range;
     public float attackSpeed;
+    public float currentTime;
 }

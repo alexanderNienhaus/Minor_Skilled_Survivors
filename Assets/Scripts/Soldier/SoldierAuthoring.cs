@@ -10,7 +10,7 @@ public class SoldierAuthoring : MonoBehaviour
         public override void Bake(SoldierAuthoring pAuthoring)
         {
             Entity entity = GetEntity(TransformUsageFlags.None);
-            AddComponent(entity, new Alien
+            AddComponent(entity, new Soldier
             {
 
             });

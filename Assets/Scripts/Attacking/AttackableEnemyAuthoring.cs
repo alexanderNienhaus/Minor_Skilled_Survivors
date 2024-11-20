@@ -5,6 +5,7 @@ using Unity.Burst;
 public class AttackableEnemyAuthoring : MonoBehaviour
 {
     [SerializeField] private float startHp = 100;
+    [SerializeField] private float bounds;
 
     private class Baker : Baker<AttackableEnemyAuthoring>
     {
@@ -14,7 +15,8 @@ public class AttackableEnemyAuthoring : MonoBehaviour
             AddComponent(entity, new AttackableEnemy
             {
                 startHp = pAuthoring.startHp,
-                currentHp = pAuthoring.startHp
+                currentHp = pAuthoring.startHp,
+                bounds = pAuthoring.bounds
             });
         }
     }
@@ -25,4 +27,5 @@ public struct AttackableEnemy : IComponentData
 {
     public float startHp;
     public float currentHp;
+    public float bounds;
 }

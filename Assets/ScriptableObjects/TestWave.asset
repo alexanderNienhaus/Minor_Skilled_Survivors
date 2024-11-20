@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2547632407910942000, guid: af9f138ca1214ae41beb955d1406704e, type: 3}
   amount: 5
-  position: {x: 50, y: 0, z: 0}
+  position: {x: 50, y: 2, z: 0}
   radius: 5
   time: 0

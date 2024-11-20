@@ -2073,11 +2073,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5319895252547773428, guid: eeade5eac92f39e439a9bf65b8f4007c,
-        type: 3}
-      propertyPath: bounds
-      value: 3
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2341,7 +2336,7 @@ PrefabInstance:
     - target: {fileID: 7718619371202256096, guid: 1d70b8ff9c99b2b448b5236a372bd898,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -70
+      value: -70.36
       objectReference: {fileID: 0}
     - target: {fileID: 7718619371202256096, guid: 1d70b8ff9c99b2b448b5236a372bd898,
         type: 3}
@@ -2388,20 +2383,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8772394190614382502, guid: 1d70b8ff9c99b2b448b5236a372bd898,
-        type: 3}
-      propertyPath: bounds
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8778535000860004143, guid: 1d70b8ff9c99b2b448b5236a372bd898,
         type: 3}
       propertyPath: m_Name
       value: Soldier
-      objectReference: {fileID: 0}
-    - target: {fileID: 8778535000860004143, guid: 1d70b8ff9c99b2b448b5236a372bd898,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

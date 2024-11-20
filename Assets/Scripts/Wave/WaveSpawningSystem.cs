@@ -9,7 +9,7 @@ public partial class WaveSpawningSystem : SystemBase
 
     protected override void OnCreate()
     {
-        //RequireForUpdate<BoidSpawning>();
+        RequireForUpdate<WaveSpawner>();
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
@@ -32,7 +32,6 @@ public partial class WaveSpawningSystem : SystemBase
                     Rotation = quaternion.identity,
                     Scale = 1
                 });
-                //ecb.SetComponent(entity, new Boid { id = i });
                 ecb.AddComponent<Parent>(entity);
                 ecb.SetComponent(entity, new Parent { Value = waveSpawner.ValueRO.parent });
             }

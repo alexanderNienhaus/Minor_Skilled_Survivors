@@ -23,7 +23,7 @@ public partial class SelectedUnitPathFindingSystem : SystemBase
             float3 gridOriginPos = grid.GetOriginPos();
             float gridCellSize = grid.GetCellSize();
             float3 mouseEndPos = GetMouseWorldPos();
-            mouseEndPos.y = 0;
+            mouseEndPos.y = 0; 
 
             SelectedUnitInformationSystem selectedUnitCountSystem = World.GetOrCreateSystemManaged<SelectedUnitInformationSystem>();
             selectedUnitCountSystem.UpdateSelectedUnitInfo();
@@ -43,7 +43,8 @@ public partial class SelectedUnitPathFindingSystem : SystemBase
                 gridOriginPos = gridOriginPos,
                 gridCellSize = gridCellSize,
                 targetRotation = targetRotation,
-                thetaStar = new ThetaStar()
+                thetaStar = new ThetaStar(),
+                isInAttackMode = Input.GetKey(KeyCode.Space)
             };
 
             findGroupPathJob.ScheduleParallel();
