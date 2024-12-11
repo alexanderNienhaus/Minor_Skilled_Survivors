@@ -7,7 +7,7 @@ using Unity.Burst;
 using Unity.Transforms;
 
 [BurstCompile][UpdateAfter(typeof(UnitSelectionSystem))]
-public partial class SelectedUnitPathFindingSystem : SystemBase
+public partial class SelectedTankPathFindingSystem : SystemBase
 {
     protected override void OnCreate()
     {
@@ -36,7 +36,7 @@ public partial class SelectedUnitPathFindingSystem : SystemBase
             NativeArray<float3> endPositions = CalculateEndPositionOffsetsPointRotation(selectedUnitCount, gridCellSize * 2, currentGroupMovement, mouseEndPos);
             SetEndPositions(endPositions);
 
-            FindUnitPathJob findGroupPathJob = new FindUnitPathJob
+            FindTankPathJob findGroupPathJob = new FindTankPathJob
             {
                 pathPositions = GetBufferLookup<PathPositions>(),
                 pathNodeArray = GetPathNodeArray(grid, gridSize),

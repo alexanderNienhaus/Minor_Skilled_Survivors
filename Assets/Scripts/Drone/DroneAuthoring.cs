@@ -1,7 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
 using Unity.Burst;
-using Unity.Mathematics;
 
 public class DroneAuthoring : MonoBehaviour
 {
@@ -12,7 +11,7 @@ public class DroneAuthoring : MonoBehaviour
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new Drone
             {
-
+                hasTarget = false
             });
         }
     }
@@ -21,6 +20,6 @@ public class DroneAuthoring : MonoBehaviour
 [BurstCompile]
 public struct Drone : IComponentData
 {
-
+    public bool hasTarget;
 }
 

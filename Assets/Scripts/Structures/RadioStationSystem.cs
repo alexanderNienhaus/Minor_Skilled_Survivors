@@ -3,6 +3,8 @@ using Unity.Burst;
 using Unity.Transforms;
 
 [BurstCompile]
+[CreateAfter(typeof(WaveSystem))]
+[UpdateAfter(typeof(WaveSystem))]
 public partial class RadioStationSystem : SystemBase
 {
     private WaveSystem waveSystem;

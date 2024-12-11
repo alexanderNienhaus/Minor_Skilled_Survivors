@@ -62,7 +62,7 @@ public struct Spawn : IBufferElementData
     public int spawnNumber;
     public Entity prefab;
     public Entity parent;
-    public UnitType unitType;
+    public AttackableUnitType unitType;
     public float unitSize;
     public int amountToSpawn;
     public float3 spawnPosition;

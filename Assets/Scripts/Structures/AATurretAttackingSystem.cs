@@ -8,7 +8,7 @@ using Unity.Transforms;
 using Unity.Physics;
 
 [BurstCompile]
-public partial class AATurretSystem : SystemBase
+public partial class AATurretAttackingSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
 
@@ -20,29 +20,34 @@ public partial class AATurretSystem : SystemBase
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
-        foreach ((RefRW<AATurret> aaTurret, RefRO<LocalTransform> localTransformUnit, RefRW<Attacking> attacking, Entity unitEntity)
-                    in SystemAPI.Query<RefRW<AATurret> ,RefRO<LocalTransform>, RefRW<Attacking>>().WithEntityAccess())
+
+        foreach ((RefRW<AATurret> aaTurret, RefRO<LocalTransform> localTransformAATurret, RefRW<Attacking> attackingAATurret, DynamicBuffer<PossibleAttackTargets> possibleAttackTargets, Entity entityAATurret)
+                    in SystemAPI.Query<RefRW<AATurret>, RefRO<LocalTransform>, RefRW<Attacking>, DynamicBuffer<PossibleAttackTargets>>().WithEntityAccess())
         {
-            foreach ((RefRO<LocalTransform> localTransformEnemy, RefRW<AttackableEnemy> attackableEnemy, RefRO<Boid> boid, Entity entity)
-                in SystemAPI.Query<RefRO<LocalTransform>, RefRW<AttackableEnemy>, RefRO<Boid>>().WithEntityAccess())
+            foreach ((RefRO<LocalTransform> localTransformEnemy, RefRW<Attackable> attackableEnemy, RefRO<Boid> boid, Entity entityEnemy)
+                in SystemAPI.Query<RefRO<LocalTransform>, RefRW<Attackable>, RefRO<Boid>>().WithEntityAccess().WithAll<Boid>())
             {
-                float3 unitToEnemy = attackableEnemy.ValueRO.bounds * new float3(0, 1, 0)
-                    + localTransformEnemy.ValueRO.Position - localTransformUnit.ValueRO.Position;
+                if (!BufferContains(possibleAttackTargets, attackableEnemy.ValueRO.attackableUnitType))
+                    continue;
+
+                float3 unitToEnemy = attackableEnemy.ValueRO.boundsRadius * new float3(0, 1, 0)
+                    + localTransformEnemy.ValueRO.Position - localTransformAATurret.ValueRO.Position;
                 float distanceUnitToEnemySquared = math.lengthsq(unitToEnemy);
 
-                if (EnemyInRange(attacking, attackableEnemy, distanceUnitToEnemySquared))
+                if (EnemyInRange(attackingAATurret, attackableEnemy, distanceUnitToEnemySquared))
                 {
-                    attacking.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
-                    if (attacking.ValueRO.currentTime > attacking.ValueRO.attackSpeed)
+                    attackingAATurret.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
+                    if (attackingAATurret.ValueRO.currentTime > attackingAATurret.ValueRO.attackSpeed)
                     {
-                        ecb = SpawnProjectile(ecb, aaTurret, attacking, localTransformUnit.ValueRO.Position,
-                            localTransformEnemy.ValueRO.Position, unitEntity, boid.ValueRO);
+                        ecb = SpawnProjectile(ecb, aaTurret, attackingAATurret, localTransformAATurret.ValueRO.Position,
+                            localTransformEnemy.ValueRO.Position, entityAATurret, boid.ValueRO);
 
-                        attackableEnemy.ValueRW.currentHp -= attacking.ValueRO.dmg;
-                        attacking.ValueRW.currentTime = 0;
+                        attackableEnemy.ValueRW.currentHp -= attackingAATurret.ValueRO.dmg;
+                        attackingAATurret.ValueRW.currentTime = 0;
                         if (attackableEnemy.ValueRW.currentHp <= 0)
                         {
-                            ecb.DestroyEntity(entity);
+                            World.GetExistingSystemManaged<RessourceSystem>().AddRessource(attackableEnemy.ValueRO.ressourceCost);
+                            ecb.DestroyEntity(entityEnemy);
                         }
                     }
                     break;
@@ -51,9 +56,9 @@ public partial class AATurretSystem : SystemBase
         }
     }
 
-    private bool EnemyInRange(RefRW<Attacking> attacking, RefRW<AttackableEnemy> attackableEnemy, float distanceUnitToEnemy)
+    private bool EnemyInRange(RefRW<Attacking> attacking, RefRW<Attackable> attackableEnemy, float distanceUnitToEnemy)
     {
-        return distanceUnitToEnemy < (attacking.ValueRO.range + attackableEnemy.ValueRO.bounds) * (attacking.ValueRO.range + attackableEnemy.ValueRO.bounds);
+        return distanceUnitToEnemy < (attacking.ValueRO.range + attackableEnemy.ValueRO.boundsRadius) * (attacking.ValueRO.range + attackableEnemy.ValueRO.boundsRadius);
     }
 
     private EntityCommandBuffer SpawnProjectile(EntityCommandBuffer ecb, RefRW<AATurret> aaTurret, RefRW<Attacking> attacking,
@@ -118,51 +123,13 @@ public partial class AATurretSystem : SystemBase
         return ecb;
     }
 
-    /*
-    float3 headWorldPos = unitPos + head.Position;
-    float3 v = new float3(enemyPos.x, headWorldPos.y, enemyPos.z) - headWorldPos;
-    float3 u = enemyPos - headWorldPos;
-
-    float xAngle = math.acos(math.dot(head.Forward(), enemyPos) / (math.length(head.Forward()) * math.length(enemyPos))) * math.TODEGREES;
-    //xAngle = math.angle(quaternion.Euler(head.Up()), quaternion.Euler(enemyPos)) * math.TODEGREES;
-    //xAngle = anglesigned(head.Up(), enemyPos);
-    //xAngle = Vector3.Angle(enemyPos, head.Up());
-    Debug.Log("xAngle: "+ xAngle);
-    quaternion axisAngle = quaternion.AxisAngle(new float3(1, 0, 0), (-xAngle + 90) * math.TORADIANS);
-    //axisAngle = quaternion.EulerZXY(new float3(xAngle, 0, 0));
-    private float Angle(float3 a, float3 b)
+    private bool BufferContains(DynamicBuffer<PossibleAttackTargets> attackableUnitTypes, AttackableUnitType attackableUnitType)
     {
-        var v1 = a[1] - a[0];
-        var v2 = a[2] - a[1];
-
-        var cross = math.cross(v1, v2);
-        var dot = math.dot(v1, v2);
-
-        var angle = math.atan2(math.length(cross), dot);
-
-        var test = math.dot(b, cross);
-        if (test < 0.0) angle = -angle;
-        return (float)angle;
-    }
-
-    private float anglesigned(float3 from, float3 to)
-    {
-        float angle = math.acos(math.dot(math.normalize(from), math.normalize(to)));
-        float3 cross = math.cross(from, to);
-        angle *= math.sign(math.dot(math.up(), cross));
-        return math.degrees(angle);
-    }
-
-    [BurstCompile]
-    private float GetRotationToTargetsFuturePostion(float3 pFrom, float3 pTo, float3 pTargetVelocity, float pProjectileSpeed)
-    {
-        if (pProjectileSpeed != 0)
+        for (int i = attackableUnitTypes.Length - 1; i >= 0; i--)
         {
-            float projectileFlightTime = math.length(pTo - pFrom) / pProjectileSpeed;
-            pTo += pTargetVelocity * projectileFlightTime;
+            if (attackableUnitTypes[i].possibleAttackTarget == attackableUnitType)
+                return true;
         }
-        float angle = math.atan2(pTo.y - pFrom.y, pTo.x - pFrom.x) * math.TODEGREES - 90.0f;
-        return angle;
+        return false;
     }
-    */
 }

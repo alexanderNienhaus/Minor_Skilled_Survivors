@@ -26,7 +26,6 @@ public partial class SelectedUnitInformationSystem : SystemBase
 
     public void UpdateSelectedUnitInfo()
     {
-        //Für jede offset position (an der front anfangen) -> alle nicht gesetzten selected units durchlaufen und die mit kürzester distanz plazieren und als gesetzt markieren
         int c = 0;
         float3 cumulativePos = float3.zero;
         foreach ((RefRO<SelectedUnitTag> selectedTag, RefRO<PathFollow> pathFollow, RefRO<LocalTransform> localTransform)

@@ -71,7 +71,7 @@ public partial class UnitSelectionSystem : SystemBase
         {
             if (!Input.GetKey(KeyCode.LeftShift))
             {
-                DeseltAllUnits();
+                DeselectAllUnits();
             }
 
             if (!isDragging)
@@ -113,7 +113,7 @@ public partial class UnitSelectionSystem : SystemBase
             }
         } else
         {
-            DeseltAllUnits();
+            DeselectAllUnits();
         }
     }
 
@@ -169,7 +169,7 @@ public partial class UnitSelectionSystem : SystemBase
         return selectionCollider;
     }
 
-    private void DeseltAllUnits()
+    private void DeselectAllUnits()
     {
         foreach ((RefRO<SelectedUnitTag> selectedTag, Entity entity)
             in SystemAPI.Query<RefRO<SelectedUnitTag>>().WithEntityAccess())

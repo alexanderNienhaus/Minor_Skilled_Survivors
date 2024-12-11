@@ -22,7 +22,6 @@ public partial class WaveSystem : SystemBase
 
     protected override void OnCreate()
     {
-        //RequireForUpdate<TimerSystem>();
         RequireForUpdate<Wave>();
         RequireForUpdate<Spawn>();
         RequireForUpdate<BoidSettings>();
@@ -30,7 +29,6 @@ public partial class WaveSystem : SystemBase
         currentWaveNumber = 0;
         currentWaveTolerance = 0.05f;
         isActive = false;
-        //NextWave();
     }
 
     protected override void OnUpdate()
@@ -48,7 +46,6 @@ public partial class WaveSystem : SystemBase
         spawns = SystemAPI.GetSingletonBuffer<Spawn>();
         waves = SystemAPI.GetSingletonBuffer<Wave>();
         boidSettings = SystemAPI.GetSingleton<BoidSettings>();
-        ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
 
         SpawnFromWaves();
     }
@@ -82,6 +79,7 @@ public partial class WaveSystem : SystemBase
 
             Spawn(spawn.prefab, spawn.spawnPosition, spawn.amountToSpawn, spawn.unitType, spawn.unitSize, spawn.whenToSpawn, spawn.spawnRadiusMin,
                 spawn.spawnRadiusMax, spawn.isSphericalSpawn);
+
             currentSpawnNumber++;
         }
     }
@@ -95,9 +93,11 @@ public partial class WaveSystem : SystemBase
         currentNumberOfBoids = 0;
     }
 
-    public void Spawn(Entity prefab, float3 spawnPosition, int amountToSpawn, UnitType unitType, float unitSize,
+    public void Spawn(Entity prefab, float3 spawnPosition, int amountToSpawn, AttackableUnitType unitType, float unitSize,
         float whenToSpawn, float spawnRadiusMin, float spawnRadiusMax, bool isSphericalSpawn)
     {
+        ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
+
         //Debug.Log("SPAWN");
         Random r = new Random((uint)(amountToSpawn + 1));
         float3 boidStartSpeed = (boidSettings.minSpeed + boidSettings.maxSpeed) / 2;
@@ -118,14 +118,14 @@ public partial class WaveSystem : SystemBase
 
             switch (unitType)
             {
-                case UnitType.Boid:
+                case AttackableUnitType.Boid:
                     currentNumberOfBoids++;
                     ecb.SetComponent(entity, new Boid { id = currentNumberOfBoids, velocity = facingDirection * boidStartSpeed });
                     break;
                 default:
-                case UnitType.Drone:
+                case AttackableUnitType.Drone:
                     break;
-                case UnitType.Tank:
+                case AttackableUnitType.Tank:
                     rotation = quaternion.LookRotation(new float3(1, 0, 0), new float3(0, 1, 0));
                     break;
             }

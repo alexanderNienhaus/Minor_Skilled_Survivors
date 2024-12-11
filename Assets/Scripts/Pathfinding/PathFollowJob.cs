@@ -48,7 +48,7 @@ public partial struct PathFollowJob : IJobEntity
                 //Reached next waypoint
                 pathPositions.RemoveAt(length - 1);
             }
-            else if (length == 2 && math.distance(currentPos, nextPos) < pathFollow.checkDistanceFinal)
+            else if (length == 2 && math.distance(currentPos, nextPos) < pathFollow.checkDistanceEndDestination)
             {
                 //Reached last waypoint
                 pPhysicsVelocity.Linear = float3.zero;

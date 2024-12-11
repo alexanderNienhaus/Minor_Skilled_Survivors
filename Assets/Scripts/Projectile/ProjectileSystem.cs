@@ -6,7 +6,7 @@ public partial class ProjectileSystem : SystemBase
 
     protected override void OnCreate()
     {
-        RequireForUpdate<AttackableUnit>();
+        RequireForUpdate<Attackable>();
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 

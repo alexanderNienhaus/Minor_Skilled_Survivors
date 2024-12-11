@@ -8,34 +8,36 @@ public partial class DronePathFindingSystem : SystemBase
 
     protected override void OnCreate()
     {
-        RequireForUpdate<DronePathFinding>();
+        RequireForUpdate<Drone>();
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
-        foreach ((RefRO<DronePathFinding> alienPathFinding, Entity entity) in SystemAPI.Query<RefRO<DronePathFinding>>().WithEntityAccess())
+        foreach ((RefRW<Drone> drone, Entity entity) in SystemAPI.Query<RefRW<Drone>>().WithEntityAccess())
         {
+            if (drone.ValueRO.hasTarget)
+                continue;
+
             GridXZ<GridNode> grid = PathfindingGridSetup.Instance.pathfindingGrid;
             int2 gridSize = new int2(grid.GetWidth(), grid.GetLength());
             float3 gridOriginPos = grid.GetOriginPos();
-            float gridCellSize = grid.GetCellSize();
+            float gridCellSize = grid.GetCellSize();            
 
-            FindDronePathJob findAlienPathJob = new FindDronePathJob
+            FindDronePathJob findDronePathJob = new FindDronePathJob
             {
                 pathPositions = GetBufferLookup<PathPositions>(),
                 pathNodeArray = GetPathNodeArray(grid, gridSize),
                 gridSize = gridSize,
-                endPos = alienPathFinding.ValueRO.target,
+                endPos = SystemAPI.GetSingleton<Base>().position,
                 gridOriginPos = gridOriginPos,
                 gridCellSize = gridCellSize,
                 thetaStar = new ThetaStar()
             };
 
-            findAlienPathJob.ScheduleParallel();
-
-            ecb.SetComponentEnabled<DronePathFinding>(entity, false);
+            drone.ValueRW.hasTarget = true;
+            findDronePathJob.ScheduleParallel();
         }
     }
 

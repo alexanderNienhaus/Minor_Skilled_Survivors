@@ -3,11 +3,11 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Mathematics;
 
-public class TankAuthoring : MonoBehaviour
+public class TankTagAuthoring : MonoBehaviour
 {
-    private class Baker : Baker<TankAuthoring>
+    private class Baker : Baker<TankTagAuthoring>
     {
-        public override void Bake(TankAuthoring pAuthoring)
+        public override void Bake(TankTagAuthoring pAuthoring)
         {
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new Tank

@@ -5,12 +5,7 @@ using Unity.Mathematics;
 
 public class AttackingAuthoring : MonoBehaviour
 {
-    [SerializeField] private GameObject projectilePrefab;
-    [SerializeField] private float dmg;
-    [SerializeField] private float range;
-    [SerializeField] private float attackSpeed;
-    [SerializeField] private float projectileSpeed;
-    [SerializeField] private Vector3 projectileSpawnOffset;
+    [SerializeField] private AttackingSO attackingSO;
 
     private class Baker : Baker<AttackingAuthoring>
     {
@@ -19,16 +14,25 @@ public class AttackingAuthoring : MonoBehaviour
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new Attacking
             {
-                projectilePrefab = GetEntity(pAuthoring.projectilePrefab, TransformUsageFlags.Dynamic),
+                projectilePrefab = GetEntity(pAuthoring.attackingSO.projectilePrefab, TransformUsageFlags.Dynamic),
                 parent = GetEntity(pAuthoring.gameObject, TransformUsageFlags.Dynamic),
-                dmg = pAuthoring.dmg,
-                range = pAuthoring.range,
-                attackSpeed = pAuthoring.attackSpeed,
-                currentTime = pAuthoring.attackSpeed,
-                projectileSpeed = pAuthoring.projectileSpeed,
-                projectileSpawnOffset = pAuthoring.projectileSpawnOffset,
+                dmg = pAuthoring.attackingSO.dmg,
+                range = pAuthoring.attackingSO.range,
+                attackSpeed = pAuthoring.attackingSO.attackSpeed,
+                currentTime = pAuthoring.attackingSO.attackSpeed,
+                projectileSpeed = pAuthoring.attackingSO.projectileSpeed,
+                projectileSpawnOffset = pAuthoring.attackingSO.projectileSpawnOffset,
                 hasTarget = false
             });
+
+            AddBuffer<PossibleAttackTargets>(entity);
+            foreach (AttackableUnitType attackableUnitType in pAuthoring.attackingSO.possibleAttackTargets)
+            {
+                AppendToBuffer(entity, new PossibleAttackTargets
+                {
+                    possibleAttackTarget = attackableUnitType
+                });
+            }
         }
     }
 }
@@ -45,4 +49,11 @@ public struct Attacking : IComponentData
     public float projectileSpeed;
     public float3 projectileSpawnOffset;
     public bool hasTarget;
+}
+
+[BurstCompile]
+[InternalBufferCapacity(0)]
+public struct PossibleAttackTargets : IBufferElementData
+{
+    public AttackableUnitType possibleAttackTarget;
 }

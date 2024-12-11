@@ -5,7 +5,7 @@ using Unity.Physics;
 using Unity.Transforms;
 
 [BurstCompile]
-public partial class EnemyAttackingSystem : SystemBase
+public partial class DroneAttackingSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
 
@@ -18,25 +18,28 @@ public partial class EnemyAttackingSystem : SystemBase
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
-        foreach ((RefRW<PathFollow> pathFollow, RefRO<LocalTransform> localTransformEnemy, RefRW<Attacking> attacking)
-            in SystemAPI.Query<RefRW<PathFollow>, RefRO<LocalTransform>, RefRW<Attacking>>().WithAny<Drone>())
+        foreach ((RefRW<PathFollow> pathFollowDrone, RefRO<LocalTransform> localTransformDrone, RefRW<Attacking> attackingDrone, DynamicBuffer<PossibleAttackTargets> possibleAttackTargets)
+            in SystemAPI.Query<RefRW<PathFollow>, RefRO<LocalTransform>, RefRW<Attacking>, DynamicBuffer<PossibleAttackTargets>>().WithAll<Drone>())
         {
-            pathFollow.ValueRW.enemyPos = float3.zero;
-            foreach ((RefRO<LocalTransform> localTransformUnit, RefRW<AttackableUnit> attackableUnit, Entity unit)
-                in SystemAPI.Query<RefRO<LocalTransform>, RefRW<AttackableUnit>>().WithEntityAccess())
+            pathFollowDrone.ValueRW.enemyPos = float3.zero;
+            foreach ((RefRO<LocalTransform> localTransformUnit, RefRW<Attackable> attackableUnit, Entity unit)
+                in SystemAPI.Query<RefRO<LocalTransform>, RefRW<Attackable>>().WithEntityAccess())
             {
-                float3 enemyToUnit = attackableUnit.ValueRO.bounds * new float3(0, 1, 0) + localTransformUnit.ValueRO.Position - localTransformEnemy.ValueRO.Position;
-                float distanceEnemyToUnit = math.lengthsq(enemyToUnit);
-                if (distanceEnemyToUnit < (attacking.ValueRO.range + attackableUnit.ValueRO.bounds) * (attacking.ValueRO.range + attackableUnit.ValueRO.bounds))
-                {
-                    attacking.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
-                    pathFollow.ValueRW.enemyPos = localTransformUnit.ValueRO.Position;
-                    if (attacking.ValueRO.currentTime > attacking.ValueRO.attackSpeed)
-                    {
-                        ecb = SpawnProjectile(ecb, localTransformEnemy, attacking, enemyToUnit, distanceEnemyToUnit, SystemAPI.Time.DeltaTime);
+                if (!BufferContains(possibleAttackTargets, attackableUnit.ValueRO.attackableUnitType))
+                    continue;
 
-                        attackableUnit.ValueRW.currentHp -= attacking.ValueRO.dmg;
-                        attacking.ValueRW.currentTime = 0;
+                float3 enemyToUnit = attackableUnit.ValueRO.boundsRadius * new float3(0, 1, 0) + localTransformUnit.ValueRO.Position - localTransformDrone.ValueRO.Position;
+                float distanceEnemyToUnit = math.lengthsq(enemyToUnit);
+                if (distanceEnemyToUnit < (attackingDrone.ValueRO.range + attackableUnit.ValueRO.boundsRadius) * (attackingDrone.ValueRO.range + attackableUnit.ValueRO.boundsRadius))
+                {
+                    attackingDrone.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
+                    pathFollowDrone.ValueRW.enemyPos = localTransformUnit.ValueRO.Position;
+                    if (attackingDrone.ValueRO.currentTime > attackingDrone.ValueRO.attackSpeed)
+                    {
+                        ecb = SpawnProjectile(ecb, localTransformDrone, attackingDrone, enemyToUnit, distanceEnemyToUnit, SystemAPI.Time.DeltaTime);
+
+                        attackableUnit.ValueRW.currentHp -= attackingDrone.ValueRO.dmg;
+                        attackingDrone.ValueRW.currentTime = 0;
                         if (attackableUnit.ValueRW.currentHp <= 0)
                         {
                             ecb.DestroyEntity(unit);
@@ -66,5 +69,15 @@ public partial class EnemyAttackingSystem : SystemBase
         ecb.SetComponent(projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
         ecb.SetComponent(projectile, new PhysicsVelocity { Linear = projectileVelocity });
         return ecb;
+    }
+
+    private bool BufferContains(DynamicBuffer<PossibleAttackTargets> attackableUnitTypes, AttackableUnitType attackableUnitType)
+    {
+        for (int i = attackableUnitTypes.Length - 1; i >= 0; i--)
+        {
+            if (attackableUnitTypes[i].possibleAttackTarget == attackableUnitType)
+                return true;
+        }
+        return false;
     }
 }

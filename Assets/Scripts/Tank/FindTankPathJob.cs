@@ -7,7 +7,7 @@ using Unity.Transforms;
 
 [WithAll(typeof(SelectedUnitTag))]
 [BurstCompile]
-public partial struct FindUnitPathJob : IJobEntity
+public partial struct FindTankPathJob : IJobEntity
 {
     [NativeDisableContainerSafetyRestriction] public BufferLookup<PathPositions> pathPositions;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<PathNode> pathNodeArray;

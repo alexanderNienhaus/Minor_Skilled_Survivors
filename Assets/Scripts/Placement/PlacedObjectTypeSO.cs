@@ -4,9 +4,12 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "ScriptableObjects/PlacedObjectTypeSO")]
 public class PlacedObjectTypeSO : ScriptableObject
 {
-    public new string name;
+    [Header("Placed Object")]
     public int index;
+    public new string name;
     public Transform visual;
+
+    [Header("Dimensions")]
     public int width;
     public int length;
 

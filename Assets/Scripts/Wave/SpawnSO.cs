@@ -1,23 +1,31 @@
 using UnityEngine;
 
-public enum UnitType
+public enum AttackableUnitType
 {
     Boid,
     Drone,
-    Tank
+    Tank,
+    AATurret,
+    RadioStation,
+    Base
 }
 
 [CreateAssetMenu(menuName = "ScriptableObjects/SpawnSO")]
 public class SpawnSO : ScriptableObject
 {
+    [Header("Unit")]
     public GameObject prefab;
-    public UnitType unitType;
+    public AttackableUnitType unitType;
     public float unitSize;
+
+    [Header("Spawn")]
     public int amountToSpawn;
     public Vector3 spawnPosition;
     public float spawnRadiusMax;
     public float spawnRadiusMin;
     public bool isSphericalSpawn;
+
+    [Header("Timing")]
     public float whenToSpawn;
     public float spawningDuration;
 }

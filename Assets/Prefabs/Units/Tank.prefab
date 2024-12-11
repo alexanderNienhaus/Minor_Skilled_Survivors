@@ -55,13 +55,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3f1fc370068ebf44a02c0a75d9fdcd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 7031068637116403174, guid: 99ab461b4b5e39b4da15914becdceea8,
-    type: 3}
-  dmg: 2
-  range: 20
-  attackSpeed: 0.2
-  projectileSpeed: 3000
-  projectileSpawnOffset: {x: 0, y: 1, z: 0}
+  attackingSO: {fileID: 11400000, guid: f9e0b4d60ba808a4093d4f6857087a44, type: 2}
 --- !u!114 &8772394190614382502
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,8 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40bfa12cad918864e92ba81f4b9cdb8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startHp: 100
-  bounds: 1
+  attackableSO: {fileID: 11400000, guid: 0bbef11ab63711943b4c31c4149fd9b2, type: 2}
 --- !u!114 &7852192813799593107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,6 +85,7 @@ MonoBehaviour:
   rotationSpeed: 10
   checkDistanceFinal: 0.2
   yValue: 0
+  pathFollowSO: {fileID: 11400000, guid: a405b95d829727d428ae705658499b07, type: 2}
 --- !u!114 &2178831330085943755
 MonoBehaviour:
   m_ObjectHideFlags: 0

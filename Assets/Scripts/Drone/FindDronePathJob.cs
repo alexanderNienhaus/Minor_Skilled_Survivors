@@ -5,7 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Burst;
 using Unity.Transforms;
 
-[WithAll(typeof(DronePathFinding))]
+[WithAll(typeof(Drone))]
 [BurstCompile]
 public partial struct FindDronePathJob : IJobEntity
 {

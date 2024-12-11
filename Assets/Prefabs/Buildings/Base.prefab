@@ -218,6 +218,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startHp: 100
   bounds: 3
+  ressourceCost: 0
+  attackableSO: {fileID: 11400000, guid: 2ae2b787b3ae3564b9cdb50368effd43, type: 2}
 --- !u!114 &7535184072756657887
 MonoBehaviour:
   m_ObjectHideFlags: 0

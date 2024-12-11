@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2547632407910942002}
   - component: {fileID: -5432758638262848815}
-  - component: {fileID: -4113504367762698268}
+  - component: {fileID: 2532898310363769675}
   - component: {fileID: 451259972346457876}
-  - component: {fileID: 518949104910640002}
   - component: {fileID: 8084369460370887620}
   - component: {fileID: 1394560101162160938}
   - component: {fileID: 4837619577768415003}
@@ -53,14 +52,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3f1fc370068ebf44a02c0a75d9fdcd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 7031068637116403174, guid: 99ab461b4b5e39b4da15914becdceea8,
-    type: 3}
-  dmg: 1
-  range: 10
-  attackSpeed: 1
-  projectileSpeed: 3000
-  projectileSpawnOffset: {x: 0, y: 0, z: 0.333}
---- !u!114 &-4113504367762698268
+  attackingSO: {fileID: 11400000, guid: 7340a0f4524a5f544af2c717e31c6295, type: 2}
+--- !u!114 &2532898310363769675
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,11 +62,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2547632407910942000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6d44c59fc74d9949b11f66142d9c733, type: 3}
+  m_Script: {fileID: 11500000, guid: 40bfa12cad918864e92ba81f4b9cdb8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startHp: 20
-  bounds: 1
+  attackableSO: {fileID: 11400000, guid: 7cd52ff692abe9f4a9bce7a4e5cb9d8b, type: 2}
 --- !u!114 &451259972346457876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,19 +82,7 @@ MonoBehaviour:
   rotationSpeed: 5
   checkDistanceFinal: 0.5
   yValue: 2
---- !u!114 &518949104910640002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2547632407910942000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccec04a7522a25e47b99646a8b09c593, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {x: -90, y: 0, z: 0}
+  pathFollowSO: {fileID: 11400000, guid: c357c596ad1ab87438bd179afeb7855f, type: 2}
 --- !u!114 &8084369460370887620
 MonoBehaviour:
   m_ObjectHideFlags: 0

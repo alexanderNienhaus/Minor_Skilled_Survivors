@@ -9,7 +9,7 @@ public struct CollisionCheckJob : ITriggerEventsJob
     [ReadOnly] public ComponentLookup<SelectedUnitTag> allSelectedUnits;
     [ReadOnly] public ComponentLookup<SelectionVolumeTag> allSelectionVolumes;
     [ReadOnly] public ComponentLookup<Boid> allBoids;
-    [ReadOnly] public ComponentLookup<AttackableUnit> allAttackableUnits;
+    [ReadOnly] public ComponentLookup<Attackable> allAttackableUnits;
     public EntityCommandBuffer ecb;
 
     public void Execute(TriggerEvent pTriggerEvent)
