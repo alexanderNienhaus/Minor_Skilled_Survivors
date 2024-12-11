@@ -7,12 +7,12 @@ public partial class PathFollowSystem : SystemBase
     {
         GridXZ<GridNode> grid = PathfindingGridSetup.Instance.pathfindingGrid;
 
-        FollowpathJob followpathJob = new FollowpathJob
+        PathFollowJob followpathJob = new PathFollowJob
         {
             allPathPositions = GetBufferLookup<PathPositions>(),
             gridOriginPos = grid.GetOriginPos(),
             gridCellSize = grid.GetCellSize(),
-            deltaTime = SystemAPI.Time.DeltaTime,
+            deltaTime = 0.01f//SystemAPI.Time.DeltaTime
         };
 
         followpathJob.ScheduleParallel();

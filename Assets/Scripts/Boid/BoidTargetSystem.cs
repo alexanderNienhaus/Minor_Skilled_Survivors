@@ -1,38 +1,42 @@
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Physics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(BoidSpawningSystem))]
 public partial class BoidTargetSystem : SystemBase
 {
-    private bool targetResetDone = false;
-
-    protected override void OnCreate() { }
+    protected override void OnCreate()
+    {
+        RequireForUpdate<BoidTarget>();
+    }
 
     protected override void OnUpdate()
     {
-        //Enabled = false;
-        int i = 0;
-        foreach ((RefRO<BoidTarget> target, RefRO<LocalTransform> localTransformTarget)
-            in SystemAPI.Query<RefRO<BoidTarget>, RefRO<LocalTransform>>())
+        foreach ((RefRW<Boid> boid, RefRO<LocalTransform> localTransformBoid)
+            in SystemAPI.Query<RefRW<Boid>, RefRO<LocalTransform>>())
         {
-            BoidTargetJob findTargetJob = new BoidTargetJob
+            if (EntityManager.Exists(boid.ValueRO.target))
+                continue;
+
+            boid.ValueRW.targetPosition = float3.zero;
+
+            BoidTargetJob findTargetJob = new()
             {
-                target = target.ValueRO,
-                localTransformTarget = localTransformTarget.ValueRO
+                boid = boid,
+                localTransformBoid = localTransformBoid.ValueRO
             };
-            findTargetJob.ScheduleParallel();
-            i++;
-            targetResetDone = false;
+            Dependency = findTargetJob.ScheduleParallel(Dependency);
+            Dependency.Complete();
         }
 
-        if (i == 0 && !targetResetDone)
+        ComponentLookup<LocalTransform> allLocalTransforms = GetComponentLookup<LocalTransform>(true);
+        foreach (RefRW<Boid> boid in SystemAPI.Query<RefRW<Boid>>())
         {
-            targetResetDone = true;
-            foreach (RefRW<Boid> boid in SystemAPI.Query<RefRW<Boid>>())
-            {
-                boid.ValueRW.target = LocalTransform.Identity;
-                boid.ValueRW.target.Scale = 0;
-            }
+            if (!EntityManager.Exists(boid.ValueRO.target) || !allLocalTransforms.HasComponent(boid.ValueRO.target))
+                continue;
+            
+            LocalTransform lt = allLocalTransforms[boid.ValueRO.target];
+            boid.ValueRW.targetPosition = lt.Position + new float3(0, 1.5f, 0);
         }
     }
 }

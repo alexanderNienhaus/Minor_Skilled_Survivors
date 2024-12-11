@@ -22,7 +22,8 @@ public class BoidAuthoring : MonoBehaviour
 public struct Boid : IComponentData
 {
     public int id;
-    public LocalTransform target;
+    public Entity target;
+    public float3 targetPosition;
     public float3 velocity;
     public float3 avgFlockHeading;
     public float3 avgAvoidanceHeading;

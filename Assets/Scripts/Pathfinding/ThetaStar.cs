@@ -13,9 +13,9 @@ public struct ThetaStar
     private float3 gridOriginPos;
     private float gridCellSize;
     private int gridWidth;
-    int endNodeIndex;
-    int2 endNodePos;
-    int startNodeIndex;
+    private int endNodeIndex;
+    private int2 endNodePos;
+    private int startNodeIndex;
 
     public void Initialize(int2 pGridSize, float3 pGridOriginPos, float pGridCellSize, int pGridWidth, int pEndNodeIndex, int2 pEndNodePos, int pStartNodeIndex)
     {
@@ -64,20 +64,9 @@ public struct ThetaStar
             PathNode currentNode = tmpPathNodeArray[currentNodeIndex];
 
             if (currentNodeIndex == endNodeIndex)
-            {
-                //Reached Destination
-                break;
-            }
+                break; //Reached Destination
 
-            //Remove current node from open list
-            for (int i = 0; i < openList.Length; i++)
-            {
-                if (openList[i] == currentNodeIndex)
-                {
-                    openList.RemoveAtSwapBack(i);
-                    break;
-                }
-            }
+            openList = RemoveNodeFromList(openList, currentNodeIndex);
 
             closedList.Add(currentNodeIndex);
 
@@ -87,22 +76,16 @@ public struct ThetaStar
                 int2 neighbourPos = new int2(currentNode.x + neighbourOffset.x, currentNode.z + neighbourOffset.y);
 
                 if (!IsPositionInsideGrid(neighbourPos, gridSize))
-                {
                     continue; //Neighbor outside grid
-                }
 
                 int neighbourNodeIndex = CalculateIndex(neighbourPos.x, neighbourPos.y);
 
                 if (closedList.Contains(neighbourNodeIndex))
-                {
                     continue; //Already searched neighbor
-                }
 
                 PathNode neighbourNode = tmpPathNodeArray[neighbourNodeIndex];
                 if (!HasLineOfSight(currentNode, neighbourNode, tmpPathNodeArray))
-                {
-                    continue; //No LOS
-                }
+                    continue;
 
                 UpdateVertix(ref tmpPathNodeArray, ref openList, currentNode, neighbourPos, neighbourNodeIndex, neighbourNode);
             }
@@ -114,6 +97,19 @@ public struct ThetaStar
         //tmpPathNodeArray.Dispose();
     }
 
+    private static NativeList<int> RemoveNodeFromList(NativeList<int> openList, int currentNodeIndex)
+    {
+        for (int i = 0; i < openList.Length; i++)
+        {
+            if (openList[i] != currentNodeIndex)
+                continue;
+
+            openList.RemoveAtSwapBack(i);
+            break;
+        }
+
+        return openList;
+    }
 
     [BurstCompile]
     private void UpdateVertix(ref NativeArray<PathNode> tmpPathNodeArray, ref NativeList<int> openList, PathNode currentNode, int2 neighbourPos, int neighbourNodeIndex, PathNode neighbourNode)
@@ -130,19 +126,20 @@ public struct ThetaStar
 
         int2 fromNodePos = new int2(fromNode.x, fromNode.z);
         int tentativeGCost = fromNode.gCost + CalculateDistanceCost(fromNodePos, neighbourPos);
-        if (tentativeGCost < neighbourNode.gCost)
-        {
-            int fromNodeIndex = CalculateIndex(fromNodePos.x, fromNodePos.y);
-            neighbourNode.cameFromNodeIndex = fromNodeIndex;
-            neighbourNode.gCost = tentativeGCost;
-            neighbourNode.CalculateFCost();
 
-            tmpPathNodeArray[neighbourNodeIndex] = neighbourNode;
-            if (!openList.Contains(neighbourNode.index))
-            {
-                openList.Add(neighbourNode.index);
-            }
-        }
+        if (tentativeGCost >= neighbourNode.gCost)
+            return;
+
+        int fromNodeIndex = CalculateIndex(fromNodePos.x, fromNodePos.y);
+        neighbourNode.cameFromNodeIndex = fromNodeIndex;
+        neighbourNode.gCost = tentativeGCost;
+        neighbourNode.CalculateFCost();
+        tmpPathNodeArray[neighbourNodeIndex] = neighbourNode;
+
+        if (openList.Contains(neighbourNode.index))
+            return;
+        
+        openList.Add(neighbourNode.index);
     }
 
     [BurstCompile]
@@ -262,12 +259,6 @@ public struct ThetaStar
         int yDistance = math.abs(aPosition.y - bPosition.y);
         int remaining = math.abs(xDistance - yDistance);
         return MOVE_DIAGONAL_COST * math.min(xDistance, yDistance) + MOVE_STRAIGHT_COST * remaining;
-    }
-
-    [BurstCompile]
-    private float CalculateDistanceCostStraight(int2 aPosition, int2 bPosition)
-    {
-        return math.length(aPosition - bPosition);
     }
 
     [BurstCompile]

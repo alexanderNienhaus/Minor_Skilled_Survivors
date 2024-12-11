@@ -3,13 +3,10 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
 
-//[CreateAfter(typeof(BoidSystem))]
-//[CreateAfter(typeof(BoidSettingsD))]
 public partial class BoidMovementSystem : SystemBase
 {
     private CollisionWorld collisionWorld;
     private BoidSettings boidSettings;
-    private bool firstUpdateCall = true;
 
     protected override void OnCreate()
     {
@@ -18,17 +15,12 @@ public partial class BoidMovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        RequireForUpdate<BoidSpawning>();
-        if (firstUpdateCall)
-        {
-            FirstUpdate();
-            return;
-        }
+        boidSettings = SystemAPI.GetSingleton<BoidSettings>();
         collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld.CollisionWorld;
 
         NativeArray<Boid> boidArray;
         NativeArray<LocalTransform> boidLocalTransformArray;
-        CountBoids(out boidArray, out boidLocalTransformArray, SystemAPI.GetSingleton<BoidSpawning>().spawnCount);
+        CountBoids(out boidArray, out boidLocalTransformArray, World.GetExistingSystemManaged<WaveSystem>().currentNumberOfBoids);
 
         ComputeBoidsJob computeBoidsJob = new ComputeBoidsJob
         {
@@ -54,18 +46,5 @@ public partial class BoidMovementSystem : SystemBase
             i++;
         }
     }
-
-    private void FirstUpdate()
-    {
-        boidSettings = SystemAPI.GetSingleton<BoidSettings>();
-
-        InitializeBoidsJob initializeBoidsJob = new InitializeBoidsJob
-        {
-            boidSettings = boidSettings
-        };
-        initializeBoidsJob.ScheduleParallel();
-
-        firstUpdateCall = false;
-    }   
 }
 

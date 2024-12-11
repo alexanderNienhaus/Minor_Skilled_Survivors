@@ -1,8 +1,6 @@
 using Unity.Entities;
 using Unity.Physics;
-using Unity.Burst;
 using Unity.Jobs;
-using Unity.Collections;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class SelectMultipleUnitsSystem : SystemBase
@@ -11,7 +9,6 @@ public partial class SelectMultipleUnitsSystem : SystemBase
 
     protected override void OnCreate()
     {
-        //RequireForUpdate<SelectedUnitTag>();
         endFixedEcbSystem = World.GetOrCreateSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
@@ -19,10 +16,12 @@ public partial class SelectMultipleUnitsSystem : SystemBase
     {
         EntityCommandBuffer ecb = endFixedEcbSystem.CreateCommandBuffer();
 
-        CollisionTriggerJob triggerJob = new CollisionTriggerJob
+        CollisionCheckJob triggerJob = new CollisionCheckJob
         {
             allSelectedUnits = GetComponentLookup<SelectedUnitTag>(true),
             allSelectionVolumes = GetComponentLookup<SelectionVolumeTag>(true),
+            allBoids = GetComponentLookup<Boid>(true),
+            allAttackableUnits = GetComponentLookup<AttackableUnit>(true),
             ecb = ecb
         };
         
@@ -44,34 +43,6 @@ public partial class SelectMultipleUnitsSystem : SystemBase
         {
             ecb.AddComponent<StepsToLiveData>(selectionEntity);
             ecb.SetComponent(selectionEntity, new StepsToLiveData { value = 1 });
-        }
-    }
-}
-
-[BurstCompile]
-public struct CollisionTriggerJob : ITriggerEventsJob
-{
-    [ReadOnly] public ComponentLookup<SelectedUnitTag> allSelectedUnits;
-    [ReadOnly] public ComponentLookup<SelectionVolumeTag> allSelectionVolumes;
-    public EntityCommandBuffer ecb;
-
-    public void Execute(TriggerEvent pTriggerEvent)
-    {
-        Entity entityA = pTriggerEvent.EntityA;
-        Entity entityB = pTriggerEvent.EntityB;
-
-        if (allSelectedUnits.HasComponent(entityA) && allSelectedUnits.HasComponent(entityB))
-        {
-            return;
-        }
-
-        if (allSelectedUnits.HasComponent(entityA) && allSelectionVolumes.HasComponent(entityB))
-        {
-            ecb.SetComponentEnabled<SelectedUnitTag>(entityA, true);
-        }
-        else if (allSelectionVolumes.HasComponent(entityB) && allSelectionVolumes.HasComponent(entityA))
-        {
-            ecb.SetComponentEnabled<SelectedUnitTag>(entityB, true);
         }
     }
 }

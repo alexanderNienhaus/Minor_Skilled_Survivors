@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/RTS_Pathfinding_DOTS_Demo.unity
     guid: d64971124a362ee4e8ce3806c900db5e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MinorSkilledSurvivors_Main.unity
     guid: 8bf74f4cbbcbf9649b1c99e84bcd760d
   m_configObjects: {}

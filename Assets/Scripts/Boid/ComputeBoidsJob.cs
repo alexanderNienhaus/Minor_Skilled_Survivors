@@ -4,6 +4,8 @@ using Unity.Burst;
 using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
+using Ray = UnityEngine.Ray;
+using RaycastHit = Unity.Physics.RaycastHit;
 
 [BurstCompile]
 public partial struct ComputeBoidsJob : IJobEntity
@@ -27,23 +29,23 @@ public partial struct ComputeBoidsJob : IJobEntity
             Boid boidB = allBoids[i];
             LocalTransform localTransformB = allBoidLocalTransforms[i];
 
-            if (boidA.id != boidB.id)
-            {
-                float3 offset = localTransformB.Position - localTransformA.Position;
-                float sqrDst = offset.x * offset.x + offset.y * offset.y + offset.z * offset.z;
+            if (boidA.id == boidB.id)
+                continue;
 
-                if (sqrDst < boidSettings.perceptionRadius * boidSettings.perceptionRadius)
-                {
-                    boidA.numPerceivedFlockmates += 1;
-                    boidA.avgFlockHeading += localTransformB.Forward();
-                    boidA.centreOfFlockmates += localTransformB.Position;
+            float3 offset = localTransformB.Position - localTransformA.Position;
+            float sqrDst = offset.x * offset.x + offset.y * offset.y + offset.z * offset.z;
 
-                    if (sqrDst < boidSettings.avoidanceRadius * boidSettings.avoidanceRadius)
-                    {
-                        boidA.avgAvoidanceHeading -= offset / sqrDst;
-                    }
-                }
-            }
+            if (sqrDst >= boidSettings.perceptionRadius * boidSettings.perceptionRadius)
+                continue;
+
+            boidA.numPerceivedFlockmates += 1;
+            boidA.avgFlockHeading += localTransformB.Forward();
+            boidA.centreOfFlockmates += localTransformB.Position;
+
+            if (sqrDst >= boidSettings.avoidanceRadius * boidSettings.avoidanceRadius)
+                continue;
+
+            boidA.avgAvoidanceHeading -= offset / sqrDst;
         }
         UpdateBoid(ref boidA, ref localTransformA, ref physicsVelocityA, collisionWorld, boidSettings, deltaTime);
     }
@@ -53,9 +55,9 @@ public partial struct ComputeBoidsJob : IJobEntity
     {
         float3 acceleration = float3.zero;
 
-        if (boid.target.Scale != 0)
+        if (!math.all(boid.targetPosition == float3.zero))
         {
-            float3 offsetToTarget = (boid.target.Position - localTransform.Position);
+            float3 offsetToTarget = boid.targetPosition - localTransform.Position;
             acceleration = SteerTowards(offsetToTarget, boid, boidSettings) * boidSettings.targetWeight;
         }
 
@@ -100,14 +102,25 @@ public partial struct ComputeBoidsJob : IJobEntity
     }
 
     [BurstCompile]
+    private bool Raycast(float3 pRayStart, float3 pRayEnd, out RaycastHit pRaycastHit)
+    {
+        RaycastInput raycastInput = new RaycastInput
+        {
+            Start = pRayStart,
+            End = pRayEnd,
+            Filter = new CollisionFilter
+            {
+                BelongsTo = (uint)CollisionLayers.Boid,
+                CollidesWith = (uint)(CollisionLayers.Walls | CollisionLayers.Ground | CollisionLayers.Building)
+            }
+        };
+        return collisionWorld.CastRay(raycastInput, out pRaycastHit);
+    }
+
+    [BurstCompile]
     private bool IsHeadingForCollision(LocalTransform localTransform, CollisionWorld collisionWorld, BoidSettings boidSettings)
     {
-        CollisionFilter filter = new CollisionFilter
-        {
-            BelongsTo = (uint)CollisionLayers.Boid,
-            CollidesWith = (uint)(CollisionLayers.Walls | CollisionLayers.Ground | CollisionLayers.Building)
-        };
-        if (collisionWorld.SphereCast(localTransform.Position, boidSettings.boundsRadius, localTransform.Forward(), boidSettings.collisionAvoidDst, filter))
+        if (Raycast(localTransform.Position, localTransform.Position + localTransform.Forward() * boidSettings.collisionAvoidDst, out RaycastHit pRaycastHit)) //collisionWorld.SphereCast(localTransform.Position, boidSettings.boundsRadius, localTransform.Forward(), boidSettings.collisionAvoidDst, filter)
         {
             return true;
         }
@@ -122,12 +135,7 @@ public partial struct ComputeBoidsJob : IJobEntity
         for (int i = 0; i < rayDirections.Length; i++)
         {
             float3 dir = localTransform.TransformDirection(rayDirections[i]);
-            CollisionFilter filter = new CollisionFilter
-            {
-                BelongsTo = (uint)CollisionLayers.Boid,
-                CollidesWith = (uint)(CollisionLayers.Walls | CollisionLayers.Ground | CollisionLayers.Building)
-            };
-            if (!collisionWorld.SphereCast(localTransform.Position, boidSettings.boundsRadius, dir, boidSettings.collisionAvoidDst, filter))
+            if (!Raycast(localTransform.Position, localTransform.Position + dir * boidSettings.collisionAvoidDst, out _)) //collisionWorld.SphereCast(localTransform.Position, boidSettings.boundsRadius, dir, boidSettings.collisionAvoidDst, filter))
             {
                 return dir;
             }
