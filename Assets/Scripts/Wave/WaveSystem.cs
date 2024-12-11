@@ -10,44 +10,80 @@ public partial class WaveSystem : SystemBase
 
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
     private EntityCommandBuffer ecb;
+    private DynamicBuffer<Spawn> spawns;
+    private DynamicBuffer<Wave> waves;
+    private TimerSystem timerSystem;
     private bool isActive;
     private int currentWaveNumber;
     private float currentWaveTime;
-    private float curerntWaveTolerance;
+    private float currentWaveTolerance;
     private int currentSpawnNumber;
     private BoidSettings boidSettings;
 
     protected override void OnCreate()
     {
+        //RequireForUpdate<TimerSystem>();
+        RequireForUpdate<Wave>();
         RequireForUpdate<Spawn>();
+        RequireForUpdate<BoidSettings>();
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         currentWaveNumber = 0;
-        curerntWaveTolerance = 0.05f;
+        currentWaveTolerance = 0.05f;
+        isActive = false;
         //NextWave();
     }
 
     protected override void OnUpdate()
     {
-        boidSettings = SystemAPI.GetSingleton<BoidSettings>();
-        ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
         if (!isActive)
             return;
 
-        foreach (DynamicBuffer<Spawn> spawns in SystemAPI.Query<DynamicBuffer<Spawn>>())
-        {
-            foreach (Spawn spawn in spawns)
-            {
-                if (spawn.waveNumber != currentWaveNumber || currentSpawnNumber != spawn.spawnNumber ||
-                    !(spawn.whenToSpawn > currentWaveTime - curerntWaveTolerance && spawn.whenToSpawn <= currentWaveTime + curerntWaveTolerance))
-                    continue;
-
-                Spawn(spawn.prefab, spawn.spawnPosition, spawn.amountToSpawn, spawn.unitType, spawn.unitSize, spawn.whenToSpawn, spawn.spawnRadiusMin,
-                    spawn.spawnRadiusMax, spawn.isSphericalSpawn);
-                currentSpawnNumber++;
-            }
-        }
-
         currentWaveTime += SystemAPI.Time.DeltaTime;
+
+        timerSystem = World.GetExistingSystemManaged<TimerSystem>();
+
+        if (CheckForWaveEnd())
+            return;
+
+        spawns = SystemAPI.GetSingletonBuffer<Spawn>();
+        waves = SystemAPI.GetSingletonBuffer<Wave>();
+        boidSettings = SystemAPI.GetSingleton<BoidSettings>();
+        ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
+
+        SpawnFromWaves();
+    }
+
+    private bool CheckForWaveEnd()
+    {
+        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
+        {
+            Any = new ComponentType[] { typeof(Boid), typeof(Drone) }, 
+        };
+        int numberOfEnemies = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+
+        //Debug.Log("Fighting Phase: " + currentWaveTime + " numberOfEnemies: " + numberOfEnemies + " currentSpawnNumber: " + currentSpawnNumber + " currentWaveNumber: " + currentWaveNumber);
+
+        if (numberOfEnemies <= 0 && currentSpawnNumber > 1)
+        {
+            isActive = false;
+            timerSystem.BuildPhaseStart();
+            return true;
+        }
+        return false;
+    }
+
+    private void SpawnFromWaves()
+    {
+        foreach (Spawn spawn in spawns)
+        {
+            if (spawn.waveNumber != currentWaveNumber || currentSpawnNumber != spawn.spawnNumber ||
+                !(spawn.whenToSpawn > currentWaveTime - currentWaveTolerance && spawn.whenToSpawn <= currentWaveTime + currentWaveTolerance))
+                continue;
+
+            Spawn(spawn.prefab, spawn.spawnPosition, spawn.amountToSpawn, spawn.unitType, spawn.unitSize, spawn.whenToSpawn, spawn.spawnRadiusMin,
+                spawn.spawnRadiusMax, spawn.isSphericalSpawn);
+            currentSpawnNumber++;
+        }
     }
 
     public void NextWave()
@@ -62,6 +98,7 @@ public partial class WaveSystem : SystemBase
     public void Spawn(Entity prefab, float3 spawnPosition, int amountToSpawn, UnitType unitType, float unitSize,
         float whenToSpawn, float spawnRadiusMin, float spawnRadiusMax, bool isSphericalSpawn)
     {
+        //Debug.Log("SPAWN");
         Random r = new Random((uint)(amountToSpawn + 1));
         float3 boidStartSpeed = (boidSettings.minSpeed + boidSettings.maxSpeed) / 2;
         for (int i = 0; i < amountToSpawn; i++)
@@ -78,8 +115,6 @@ public partial class WaveSystem : SystemBase
 
             //ecb.AddComponent<Parent>(entity);
             //ecb.SetComponent(entity, new Parent { Value = spawn.parent });
-
-
 
             switch (unitType)
             {

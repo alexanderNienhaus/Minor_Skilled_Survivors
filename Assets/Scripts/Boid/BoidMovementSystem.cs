@@ -10,6 +10,7 @@ public partial class BoidMovementSystem : SystemBase
 
     protected override void OnCreate()
     {
+        RequireForUpdate<Boid>();
         RequireForUpdate<BoidSettings>();
     }
 

@@ -14,14 +14,18 @@ public class WaveAuthoring : MonoBehaviour
         {
             Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddBuffer<Spawn>(entity);
+            AddBuffer<Wave>(entity);
             int waveNumber = 0;
-            int spawnNumber = 0;
             foreach (WaveSO wave in pAuthoring.waves)
             {
+                int numberOfEnemies = 0;
                 waveNumber++;
+                int spawnNumber = 0;
+
                 foreach (SpawnSO spawn in wave.spawns)
                 {
                     spawnNumber++;
+                    numberOfEnemies += spawn.amountToSpawn;
                     AppendToBuffer(entity, new Spawn
                     {
                         waveNumber = waveNumber,
@@ -39,6 +43,12 @@ public class WaveAuthoring : MonoBehaviour
                         spawningDuration = spawn.spawningDuration
                     });
                 }
+
+                AppendToBuffer(entity, new Wave
+                {
+                    waveNumber = waveNumber,
+                    numberOfEnemies = numberOfEnemies
+                });
             }
         }
     }
@@ -61,4 +71,12 @@ public struct Spawn : IBufferElementData
     public bool isSphericalSpawn;
     public float whenToSpawn;
     public float spawningDuration;
+}
+
+[BurstCompile]
+[InternalBufferCapacity(0)]
+public struct Wave : IBufferElementData
+{
+    public int waveNumber;
+    public int numberOfEnemies;
 }
