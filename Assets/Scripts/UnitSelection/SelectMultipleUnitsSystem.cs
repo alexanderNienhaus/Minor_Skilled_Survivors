@@ -21,7 +21,7 @@ public partial class SelectMultipleUnitsSystem : SystemBase
             allSelectedUnits = GetComponentLookup<SelectedUnitTag>(true),
             allSelectionVolumes = GetComponentLookup<SelectionVolumeTag>(true),
             allBoids = GetComponentLookup<Boid>(true),
-            allAttackableUnits = GetComponentLookup<Attackable>(true),
+            allAttackables = GetComponentLookup<Attackable>(true),
             ecb = ecb
         };
         

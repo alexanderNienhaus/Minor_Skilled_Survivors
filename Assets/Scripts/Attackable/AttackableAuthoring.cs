@@ -10,7 +10,7 @@ public class AttackableAuthoring : MonoBehaviour
     {
         public override void Bake(AttackableAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.None);
+            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new Attackable
             {
                 attackableUnitType = pAuthoring.attackableSO.attackableUnitType,

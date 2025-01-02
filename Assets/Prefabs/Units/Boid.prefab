@@ -131,6 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8faff0d6eec78624c97e09604ef150b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dmg: 100
 --- !u!114 &5795170012469007659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,9 +144,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40bfa12cad918864e92ba81f4b9cdb8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startHp: 100
-  bounds: 0
-  ressourceCost: 0
   attackableSO: {fileID: 11400000, guid: 256737d6ba8a7eb449051c55c0d57c5c, type: 2}
 --- !u!114 &8546150122073171535
 MonoBehaviour:

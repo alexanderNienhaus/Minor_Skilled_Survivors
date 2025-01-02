@@ -33,6 +33,8 @@ public partial class WaveSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        EventBus<OnWaveNumberChangedEvent>.Publish(new OnWaveNumberChangedEvent(currentWaveNumber));
+
         if (!isActive)
             return;
 
@@ -120,7 +122,7 @@ public partial class WaveSystem : SystemBase
             {
                 case AttackableUnitType.Boid:
                     currentNumberOfBoids++;
-                    ecb.SetComponent(entity, new Boid { id = currentNumberOfBoids, velocity = facingDirection * boidStartSpeed });
+                    ecb.SetComponent(entity, new Boid { id = currentNumberOfBoids, velocity = facingDirection * boidStartSpeed, dmg = 100 });
                     break;
                 default:
                 case AttackableUnitType.Drone:
