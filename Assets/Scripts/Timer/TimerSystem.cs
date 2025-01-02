@@ -1,8 +1,5 @@
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 public partial class TimerSystem : SystemBase
 {
@@ -22,6 +19,7 @@ public partial class TimerSystem : SystemBase
     {
         if (isFighting)
         {
+            EventBus<OnTimeChangedEvent>.Publish(new OnTimeChangedEvent(0, false));
             return;
         }
 
@@ -30,6 +28,8 @@ public partial class TimerSystem : SystemBase
         waveSystem = World.GetExistingSystemManaged<WaveSystem>();
 
         currentBuildTime += SystemAPI.Time.DeltaTime;
+        EventBus<OnTimeChangedEvent>.Publish(new OnTimeChangedEvent((int)math.floor(timer.maxBuildTime - currentBuildTime), true));
+
         if (currentBuildTime > timer.maxBuildTime)
         {
             isFighting = true;

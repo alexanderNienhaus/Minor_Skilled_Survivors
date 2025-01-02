@@ -2,7 +2,6 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 public class BoidAuthoring : MonoBehaviour
 {
@@ -29,4 +28,5 @@ public struct Boid : IComponentData
     public float3 avgAvoidanceHeading;
     public float3 centreOfFlockmates;
     public int numPerceivedFlockmates;
+    public int dmg;
 }

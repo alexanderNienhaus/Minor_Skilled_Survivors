@@ -13,6 +13,7 @@ public partial class RessourceSystem : SystemBase
     protected override void OnUpdate()
     {
         ressource = SystemAPI.GetSingletonRW<Ressource>();
+        EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(ressource.ValueRW.currentRessourceCount));
     }
 
     public void AddRessource(int add)

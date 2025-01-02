@@ -65,11 +65,31 @@ public class GridObjectPlacement : MonoBehaviour
         return placedObjectTypeSO;
     }
 
+    public void SetDirection(PlacedObjectTypeSO.Dir pDirection)
+    {
+        direction = pDirection;
+    }
+
+    public void SetPlacedObjectTypeSO(int pType)
+    {
+        placedObjectTypeSO = placedObjectTypeSOList[pType];
+    }
+
+    public List<Vector2Int> GetGridPosList(int x, int z)
+    {
+        return placedObjectTypeSO.GetGridPosList(new Vector2Int(x, z), direction);
+    }
+
+    public void GetGridPosFromWorldPos(Vector3 worldPos, out int x, out int z)
+    {
+        grid.GetXZ(worldPos, out x, out z);
+    }
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
         else
         {
@@ -87,8 +107,8 @@ public class GridObjectPlacement : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && placedObjectTypeSO != null)
         {
-            grid.GetXZ(GetMouseWorldPos(), out int x, out int z);
-            List<Vector2Int> gridPosList = placedObjectTypeSO.GetGridPosList(new Vector2Int(x, z), direction);
+            GetGridPosFromWorldPos(GetMouseWorldPos(), out int x, out int z);
+            List<Vector2Int> gridPosList = GetGridPosList(x, z);
 
             if (CanBuild(gridPosList))
             {
@@ -137,15 +157,23 @@ public class GridObjectPlacement : MonoBehaviour
         return true;
     }
 
-    private void PlaceBuilding(int x, int z, List<Vector2Int> gridPosList)
+    public void PlaceBuilding(int x, int z, List<Vector2Int> gridPosList, bool pCreateEntity = true)
     {
         Vector2Int rotationOffset = placedObjectTypeSO.GetRotationOffset(direction);
-        Vector3 placedObjectWorldPos = grid.GetWorldPositionXZ(x, z) + new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.GetCellSize()- new Vector3(0.5f, 0, 0.5f) * grid.GetCellSize();
+        float cellSize = grid.GetCellSize();
+
+        Vector3 placedObjectWorldPos = grid.GetWorldPositionXZ(x, z)
+            + new Vector3(rotationOffset.x, 0, rotationOffset.y) * cellSize - new Vector3(0.5f, 0, 0.5f) * cellSize;
         PlacedObject placedObject = new PlacedObject(placedObjectTypeSO, new Vector2Int(x, z), direction);
 
         int id = placedObjectIndex++;
-        placableObjectsSpawningSystem.CreateEntity(placedObjectTypeSO.index, placedObjectWorldPos,
-            Quaternion.Euler(0, PlacedObjectTypeSO.GetRotationAngle(direction), 0), id);
+
+        if (pCreateEntity)
+        {
+            placableObjectsSpawningSystem.CreateEntity(placedObjectTypeSO.index, placedObjectWorldPos,
+                Quaternion.Euler(0, PlacedObjectTypeSO.GetRotationAngle(direction), 0), id);
+        }
+
         ProjectOntoPathfindingGrid(placedObject.GetPlacedObjectTypeSO(), gridPosList, false);
         placedObject.SetId(id);
 

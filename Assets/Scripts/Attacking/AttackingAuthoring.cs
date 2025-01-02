@@ -11,7 +11,7 @@ public class AttackingAuthoring : MonoBehaviour
     {
         public override void Bake(AttackingAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.None);
+            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new Attacking
             {
                 projectilePrefab = GetEntity(pAuthoring.attackingSO.projectilePrefab, TransformUsageFlags.Dynamic),

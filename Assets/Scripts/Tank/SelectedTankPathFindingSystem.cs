@@ -33,7 +33,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
             float3 currentGroupMovement = mouseEndPos - groupStartPos;
             int selectedUnitCount = selectedUnitCountSystem.GetSelectedUnitCount();
 
-            NativeArray<float3> endPositions = CalculateEndPositionOffsetsPointRotation(selectedUnitCount, gridCellSize * 2, currentGroupMovement, mouseEndPos);
+            NativeArray<float3> endPositions = CalculateEndPositionOffsetsPointRotation(selectedUnitCount, gridCellSize * 4, currentGroupMovement, mouseEndPos);
             SetEndPositions(endPositions);
 
             FindTankPathJob findGroupPathJob = new FindTankPathJob

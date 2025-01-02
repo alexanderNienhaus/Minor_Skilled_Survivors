@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 2382419788130265397}
   - component: {fileID: 6121513232894972581}
   - component: {fileID: 7511675618001898074}
+  - component: {fileID: 2876965445917976354}
   - component: {fileID: 635479197583510301}
   - component: {fileID: -7455327333963782976}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: building2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -230,6 +231,21 @@ MonoBehaviour:
     Tag05: 0
     Tag06: 0
     Tag07: 0
+--- !u!114 &2876965445917976354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678531993065446182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f37583e5899b0479883bbd31197eac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
+  halfBoundsX: 13.5
+  halfBoundsZ: 3.5
 --- !u!114 &635479197583510301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,7 +281,7 @@ GameObject:
   - component: {fileID: 8561986708873440323}
   - component: {fileID: 3637172169754265593}
   - component: {fileID: 5980210164410838987}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: building2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
