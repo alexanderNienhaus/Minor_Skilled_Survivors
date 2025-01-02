@@ -53,6 +53,27 @@ public class PlacedObjectTypeSO : ScriptableObject
         }
     }
 
+    public static Dir GetRotationDirection(float pAngle)
+    {
+        if (pAngle == 0)
+        {
+            return Dir.Down;
+        }
+        else if (pAngle == 90)
+        {
+            return Dir.Left;
+        }
+        else if (pAngle == 180)
+        {
+            return Dir.Up;
+        }
+        else if (pAngle == 270)
+        {
+            return Dir.Right;
+        }
+        return Dir.Down;
+    }
+
     public Vector2Int GetRotationOffset(Dir pDir)
     {
         switch (pDir)
