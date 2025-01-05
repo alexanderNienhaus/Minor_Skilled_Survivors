@@ -45,9 +45,19 @@ public class OnBaseHPEvent : CustomEvent
 
 public class OnResourceChangedEvent : CustomEvent
 {
-    public float resource;
+    public int resource;
 
-    public OnResourceChangedEvent(float pResource)
+    public OnResourceChangedEvent(int pResource)
+    {
+        resource = pResource;
+    }
+}
+
+public class OnResourceChangedUIEvent : CustomEvent
+{
+    public int resource;
+
+    public OnResourceChangedUIEvent(int pResource)
     {
         resource = pResource;
     }

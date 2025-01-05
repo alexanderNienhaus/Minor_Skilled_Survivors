@@ -28,7 +28,7 @@ public class GridObjectPlacementManager : MonoBehaviour
 
     private GridXZ<GridObject> grid;
     private PlacableObjectTypeSO placedObjectTypeSO;
-    private PlacableObjectTypeSO.Dir direction = PlacableObjectTypeSO.Dir.Down;
+    private PlacableObjectTypeSO.Dir direction = PlacableObjectTypeSO.Dir.Right;
     private PlacedEntityManagementSystem placableObjectsSpawningSystem;
     private int placedObjectIndex;
 
@@ -178,9 +178,9 @@ public class GridObjectPlacementManager : MonoBehaviour
             return;
         }
 
-        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<RessourceSystem>().AddRessource(-placedObjectTypeSO.cost);
-        PlaceBuilding(x, z, gridPosList);
+        EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(-placedObjectTypeSO.cost));
         EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(objectPlacedSuccessfully));
+        PlaceBuilding(x, z, gridPosList);
     }
 
     private bool CanBuild(List<Vector2Int> gridPosList)

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e38164990b4b5e14b897e9ee0d0e69ca, type: 3}
-  m_Name: BoidTurretAttackableStandard
+  m_Name: BoidAttackableStandard
   m_EditorClassIdentifier: 
   attackableUnitType: 0
-  startHp: 100
-  ressourceCost: 1
+  startHp: 1
+  ressourceCost: 2
   boundsRadius: 0

@@ -27,14 +27,10 @@ public partial class AATurretAttackingSystem : SystemBase
             foreach ((RefRO<LocalTransform> localTransformEnemy, RefRW<Attackable> attackableEnemy, RefRO<Boid> boid, Entity entityEnemy)
                 in SystemAPI.Query<RefRO<LocalTransform>, RefRW<Attackable>, RefRO<Boid>>().WithEntityAccess().WithAll<Boid>())
             {
-                if (!BufferContains(possibleAttackTargets, attackableEnemy.ValueRO.attackableUnitType))
-                    continue;
+                float3 unitToEnemy = attackableEnemy.ValueRO.halfBounds + localTransformEnemy.ValueRO.Position - localTransformAATurret.ValueRO.Position;
+                float distanceUnitToEnemySq = math.lengthsq(unitToEnemy);
 
-                float3 unitToEnemy = attackableEnemy.ValueRO.boundsRadius * new float3(0, 1, 0)
-                    + localTransformEnemy.ValueRO.Position - localTransformAATurret.ValueRO.Position;
-                float distanceUnitToEnemySquared = math.lengthsq(unitToEnemy);
-
-                if (EnemyInRange(attackingAATurret, attackableEnemy, distanceUnitToEnemySquared))
+                if (distanceUnitToEnemySq - attackableEnemy.ValueRO.boundsRadius * attackableEnemy.ValueRO.boundsRadius < attackingAATurret.ValueRO.range * attackingAATurret.ValueRO.range)
                 {
                     attackingAATurret.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
                     if (attackingAATurret.ValueRO.currentTime > attackingAATurret.ValueRO.attackSpeed)
@@ -46,7 +42,7 @@ public partial class AATurretAttackingSystem : SystemBase
                         attackingAATurret.ValueRW.currentTime = 0;
                         if (attackableEnemy.ValueRW.currentHp <= 0)
                         {
-                            World.GetExistingSystemManaged<RessourceSystem>().AddRessource(attackableEnemy.ValueRO.ressourceCost);
+                            EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(attackableEnemy.ValueRO.ressourceCost));
                             ecb.DestroyEntity(entityEnemy);
                         }
                     }
@@ -54,11 +50,6 @@ public partial class AATurretAttackingSystem : SystemBase
                 }
             }
         }
-    }
-
-    private bool EnemyInRange(RefRW<Attacking> attacking, RefRW<Attackable> attackableEnemy, float distanceUnitToEnemy)
-    {
-        return distanceUnitToEnemy < (attacking.ValueRO.range + attackableEnemy.ValueRO.boundsRadius) * (attacking.ValueRO.range + attackableEnemy.ValueRO.boundsRadius);
     }
 
     private EntityCommandBuffer SpawnProjectile(EntityCommandBuffer ecb, RefRW<AATurret> aaTurret, RefRW<Attacking> attacking,

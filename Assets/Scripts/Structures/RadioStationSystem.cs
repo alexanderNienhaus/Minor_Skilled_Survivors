@@ -17,9 +17,10 @@ public partial class RadioStationSystem : SystemBase
     [BurstCompile]
     protected override void OnUpdate()
     {
-        foreach ((RefRW<RadioStation> radioStation, RefRO<LocalTransform> localTransform) in SystemAPI.Query<RefRW<RadioStation>, RefRO<LocalTransform>>())
+        foreach ((RefRW<RadioStation> radioStation, RefRO<LocalTransform> localTransform)
+            in SystemAPI.Query<RefRW<RadioStation>, RefRO<LocalTransform>>())
         {
-            if(!radioStation.ValueRO.hasSpawned)
+            if (!radioStation.ValueRO.hasSpawned)
             {
                 waveSystem.Spawn(radioStation.ValueRO.prefab, localTransform.ValueRO.Position + radioStation.ValueRO.spawnPosition,
                     radioStation.ValueRO.amountToSpawn, radioStation.ValueRO.unitType, radioStation.ValueRO.unitSize, radioStation.ValueRO.whenToSpawn,

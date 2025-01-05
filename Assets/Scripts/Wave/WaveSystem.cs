@@ -116,12 +116,19 @@ public partial class WaveSystem : SystemBase
         float3 boidStartSpeed = (boidSettings.minSpeed + boidSettings.maxSpeed) / 2;
         for (int i = 0; i < amountToSpawn; i++)
         {
-            float3 facingDirection = math.normalize(r.NextFloat3Direction());
+            float3 facingDirection;
             if (!isSphericalSpawn)
             {
-                facingDirection.y = 0;
+                float2 facingDirection2D = r.NextFloat2Direction();
+                facingDirection = new float3(facingDirection2D.x, 0, facingDirection2D.y);
             }
-            float3 randomDistance = facingDirection * r.NextFloat(spawnRadiusMin, spawnRadiusMax);
+            else
+            {
+                facingDirection = r.NextFloat3Direction();
+            }
+
+            float length = r.NextFloat(spawnRadiusMin, spawnRadiusMax);
+            float3 randomDistance = facingDirection * length;
 
             float3 pos = spawnPosition + randomDistance;
             quaternion rotation = quaternion.LookRotation(facingDirection, new float3(0, 1, 0));
@@ -134,7 +141,7 @@ public partial class WaveSystem : SystemBase
             {
                 case AttackableUnitType.Boid:
                     currentNumberOfBoids++;
-                    ecb.SetComponent(entity, new Boid { id = currentNumberOfBoids, velocity = facingDirection * boidStartSpeed, dmg = 100 });
+                    ecb.SetComponent(entity, new Boid { id = currentNumberOfBoids, velocity = facingDirection * boidStartSpeed, dmg = boidSettings.dmg });
                     break;
                 default:
                 case AttackableUnitType.Drone:

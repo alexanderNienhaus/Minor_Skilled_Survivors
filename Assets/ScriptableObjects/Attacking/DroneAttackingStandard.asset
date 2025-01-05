@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DroneAttackingStandard
   m_EditorClassIdentifier: 
   dmg: 1
-  range: 10
+  range: 20
   attackSpeed: 1
   possibleAttackTargets: 02000000030000000400000005000000
   projectilePrefab: {fileID: 7031068637116403174, guid: 99ab461b4b5e39b4da15914becdceea8,

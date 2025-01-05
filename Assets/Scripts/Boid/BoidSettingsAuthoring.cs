@@ -13,6 +13,7 @@ public class BoidSettingsAuthoring : MonoBehaviour
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new BoidSettings
             {
+                    dmg = pAuthoring.boidSettingsSO.dmg,
                     minSpeed = pAuthoring.boidSettingsSO.minSpeed,
                     maxSpeed = pAuthoring.boidSettingsSO.maxSpeed,
                     perceptionRadius = pAuthoring.boidSettingsSO.perceptionRadius,
@@ -34,6 +35,8 @@ public class BoidSettingsAuthoring : MonoBehaviour
 [BurstCompile]
 public struct BoidSettings : IComponentData
 {
+    public int dmg;
+
     public float minSpeed;
     public float maxSpeed;
     public float perceptionRadius;

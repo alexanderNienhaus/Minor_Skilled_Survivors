@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c0ede4041a6b4c4bbf7bfe5bae428f8, type: 3}
   m_Name: BoidSettingsTargetPrio
   m_EditorClassIdentifier: 
+  dmg: 25
   minSpeed: 5
   maxSpeed: 10
   perceptionRadius: 6

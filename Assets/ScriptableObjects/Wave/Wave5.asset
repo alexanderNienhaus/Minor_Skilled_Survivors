@@ -9,11 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e38164990b4b5e14b897e9ee0d0e69ca, type: 3}
-  m_Name: DroneAttackableStandard
+  m_Script: {fileID: 11500000, guid: d00ac55111eb79740ba237e7c4e62640, type: 3}
+  m_Name: Wave5
   m_EditorClassIdentifier: 
-  attackableUnitType: 1
-  startHp: 25
-  ressourceCost: 1
-  halfBounds: {x: 0, y: 0, z: 0}
-  boundsRadius: 1
+  spawns:
+  - {fileID: 11400000, guid: 7ba0d0ac47bd4564fa87728123fc4f48, type: 2}

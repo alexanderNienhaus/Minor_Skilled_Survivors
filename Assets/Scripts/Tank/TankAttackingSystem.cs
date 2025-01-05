@@ -1,8 +1,10 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Transforms;
 
+[BurstCompile]
 public partial class TankAttackingSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
@@ -12,6 +14,7 @@ public partial class TankAttackingSystem : SystemBase
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
+    [BurstCompile]
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
@@ -29,24 +32,22 @@ public partial class TankAttackingSystem : SystemBase
             foreach ((RefRO<LocalTransform> localTransformEnemy, RefRW<Attackable> attackableEnemy, Entity entityEnemy)
                 in SystemAPI.Query<RefRO<LocalTransform>, RefRW<Attackable>>().WithEntityAccess().WithAll<Drone>())
             {
-                if (!BufferContains(possibleAttackTargets, attackableEnemy.ValueRO.attackableUnitType))
-                    continue;
+                float3 unitToEnemy = attackableEnemy.ValueRO.halfBounds + localTransformEnemy.ValueRO.Position - localTransformTank.ValueRO.Position;
+                float distanceUnitToEnemySq = math.lengthsq(unitToEnemy);
 
-                float3 unitToEnemy = attackableEnemy.ValueRO.boundsRadius * new float3(0, 1, 0) + localTransformEnemy.ValueRO.Position - localTransformTank.ValueRO.Position;
-                float distanceUnitToEnemy = math.lengthsq(unitToEnemy);
-                if (distanceUnitToEnemy < (attackingTank.ValueRO.range + attackableEnemy.ValueRO.boundsRadius) * (attackingTank.ValueRO.range + attackableEnemy.ValueRO.boundsRadius))
+                if (distanceUnitToEnemySq - attackableEnemy.ValueRO.boundsRadius * attackableEnemy.ValueRO.boundsRadius < attackingTank.ValueRO.range * attackingTank.ValueRO.range)
                 {
                     attackingTank.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
                     pathFollowTank.ValueRW.enemyPos = localTransformEnemy.ValueRO.Position;
                     if (attackingTank.ValueRO.currentTime > attackingTank.ValueRO.attackSpeed)
                     {
-                        ecb = SpawnProjectile(ecb, localTransformTank, attackingTank, unitToEnemy, distanceUnitToEnemy);
+                        ecb = SpawnProjectile(ecb, localTransformTank, attackingTank, unitToEnemy, distanceUnitToEnemySq);
 
                         attackableEnemy.ValueRW.currentHp -= attackingTank.ValueRO.dmg;
                         attackingTank.ValueRW.currentTime = 0;
                         if (attackableEnemy.ValueRW.currentHp <= 0)
                         {
-                            World.GetExistingSystemManaged<RessourceSystem>().AddRessource(attackableEnemy.ValueRO.ressourceCost);
+                            EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(attackableEnemy.ValueRO.ressourceCost));
                             ecb.DestroyEntity(entityEnemy);
                         }
                     }
@@ -59,7 +60,7 @@ public partial class TankAttackingSystem : SystemBase
     private EntityCommandBuffer SpawnProjectile(EntityCommandBuffer ecb, RefRO<LocalTransform> localTransformEnemy, RefRW<Attacking> attacking, float3 enemyToUnit, float distanceEnemyToUnit)
     {
         float3 projectileVelocity = math.normalizesafe(enemyToUnit) * attacking.ValueRO.projectileSpeed * SystemAPI.Time.DeltaTime;
-        float timeToLife = distanceEnemyToUnit / (attacking.ValueRO.projectileSpeed * SystemAPI.Time.DeltaTime);
+        float timeToLife = 2 * (distanceEnemyToUnit / (attacking.ValueRO.projectileSpeed * attacking.ValueRO.projectileSpeed * SystemAPI.Time.DeltaTime * SystemAPI.Time.DeltaTime));
 
         Entity projectile = ecb.Instantiate(attacking.ValueRO.projectilePrefab);
         ecb.SetComponent(projectile, new LocalTransform

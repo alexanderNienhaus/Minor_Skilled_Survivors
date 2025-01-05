@@ -28,15 +28,16 @@ public partial class DroneAttackingSystem : SystemBase
                 if (!BufferContains(possibleAttackTargets, attackableUnit.ValueRO.attackableUnitType))
                     continue;
 
-                float3 enemyToUnit = attackableUnit.ValueRO.boundsRadius * new float3(0, 1, 0) + localTransformUnit.ValueRO.Position - localTransformDrone.ValueRO.Position;
-                float distanceEnemyToUnit = math.lengthsq(enemyToUnit);
-                if (distanceEnemyToUnit < (attackingDrone.ValueRO.range + attackableUnit.ValueRO.boundsRadius) * (attackingDrone.ValueRO.range + attackableUnit.ValueRO.boundsRadius))
+                float3 enemyToUnit = attackableUnit.ValueRO.halfBounds + localTransformUnit.ValueRO.Position - localTransformDrone.ValueRO.Position;
+                float distanceEnemyToUnitSq = math.lengthsq(enemyToUnit);
+
+                if (distanceEnemyToUnitSq - attackableUnit.ValueRO.boundsRadius * attackableUnit.ValueRO.boundsRadius < attackingDrone.ValueRO.range * attackingDrone.ValueRO.range)
                 {
                     attackingDrone.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
                     pathFollowDrone.ValueRW.enemyPos = localTransformUnit.ValueRO.Position;
                     if (attackingDrone.ValueRO.currentTime > attackingDrone.ValueRO.attackSpeed)
                     {
-                        ecb = SpawnProjectile(ecb, localTransformDrone, attackingDrone, enemyToUnit, distanceEnemyToUnit, SystemAPI.Time.DeltaTime);
+                        ecb = SpawnProjectile(ecb, localTransformDrone, attackingDrone, enemyToUnit, distanceEnemyToUnitSq, SystemAPI.Time.DeltaTime);
 
                         attackableUnit.ValueRW.currentHp -= attackingDrone.ValueRO.dmg;
                         attackingDrone.ValueRW.currentTime = 0;
@@ -55,7 +56,7 @@ public partial class DroneAttackingSystem : SystemBase
     private EntityCommandBuffer SpawnProjectile(EntityCommandBuffer ecb, RefRO<LocalTransform> localTransformEnemy, RefRW<Attacking> attacking, float3 enemyToUnit, float distanceEnemyToUnit, float deltaTime)
     {
         float3 projectileVelocity = math.normalizesafe(enemyToUnit) * attacking.ValueRO.projectileSpeed * deltaTime;
-        float timeToLife = distanceEnemyToUnit / (attacking.ValueRO.projectileSpeed * deltaTime);
+        float timeToLife = 2 * (distanceEnemyToUnit / (attacking.ValueRO.projectileSpeed * deltaTime * attacking.ValueRO.projectileSpeed * deltaTime));
 
         Entity projectile = ecb.Instantiate(attacking.ValueRO.projectilePrefab);
         ecb.SetComponent(projectile, new LocalTransform

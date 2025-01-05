@@ -3,6 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "ScriptableObjects/BoidSettingsSO")]
 public class BoidSettingsSO : ScriptableObject
 {
+    [Header("Combat")]
+    public int dmg = 100;
+
     [Header("Movement")]
     public float minSpeed = 5;
     public float maxSpeed = 8;

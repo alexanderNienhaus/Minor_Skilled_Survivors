@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7819c08d0ced6e04a80d8334795e61cb, type: 3}
   m_Name: AA-TurretAttackingStandard
   m_EditorClassIdentifier: 
-  dmg: 0
+  dmg: 1
   range: 50
   attackSpeed: 0.1
-  possibleAttackTargets: 0000000001000000
+  possibleAttackTargets: 00000000
   projectilePrefab: {fileID: 7031068637116403174, guid: 99ab461b4b5e39b4da15914becdceea8,
     type: 3}
   projectileSpeed: 20000

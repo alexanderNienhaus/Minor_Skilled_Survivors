@@ -7,5 +7,6 @@ public class AttackableSO : ScriptableObject
     public AttackableUnitType attackableUnitType;
     public float startHp;
     public int ressourceCost;
+    public Vector3 halfBounds;
     public float boundsRadius;
 }

@@ -15,4 +15,5 @@ MonoBehaviour:
   attackableUnitType: 5
   startHp: 10000
   ressourceCost: 0
-  boundsRadius: 3
+  halfBounds: {x: 0, y: 0, z: 0}
+  boundsRadius: 4

@@ -1,29 +1,32 @@
 using Unity.Entities;
-using UnityEngine;
 
 public partial class RessourceSystem : SystemBase
 {
-    private RefRW<Ressource> ressource;
+    private void OnResource(OnResourceChangedEvent pOnResourceChangedEvent)
+    {
+        SystemAPI.GetSingletonRW<Ressource>().ValueRW.currentRessourceCount += pOnResourceChangedEvent.resource;
+        EventBus<OnResourceChangedUIEvent>.Publish(new OnResourceChangedUIEvent(SystemAPI.GetSingleton<Ressource>().currentRessourceCount));
+    }
 
     protected override void OnCreate()
     {
+        EventBus<OnResourceChangedEvent>.OnEvent += OnResource;
         RequireForUpdate<Ressource>();
     }
 
     protected override void OnUpdate()
     {
-        ressource = SystemAPI.GetSingletonRW<Ressource>();
-        EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(ressource.ValueRW.currentRessourceCount));
+        Enabled = false;
+        EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(0));
     }
 
-    public void AddRessource(int add)
+    protected override void OnDestroy()
     {
-        ressource.ValueRW.currentRessourceCount += add;
-        //Debug.Log("Ressources: " + ressource.ValueRO.currentRessourceCount);
+        EventBus<OnResourceChangedEvent>.OnEvent -= OnResource;
     }
 
     public int GetResourceCount()
     {
-        return ressource.ValueRO.currentRessourceCount;
+        return SystemAPI.GetSingleton<Ressource>().currentRessourceCount;
     }
 }
