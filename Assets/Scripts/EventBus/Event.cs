@@ -74,3 +74,23 @@ public class OnWaveNumberChangedEvent : CustomEvent
         waveNumber = pWaveNumber;
     }
 }
+
+public class OnEndGameEvent : CustomEvent
+{
+    public bool won;
+
+    public OnEndGameEvent(bool pWon)
+    {
+        won = pWon;
+    }
+}
+
+public class OnInfoMenuTextChangeEvent : CustomEvent
+{
+    public string text;
+
+    public OnInfoMenuTextChangeEvent(string pText)
+    {
+        text = pText;
+    }
+}

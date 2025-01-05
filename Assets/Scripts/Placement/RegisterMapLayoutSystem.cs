@@ -6,28 +6,33 @@ using UnityEngine;
 
 public partial class RegisterMapLayoutSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireForUpdate<RegisterMapLayout>();
+    }
+
     protected override void OnUpdate()
     {
         Enabled = false;
 
-        GridObjectPlacement gridObjectPlacementInstance = GridObjectPlacement.Instance;
+        GridObjectPlacementManager gridObjectPlacementInstance = GridObjectPlacementManager.Instance;
         foreach ((RefRO<RegisterMapLayout> registerMapLayout, RefRO<LocalTransform> localTransform)
             in SystemAPI.Query<RefRO<RegisterMapLayout>, RefRO<LocalTransform>>())
         {
-            PlacedObjectTypeSO.Dir direction = PlacedObjectTypeSO.GetRotationDirection(registerMapLayout.ValueRO.rotationAngle);
+            PlacableObjectTypeSO.Dir direction = PlacableObjectTypeSO.GetRotationDirection(registerMapLayout.ValueRO.rotationAngle);
             gridObjectPlacementInstance.SetDirection(direction);
             gridObjectPlacementInstance.SetPlacedObjectTypeSO(registerMapLayout.ValueRO.type);
 
             float3 positionOffset = float3.zero;
             switch (direction)
             {
-                case PlacedObjectTypeSO.Dir.Left:
+                case PlacableObjectTypeSO.Dir.Left:
                     positionOffset = new float3(0, 0, registerMapLayout.ValueRO.halfBoundsX * 2);
                     break;
-                case PlacedObjectTypeSO.Dir.Right:
+                case PlacableObjectTypeSO.Dir.Right:
                     positionOffset = new float3(registerMapLayout.ValueRO.halfBoundsZ * 2, 0, 0);
                     break;
-                case PlacedObjectTypeSO.Dir.Up:
+                case PlacableObjectTypeSO.Dir.Up:
                     positionOffset = new float3(registerMapLayout.ValueRO.halfBoundsX * 2, 0, registerMapLayout.ValueRO.halfBoundsZ * 2);
                     break;
             }

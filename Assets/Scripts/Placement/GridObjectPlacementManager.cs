@@ -1,15 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
-using CodeMonkey.Utils;
 using Unity.Entities;
 
-public class GridObjectPlacement : MonoBehaviour
+public class GridObjectPlacementManager : MonoBehaviour
 {
-    public static GridObjectPlacement Instance { get { return _instance; } }
-    private static GridObjectPlacement _instance;
+    public static GridObjectPlacementManager Instance { get { return _instance; } }
+    private static GridObjectPlacementManager _instance;
 
-    [SerializeField] private List<PlacedObjectTypeSO> placedObjectTypeSOList;
+    [SerializeField] private List<PlacableObjectTypeSO> placedObjectTypeSOList;
     [SerializeField] private LayerMask mouseColliderMask;
+
+    [Header("GUI Info Messages")]
+    [SerializeField] private string objectPlacedSuccessfully;
+    [SerializeField] private string notEnoughResources;
+    [SerializeField] private string cantBuildHere;
+    [SerializeField] private string notInBuildingPhase;
 
     [Header("Grid")]
     [SerializeField] private int gridWidth = 100;
@@ -22,8 +27,8 @@ public class GridObjectPlacement : MonoBehaviour
     [SerializeField] private int gridDebugTextSize = 10;
 
     private GridXZ<GridObject> grid;
-    private PlacedObjectTypeSO placedObjectTypeSO;
-    private PlacedObjectTypeSO.Dir direction = PlacedObjectTypeSO.Dir.Down;
+    private PlacableObjectTypeSO placedObjectTypeSO;
+    private PlacableObjectTypeSO.Dir direction = PlacableObjectTypeSO.Dir.Down;
     private PlacedEntityManagementSystem placableObjectsSpawningSystem;
     private int placedObjectIndex;
 
@@ -57,15 +62,15 @@ public class GridObjectPlacement : MonoBehaviour
 
     public Quaternion GetPlacedObjectRotation()
     {
-        return Quaternion.Euler(0, PlacedObjectTypeSO.GetRotationAngle(direction), 0);
+        return Quaternion.Euler(0, PlacableObjectTypeSO.GetRotationAngle(direction), 0);
     }
 
-    public PlacedObjectTypeSO GetPlacedObjectTypeSO()
+    public PlacableObjectTypeSO GetPlacedObjectTypeSO()
     {
         return placedObjectTypeSO;
     }
 
-    public void SetDirection(PlacedObjectTypeSO.Dir pDirection)
+    public void SetDirection(PlacableObjectTypeSO.Dir pDirection)
     {
         direction = pDirection;
     }
@@ -110,14 +115,7 @@ public class GridObjectPlacement : MonoBehaviour
             GetGridPosFromWorldPos(GetMouseWorldPos(), out int x, out int z);
             List<Vector2Int> gridPosList = GetGridPosList(x, z);
 
-            if (CanBuild(gridPosList))
-            {
-                PlaceBuilding(x, z, gridPosList);
-            }
-            else
-            {
-                UtilsClass.CreateWorldTextPopup("Cannot build here!", GetMouseWorldPos());
-            }
+            BuildIfPreconditionsMatch(x, z, gridPosList);
         }
 
         if (Input.GetMouseButtonDown(2))
@@ -127,7 +125,7 @@ public class GridObjectPlacement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R))
         {
-            direction = PlacedObjectTypeSO.GetNextDir(direction);
+            direction = PlacableObjectTypeSO.GetNextDir(direction);
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -140,7 +138,49 @@ public class GridObjectPlacement : MonoBehaviour
         {
             placedObjectTypeSO = placedObjectTypeSOList[1];
             EventBus<OnSelectedPlacableObjectChanged>.Publish(new OnSelectedPlacableObjectChanged());
-        }       
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            placedObjectTypeSO = placedObjectTypeSOList[2];
+            EventBus<OnSelectedPlacableObjectChanged>.Publish(new OnSelectedPlacableObjectChanged());
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            placedObjectTypeSO = placedObjectTypeSOList[3];
+            EventBus<OnSelectedPlacableObjectChanged>.Publish(new OnSelectedPlacableObjectChanged());
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
+        {
+            placedObjectTypeSO = null;
+        }
+    }
+
+    private void BuildIfPreconditionsMatch(int x, int z, List<Vector2Int> gridPosList)
+    {
+        if (!World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<TimerSystem>().IsBuildTime())
+        {
+            EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(notInBuildingPhase));
+            return;
+        }
+
+        if (!CanBuild(gridPosList))
+        {
+            EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(cantBuildHere));
+            return;
+        }
+
+        if (World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<RessourceSystem>().GetResourceCount() < placedObjectTypeSO.cost)
+        {
+            EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(notEnoughResources));
+            return;
+        }
+
+        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<RessourceSystem>().AddRessource(-placedObjectTypeSO.cost);
+        PlaceBuilding(x, z, gridPosList);
+        EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(objectPlacedSuccessfully));
     }
 
     private bool CanBuild(List<Vector2Int> gridPosList)
@@ -153,7 +193,6 @@ public class GridObjectPlacement : MonoBehaviour
                 return false;
             }
         }
-
         return true;
     }
 
@@ -171,7 +210,7 @@ public class GridObjectPlacement : MonoBehaviour
         if (pCreateEntity)
         {
             placableObjectsSpawningSystem.CreateEntity(placedObjectTypeSO.index, placedObjectWorldPos,
-                Quaternion.Euler(0, PlacedObjectTypeSO.GetRotationAngle(direction), 0), id);
+                Quaternion.Euler(0, PlacableObjectTypeSO.GetRotationAngle(direction), 0), placedObjectTypeSO.scale, id);
         }
 
         ProjectOntoPathfindingGrid(placedObject.GetPlacedObjectTypeSO(), gridPosList, false);
@@ -216,7 +255,7 @@ public class GridObjectPlacement : MonoBehaviour
         placableObjectsSpawningSystem.DestroyEntity(placedObject.GetId());
     }
     
-    private void ProjectOntoPathfindingGrid(PlacedObjectTypeSO pPlacedObjectTypeSO, List<Vector2Int> pGridPositions, bool pSetIsWalkable)
+    private void ProjectOntoPathfindingGrid(PlacableObjectTypeSO pPlacedObjectTypeSO, List<Vector2Int> pGridPositions, bool pSetIsWalkable)
     {
         GridXZ<GridNode> pathfindingGrid = PathfindingGridSetup.Instance.pathfindingGrid;
 
@@ -225,8 +264,8 @@ public class GridObjectPlacement : MonoBehaviour
             + new Vector3(1, 0, 1) * pathfindingGrid.GetCellSize() * 0.5f;
         pathfindingGrid.GetXZ(bottomLeftCornerWorldPos, out int pathfindingfGridBottomLeftCellX, out int pathfindingfGridBottomLeftCellZ);
 
-        int width = direction == PlacedObjectTypeSO.Dir.Down || direction == PlacedObjectTypeSO.Dir.Up ? pPlacedObjectTypeSO.width : pPlacedObjectTypeSO.length;
-        int length = direction == PlacedObjectTypeSO.Dir.Down || direction == PlacedObjectTypeSO.Dir.Up ? pPlacedObjectTypeSO.length : pPlacedObjectTypeSO.width;
+        int width = direction == PlacableObjectTypeSO.Dir.Down || direction == PlacableObjectTypeSO.Dir.Up ? pPlacedObjectTypeSO.width : pPlacedObjectTypeSO.length;
+        int length = direction == PlacableObjectTypeSO.Dir.Down || direction == PlacableObjectTypeSO.Dir.Up ? pPlacedObjectTypeSO.length : pPlacedObjectTypeSO.width;
         float cellSizeFactor = cellSize / pathfindingGrid.GetCellSize();
         float xMax = pathfindingfGridBottomLeftCellX + width * cellSizeFactor;
         float zMax = pathfindingfGridBottomLeftCellZ + length * cellSizeFactor;

@@ -4,11 +4,11 @@ using UnityEngine;
 public class PlacedObject
 {
     private int id;
-    private PlacedObjectTypeSO placedObjectTypeSO;
+    private PlacableObjectTypeSO placedObjectTypeSO;
     private Vector2Int origin;
-    private PlacedObjectTypeSO.Dir direction;
+    private PlacableObjectTypeSO.Dir direction;
 
-    public PlacedObject(PlacedObjectTypeSO pPlacedObjectTypeSO, Vector2Int pOrigin, PlacedObjectTypeSO.Dir pDirection)
+    public PlacedObject(PlacableObjectTypeSO pPlacedObjectTypeSO, Vector2Int pOrigin, PlacableObjectTypeSO.Dir pDirection)
     {
         placedObjectTypeSO = pPlacedObjectTypeSO;
         origin = pOrigin;
@@ -20,7 +20,7 @@ public class PlacedObject
         return placedObjectTypeSO.GetGridPosList(origin, direction);
     }
 
-    public PlacedObjectTypeSO GetPlacedObjectTypeSO()
+    public PlacableObjectTypeSO GetPlacedObjectTypeSO()
     {
         return placedObjectTypeSO;
     }

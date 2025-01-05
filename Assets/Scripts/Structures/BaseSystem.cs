@@ -9,7 +9,12 @@ public partial class BaseSystem : SystemBase
     {
         foreach (RefRO<Attackable> attackable in SystemAPI.Query<RefRO<Attackable>>().WithAll<Base>())
         {
-            EventBus<OnBaseHPEvent>.Publish(new OnBaseHPEvent(attackable.ValueRO.currentHp));
+            float hp = attackable.ValueRO.currentHp;
+            EventBus<OnBaseHPEvent>.Publish(new OnBaseHPEvent(hp));
+            if (hp <= 0)
+            {
+                EventBus<OnEndGameEvent>.Publish(new OnEndGameEvent(false));
+            }
         }
     }
 }

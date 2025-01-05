@@ -21,4 +21,9 @@ public partial class RessourceSystem : SystemBase
         ressource.ValueRW.currentRessourceCount += add;
         //Debug.Log("Ressources: " + ressource.ValueRO.currentRessourceCount);
     }
+
+    public int GetResourceCount()
+    {
+        return ressource.ValueRO.currentRessourceCount;
+    }
 }

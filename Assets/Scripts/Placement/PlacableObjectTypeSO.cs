@@ -2,16 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "ScriptableObjects/PlacedObjectTypeSO")]
-public class PlacedObjectTypeSO : ScriptableObject
+public class PlacableObjectTypeSO : ScriptableObject
 {
-    [Header("Placed Object")]
+    [Header("Placable Object")]
     public int index;
     public new string name;
     public Transform visual;
+    public int cost;
 
     [Header("Dimensions")]
     public int width;
     public int length;
+    public float scale;
 
     public enum Dir
     {

@@ -5,7 +5,10 @@ public partial class PathFollowSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        GridXZ<GridNode> grid = PathfindingGridSetup.Instance.pathfindingGrid;
+        PathfindingGridSetup pathfindingGridSetup = PathfindingGridSetup.Instance;
+        if (pathfindingGridSetup == null)
+            return;
+        GridXZ<GridNode> grid = pathfindingGridSetup.pathfindingGrid;
 
         PathFollowJob followpathJob = new PathFollowJob
         {

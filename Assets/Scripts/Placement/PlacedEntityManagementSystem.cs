@@ -9,6 +9,7 @@ public partial class PlacedEntityManagementSystem : SystemBase
     private EntityCommandBuffer ecb;
     private Vector3 worldPos;
     private quaternion rotation;
+    private float scale;
     private int index;
     private int id;
     private bool spawn;
@@ -16,7 +17,7 @@ public partial class PlacedEntityManagementSystem : SystemBase
 
     protected override void OnCreate()
     {
-        RequireForUpdate<PlacableObjectsBuffer>();
+        RequireForUpdate<PlacableEntityBuffer>();
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         spawn = false;
         destroy = false;
@@ -27,14 +28,14 @@ public partial class PlacedEntityManagementSystem : SystemBase
         ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
         if (spawn)
         {
-            foreach (DynamicBuffer<PlacableObjectsBuffer> gridObjectSpawner in SystemAPI.Query<DynamicBuffer<PlacableObjectsBuffer>>())
+            foreach (DynamicBuffer<PlacableEntityBuffer> gridObjectSpawner in SystemAPI.Query<DynamicBuffer<PlacableEntityBuffer>>())
             {
                 Entity placedEntity = ecb.Instantiate(gridObjectSpawner[index].prefab);
                 ecb.SetComponent(placedEntity, new LocalTransform
                 {
                     Position = worldPos,
                     Rotation = rotation,
-                    Scale = 1
+                    Scale = scale
                 });
                 ecb.AddComponent<Parent>(placedEntity);
                 ecb.SetComponent(placedEntity, new Parent { Value = gridObjectSpawner[index].parent });
@@ -57,10 +58,11 @@ public partial class PlacedEntityManagementSystem : SystemBase
         }
     }
 
-    public void CreateEntity(int pIndex, Vector3 pWorldPos, quaternion pRotation, int pId)
+    public void CreateEntity(int pIndex, Vector3 pWorldPos, quaternion pRotation, float pScale, int pId)
     {
         worldPos = pWorldPos;
         rotation = pRotation;
+        scale = pScale;
         index = pIndex;
         id = pId;
         spawn = true;

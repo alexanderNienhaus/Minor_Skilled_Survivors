@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c7665bebd734181448b7823e20eb9eac, type: 3}
-  m_Name: Building2
+  m_Name: BuildingAATurret
   m_EditorClassIdentifier: 
-  index: 3
-  name: building2
-  visual: {fileID: 2382419788130265397, guid: 67b9012ac01ff7049bcb8dc5931ae30e, type: 3}
-  cost: 0
-  width: 14
-  length: 4
+  index: 0
+  name: AA-Turret
+  visual: {fileID: 1740990030366238962, guid: 82abb30962043c04f84a3476432ee519, type: 3}
+  cost: 100
+  width: 6
+  length: 6
   scale: 1

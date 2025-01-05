@@ -5,10 +5,19 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MinorSkilledSurvivors_Demo.unity
     guid: d64971124a362ee4e8ce3806c900db5e
-  - enabled: 0
+  - enabled: 1
+    path: Assets/Scenes/MinorSkilledSurvivors_Menu.unity
+    guid: d6bf4acf23af371408991db8f3f3c9a6
+  - enabled: 1
     path: Assets/Scenes/MinorSkilledSurvivors_Main.unity
     guid: 8bf74f4cbbcbf9649b1c99e84bcd760d
+  - enabled: 1
+    path: Assets/Scenes/MinorSkilledSurvivors_Lost.unity
+    guid: 5c9ab9ec840fce24582ec3f2b3ef2ce3
+  - enabled: 1
+    path: Assets/Scenes/MinorSkilledSurvivors_Won.unity
+    guid: e7d6ebd69d3400e4fad5906b12e7146e
   m_configObjects: {}

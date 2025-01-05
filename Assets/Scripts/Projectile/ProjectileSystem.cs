@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Transforms;
 
 public partial class ProjectileSystem : SystemBase
 {
@@ -20,6 +21,8 @@ public partial class ProjectileSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
             }
+
+            //ecb.RemoveComponent<Parent>(entity);
         }
     }
 }

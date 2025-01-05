@@ -144,11 +144,11 @@ public class CameraController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.R))
         {
-            newZoom += zoomAmount;
+            //newZoom += zoomAmount;
         }
         if (Input.GetKey(KeyCode.F))
         {
-            newZoom -= zoomAmount;
+            //newZoom -= zoomAmount;
         }
         if (Input.GetKey(KeyCode.T))
         {

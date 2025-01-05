@@ -67,10 +67,11 @@ public partial class AATurretAttackingSystem : SystemBase
         Entity projectile = ecb.Instantiate(attacking.ValueRO.projectilePrefab);
 
         DynamicBuffer<LinkedEntityGroup> children = EntityManager.GetBuffer<LinkedEntityGroup>(unitEntity);
-        LocalTransform mount = EntityManager.GetComponentData<LocalTransform>(children.ElementAt(2).Value);
-        LocalTransform head = EntityManager.GetComponentData<LocalTransform>(children.ElementAt(5).Value);
+        LocalTransform mount = EntityManager.GetComponentData<LocalTransform>(children.ElementAt(3).Value);
+        LocalTransform head = EntityManager.GetComponentData<LocalTransform>(children.ElementAt(6).Value);
+        LocalTransform model = EntityManager.GetComponentData<LocalTransform>(children.ElementAt(1).Value);
 
-        float3 spawnPos = unitPos + mount.Position + head.Position + attacking.ValueRO.projectileSpawnOffset;
+        float3 spawnPos = unitPos + model.Position + mount.Position + head.Position + attacking.ValueRO.projectileSpawnOffset;
         float3 targetVelocity = boid.velocity;
         float3 unitToEnemy = enemyPos - spawnPos;
         float unitToEnemyDist = math.length(unitToEnemy);
@@ -96,30 +97,33 @@ public partial class AATurretAttackingSystem : SystemBase
         });
 
         //ecb.AddComponent<Parent>(projectile);
-        //ecb.SetComponent(projectile, new Parent { Value = attacking.ValueRO.parent });
-        
-        float3 mountToEnemy = enemyPos - unitPos;
-        mountToEnemy.y = 0;
-        mountToEnemy = math.normalize(mountToEnemy);
-        quaternion targetRotMount = quaternion.LookRotation(mountToEnemy, mount.Up());
-        ecb.SetComponent(children.ElementAt(2).Value, new LocalTransform
-        {
-            Position = mount.Position,
-            Rotation = targetRotMount,//math.slerp(mount.Rotation, targetRotMount, aaTurret.ValueRO.turnSpeed * SystemAPI.Time.DeltaTime),
-            Scale = mount.Scale
-        });        
+        //ecb.SetComponent(projectile, new Parent { Value = children.ElementAt(6).Value });
+
+        //6 10.5 13 Projectile spawn offset 0 0 4
 
         float3 headToEnemy = enemyPos - spawnPos;
         headToEnemy.x = 0;
         headToEnemy.z = math.abs(headToEnemy.z);
         headToEnemy = math.normalize(headToEnemy);
         quaternion targetRotHead = quaternion.LookRotation(headToEnemy, head.Up());        
-        ecb.SetComponent(children.ElementAt(5).Value, new LocalTransform  
+        ecb.SetComponent(children.ElementAt(6).Value, new LocalTransform
         {
             Position = head.Position,
             Rotation = targetRotHead,//math.slerp(head.Rotation, targetRotHead, aaTurret.ValueRO.turnSpeed * SystemAPI.Time.DeltaTime),
             Scale = head.Scale
-        });        
+        });
+        
+        float3 mountToEnemy = enemyPos - spawnPos;
+        mountToEnemy.y = 0;
+        mountToEnemy = math.normalize(mountToEnemy);
+        quaternion targetRotMount = quaternion.LookRotation(mountToEnemy, mount.Up());
+        ecb.SetComponent(children.ElementAt(3).Value, new LocalTransform
+        {
+            Position = mount.Position,
+            Rotation = targetRotMount,//math.slerp(mount.Rotation, targetRotMount, aaTurret.ValueRO.turnSpeed * SystemAPI.Time.DeltaTime),
+            Scale = mount.Scale
+        });   
+        
         return ecb;
     }
 

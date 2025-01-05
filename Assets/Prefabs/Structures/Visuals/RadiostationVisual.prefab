@@ -12,12 +12,11 @@ GameObject:
   - component: {fileID: 5883125240614103830}
   - component: {fileID: 2901134233471744709}
   - component: {fileID: -8783670337041310735}
+  - component: {fileID: 5184406391055098532}
   - component: {fileID: 5267758238755373067}
   - component: {fileID: 2846735803579245487}
-  - component: {fileID: 4445523274533682592}
-  - component: {fileID: 8187613256396141971}
   m_Layer: 0
-  m_Name: Radiostation
+  m_Name: RadiostationVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33,9 +32,10 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6449487997520658607}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5883125240614103830
@@ -74,6 +74,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c16549610bfe4458aa9389201d072bb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5184406391055098532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2611089992737321450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90e56e08f02175748bd2aa8375f974d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &5267758238755373067
@@ -141,13 +153,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ShapeType: 0
   m_PrimitiveCenter:
-    x: 0.0020450354
-    y: 3.3726795
-    z: 0.6308038
+    x: 8.2
+    y: 6.745359
+    z: 6.68
   m_PrimitiveSize:
-    x: 3.6256428
-    y: 6.7532907
-    z: 7.4205303
+    x: 15.636463
+    y: 13.506581
+    z: 10.29
   m_PrimitiveOrientation:
     Value:
       x: -0
@@ -155,15 +167,15 @@ MonoBehaviour:
       z: 0
     RotationOrder: 4
   m_Capsule:
-    Height: 7.4205303
-    Radius: 3.3766453
-    Axis: 2
-  m_Cylinder:
-    Height: 3.6256428
-    Radius: 3.7102652
+    Height: 15.636463
+    Radius: 6.7532907
     Axis: 0
+  m_Cylinder:
+    Height: 10.29
+    Radius: 7.8182316
+    Axis: 2
   m_CylinderSideCount: 20
-  m_SphereRadius: 3.7102652
+  m_SphereRadius: 7.8182316
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.11130795
@@ -270,21 +282,54 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
---- !u!33 &4445523274533682592
+--- !u!1 &7541865141348229298
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6449487997520658607}
+  - component: {fileID: 4397753098666153635}
+  - component: {fileID: 4591398694446736008}
+  m_Layer: 0
+  m_Name: Model
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6449487997520658607
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7541865141348229298}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 8, y: 0, z: 4}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8047838369015550063}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!33 &4397753098666153635
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2611089992737321450}
+  m_GameObject: {fileID: 7541865141348229298}
   m_Mesh: {fileID: -4747843439444250912, guid: f274e175e0161714997d650b56172790, type: 3}
---- !u!23 &8187613256396141971
+--- !u!23 &4591398694446736008
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2611089992737321450}
+  m_GameObject: {fileID: 7541865141348229298}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1

@@ -42,4 +42,9 @@ public partial class TimerSystem : SystemBase
         isFighting = false;
         currentBuildTime = 0;
     }
+
+    public bool IsBuildTime()
+    {
+        return !isFighting;
+    }
 }

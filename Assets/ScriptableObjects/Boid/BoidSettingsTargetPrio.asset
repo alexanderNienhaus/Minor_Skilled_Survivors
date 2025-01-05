@@ -13,17 +13,17 @@ MonoBehaviour:
   m_Name: BoidSettingsTargetPrio
   m_EditorClassIdentifier: 
   minSpeed: 5
-  maxSpeed: 8
-  perceptionRadius: 2.5
-  avoidanceRadius: 2
+  maxSpeed: 10
+  perceptionRadius: 6
+  avoidanceRadius: 6
   maxSteerForce: 12
   alignWeight: 2
   cohesionWeight: 1
-  seperateWeight: 2
+  seperateWeight: 3.5
   targetWeight: 4
   obstacleMask:
     serializedVersion: 2
     m_Bits: 4224
-  boundsRadius: 0.5
+  boundsRadius: 5
   avoidCollisionWeight: 50
   collisionAvoidDst: 10

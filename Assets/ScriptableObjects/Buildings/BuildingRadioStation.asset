@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c7665bebd734181448b7823e20eb9eac, type: 3}
-  m_Name: Building2
+  m_Name: BuildingRadioStation
   m_EditorClassIdentifier: 
-  index: 3
-  name: building2
-  visual: {fileID: 2382419788130265397, guid: 67b9012ac01ff7049bcb8dc5931ae30e, type: 3}
-  cost: 0
-  width: 14
+  index: 1
+  name: Radiostation
+  visual: {fileID: 8047838369015550063, guid: 47edf9214623d3b4aa1ca1d3014d6e01, type: 3}
+  cost: 100
+  width: 8
   length: 4
   scale: 1

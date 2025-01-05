@@ -3,19 +3,19 @@ using Unity.Entities;
 using Unity.Burst;
 using System.Collections.Generic;
 
-public class PlacableObjectsBufferAuthoring : MonoBehaviour
+public class PlacableEntityBufferAuthoring : MonoBehaviour
 {
     [SerializeField] private List<GameObject> prefabs;
 
-    private class Baker : Baker<PlacableObjectsBufferAuthoring>
+    private class Baker : Baker<PlacableEntityBufferAuthoring>
     {
-        public override void Bake(PlacableObjectsBufferAuthoring pAuthoring)
+        public override void Bake(PlacableEntityBufferAuthoring pAuthoring)
         {
             Entity entity = GetEntity(TransformUsageFlags.None);
-            AddBuffer<PlacableObjectsBuffer>(entity);
+            AddBuffer<PlacableEntityBuffer>(entity);
             foreach (GameObject prefab in pAuthoring.prefabs)
             {
-                AppendToBuffer(entity, new PlacableObjectsBuffer
+                AppendToBuffer(entity, new PlacableEntityBuffer
                 {
                     prefab = GetEntity(prefab, TransformUsageFlags.Dynamic),
                     parent = GetEntity(pAuthoring.gameObject, TransformUsageFlags.Dynamic)
@@ -27,7 +27,7 @@ public class PlacableObjectsBufferAuthoring : MonoBehaviour
 
 [BurstCompile]
 [InternalBufferCapacity(0)]
-public struct PlacableObjectsBuffer : IBufferElementData
+public struct PlacableEntityBuffer : IBufferElementData
 {
     public Entity prefab;
     public Entity parent;

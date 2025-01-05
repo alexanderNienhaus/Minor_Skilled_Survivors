@@ -19,6 +19,7 @@ public partial class WaveSystem : SystemBase
     private float currentWaveTolerance;
     private int currentSpawnNumber;
     private BoidSettings boidSettings;
+    private bool lastWave;
 
     protected override void OnCreate()
     {
@@ -28,6 +29,7 @@ public partial class WaveSystem : SystemBase
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         currentWaveNumber = 0;
         currentWaveTolerance = 0.05f;
+        lastWave = false;
         isActive = false;
     }
 
@@ -66,6 +68,10 @@ public partial class WaveSystem : SystemBase
         {
             isActive = false;
             timerSystem.BuildPhaseStart();
+            if (lastWave)
+            {
+                EventBus<OnEndGameEvent>.Publish(new OnEndGameEvent(true));
+            }
             return true;
         }
         return false;
@@ -83,6 +89,11 @@ public partial class WaveSystem : SystemBase
                 spawn.spawnRadiusMax, spawn.isSphericalSpawn);
 
             currentSpawnNumber++;
+
+            if (currentSpawnNumber >= spawns.Length)
+            {
+                lastWave = true;
+            }
         }
     }
 
@@ -105,12 +116,13 @@ public partial class WaveSystem : SystemBase
         float3 boidStartSpeed = (boidSettings.minSpeed + boidSettings.maxSpeed) / 2;
         for (int i = 0; i < amountToSpawn; i++)
         {
-            float3 facingDirection = r.NextFloat3Direction();
-            float3 randomDistance = facingDirection * r.NextFloat(spawnRadiusMin, spawnRadiusMax);
+            float3 facingDirection = math.normalize(r.NextFloat3Direction());
             if (!isSphericalSpawn)
             {
-                randomDistance.y = 0;
+                facingDirection.y = 0;
             }
+            float3 randomDistance = facingDirection * r.NextFloat(spawnRadiusMin, spawnRadiusMax);
+
             float3 pos = spawnPosition + randomDistance;
             quaternion rotation = quaternion.LookRotation(facingDirection, new float3(0, 1, 0));
             Entity entity = ecb.Instantiate(prefab);

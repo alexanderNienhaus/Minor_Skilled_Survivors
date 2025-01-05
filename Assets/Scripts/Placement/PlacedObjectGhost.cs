@@ -33,26 +33,38 @@ public class PlacedObjectGhost : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (GridObjectPlacement.Instance == null)
+        if (visual != null && (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1)))
+        {
+            Destroy(visual.gameObject);
+            visual = null;
+        }
+
+        if (GridObjectPlacementManager.Instance == null)
         {
             return;
         }
 
-        Vector3 targetPos = GridObjectPlacement.Instance.GetMouseWorldSnappedPos() - new Vector3(0.5f, 0, 0.5f) * GridObjectPlacement.Instance.GetCellSize();
+        Vector3 targetPos = GridObjectPlacementManager.Instance.GetMouseWorldSnappedPos() - new Vector3(0.5f, 0, 0.5f) * GridObjectPlacementManager.Instance.GetCellSize();
         
         targetPos.y = ghostY;
         transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * lerpSpeed);
-        transform.rotation = Quaternion.Lerp(transform.rotation, GridObjectPlacement.Instance.GetPlacedObjectRotation(), Time.deltaTime * lerpSpeed);
+        transform.rotation = Quaternion.Lerp(transform.rotation, GridObjectPlacementManager.Instance.GetPlacedObjectRotation(), Time.deltaTime * lerpSpeed);
 
-        if (GridObjectPlacement.Instance.GetCanBuild() && visual != null)
+        if (GridObjectPlacementManager.Instance.GetCanBuild() && visual != null)
         {
             //SetLayerRecursive(visual.gameObject, ghostLayerBlue);
-            visual.GetComponentInChildren<MeshRenderer>().material = ghostMaterialBlue;
+            foreach (MeshRenderer meshRenderer in visual.GetComponentsInChildren<MeshRenderer>())
+            {
+                meshRenderer.material = ghostMaterialBlue;
+            }
         }
         else if (visual != null)
         {
             //SetLayerRecursive(visual.gameObject, ghostLayerRed);
-            visual.GetComponentInChildren<MeshRenderer>().material = ghostMaterialRed;
+            foreach (MeshRenderer meshRenderer in visual.GetComponentsInChildren<MeshRenderer>())
+            {
+                meshRenderer.material = ghostMaterialRed;
+            }
         }
     }
 
@@ -64,7 +76,7 @@ public class PlacedObjectGhost : MonoBehaviour
             visual = null;
         }
 
-        PlacedObjectTypeSO placedObjectTypeSO = GridObjectPlacement.Instance?.GetPlacedObjectTypeSO();
+        PlacableObjectTypeSO placedObjectTypeSO = GridObjectPlacementManager.Instance?.GetPlacedObjectTypeSO();
 
         if (placedObjectTypeSO != null)
         {
