@@ -1167,7 +1167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   originPos: {x: -200, y: 0, z: -200}
-  gridShowDebug: 1
+  gridShowDebug: 0
   gridDebugTextSize: 10
   gridWidth: 200
   gridLength: 200
@@ -2410,7 +2410,7 @@ MonoBehaviour:
   gridLength: 200
   cellSize: 2
   originPos: {x: -200, y: 0, z: -200}
-  gridShowDebug: 1
+  gridShowDebug: 0
   gridDebugTextSize: 10
 --- !u!1 &1860404515
 GameObject:

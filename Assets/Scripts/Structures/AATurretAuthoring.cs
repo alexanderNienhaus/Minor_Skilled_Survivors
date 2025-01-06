@@ -7,6 +7,9 @@ using Unity.Transforms;
 public class AATurretAuthoring : MonoBehaviour
 {
     [SerializeField] private float turnSpeed;
+    [SerializeField] private int childNumberModel = 1;
+    [SerializeField] private int childNumberMount = 3;
+    [SerializeField] private int childNumberHead = 6;
 
     private class Baker : Baker<AATurretAuthoring>
     {
@@ -15,7 +18,10 @@ public class AATurretAuthoring : MonoBehaviour
             Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new AATurret
             {
-                turnSpeed = pAuthoring.turnSpeed
+                turnSpeed = pAuthoring.turnSpeed,
+                childNumberModel = pAuthoring.childNumberModel,
+                childNumberMount = pAuthoring.childNumberMount,
+                childNumberHead = pAuthoring.childNumberHead
             });
         }
     }
@@ -25,5 +31,8 @@ public class AATurretAuthoring : MonoBehaviour
 public struct AATurret : IComponentData
 {
     public float turnSpeed;
+    public int childNumberModel;
+    public int childNumberMount;
+    public int childNumberHead;
 }
 

@@ -78,10 +78,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75390bc4ac90edd4aa75eb0943497088, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 500
-  rotationSpeed: 5
-  checkDistanceFinal: 0.5
-  yValue: 2
   pathFollowSO: {fileID: 11400000, guid: c357c596ad1ab87438bd179afeb7855f, type: 2}
 --- !u!114 &8084369460370887620
 MonoBehaviour:
@@ -176,9 +172,9 @@ MonoBehaviour:
     y: -0.0981136
     z: -0.30684304
   m_PrimitiveSize:
-    x: 1
-    y: 1
-    z: 1
+    x: 1.5
+    y: 1.5
+    z: 1.5
   m_PrimitiveOrientation:
     Value:
       x: -90
@@ -186,15 +182,15 @@ MonoBehaviour:
       z: -90
     RotationOrder: 4
   m_Capsule:
-    Height: 1
-    Radius: 0.5
+    Height: 1.5
+    Radius: 0.75
     Axis: 2
   m_Cylinder:
-    Height: 1
-    Radius: 0.5
+    Height: 1.5
+    Radius: 0.75
     Axis: 2
   m_CylinderSideCount: 20
-  m_SphereRadius: 0.5
+  m_SphereRadius: 0.75
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 1.3327562

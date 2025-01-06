@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: TestWave
   m_EditorClassIdentifier: 
   spawns:
-  - {fileID: 11400000, guid: 03311e56927f4734a91087ab3fb425d7, type: 2}
+  - {fileID: 11400000, guid: dddae28dc84064546a74aa844705d41b, type: 2}
+  - {fileID: 11400000, guid: 345212e6fc8ad9242a7484e3424dd9bc, type: 2}

@@ -1,7 +1,6 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Physics;
 using Unity.Transforms;
 
 [BurstCompile]
@@ -11,74 +10,51 @@ public partial class DroneAttackingSystem : SystemBase
 
     protected override void OnCreate()
     {
-        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
     [BurstCompile]
     protected override void OnUpdate()
     {
+        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
-        foreach ((RefRW<PathFollow> pathFollowDrone, RefRO<LocalTransform> localTransformDrone, RefRW<Attacking> attackingDrone, DynamicBuffer<PossibleAttackTargets> possibleAttackTargets)
-            in SystemAPI.Query<RefRW<PathFollow>, RefRO<LocalTransform>, RefRW<Attacking>, DynamicBuffer<PossibleAttackTargets>>().WithAll<Drone>())
+
+        if (!CountUnits(out NativeArray<Entity> entityUnitArray))
+            return;
+
+        DroneAttackingJob droneAttackingJob = new()
         {
-            pathFollowDrone.ValueRW.enemyPos = float3.zero;
-            foreach ((RefRO<LocalTransform> localTransformUnit, RefRW<Attackable> attackableUnit, Entity unit)
-                in SystemAPI.Query<RefRO<LocalTransform>, RefRW<Attackable>>().WithEntityAccess())
-            {
-                if (!BufferContains(possibleAttackTargets, attackableUnit.ValueRO.attackableUnitType))
-                    continue;
-
-                float3 enemyToUnit = attackableUnit.ValueRO.halfBounds + localTransformUnit.ValueRO.Position - localTransformDrone.ValueRO.Position;
-                float distanceEnemyToUnitSq = math.lengthsq(enemyToUnit);
-
-                if (distanceEnemyToUnitSq - attackableUnit.ValueRO.boundsRadius * attackableUnit.ValueRO.boundsRadius < attackingDrone.ValueRO.range * attackingDrone.ValueRO.range)
-                {
-                    attackingDrone.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
-                    pathFollowDrone.ValueRW.enemyPos = localTransformUnit.ValueRO.Position;
-                    if (attackingDrone.ValueRO.currentTime > attackingDrone.ValueRO.attackSpeed)
-                    {
-                        ecb = SpawnProjectile(ecb, localTransformDrone, attackingDrone, enemyToUnit, distanceEnemyToUnitSq, SystemAPI.Time.DeltaTime);
-
-                        attackableUnit.ValueRW.currentHp -= attackingDrone.ValueRO.dmg;
-                        attackingDrone.ValueRW.currentTime = 0;
-                        if (attackableUnit.ValueRW.currentHp <= 0)
-                        {
-                            ecb.DestroyEntity(unit);
-                        }
-                    }
-                    break;
-                }
-            }
-        }
+            ecbParallelWriter = ecb.AsParallelWriter(),
+            allAttackables = GetComponentLookup<Attackable>(),
+            allLocalTransforms = GetComponentLookup<LocalTransform>(),
+            allUnitEntities = entityUnitArray,
+            deltaTime = SystemAPI.Time.DeltaTime
+        };
+        Dependency = droneAttackingJob.ScheduleParallel(Dependency);
+        beginFixedStepSimulationEcbSystem.AddJobHandleForProducer(Dependency);
     }
 
     [BurstCompile]
-    private EntityCommandBuffer SpawnProjectile(EntityCommandBuffer ecb, RefRO<LocalTransform> localTransformEnemy, RefRW<Attacking> attacking, float3 enemyToUnit, float distanceEnemyToUnit, float deltaTime)
+    private bool CountUnits(out NativeArray<Entity> pEntityUnitArray)
     {
-        float3 projectileVelocity = math.normalizesafe(enemyToUnit) * attacking.ValueRO.projectileSpeed * deltaTime;
-        float timeToLife = 2 * (distanceEnemyToUnit / (attacking.ValueRO.projectileSpeed * deltaTime * attacking.ValueRO.projectileSpeed * deltaTime));
-
-        Entity projectile = ecb.Instantiate(attacking.ValueRO.projectilePrefab);
-        ecb.SetComponent(projectile, new LocalTransform
+        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
         {
-            Position = localTransformEnemy.ValueRO.Position + attacking.ValueRO.projectileSpawnOffset,
-            Rotation = quaternion.Euler(enemyToUnit),
-            Scale = 0.5f
-        });
-        //ecb.AddComponent<Parent>(projectile);
-        //ecb.SetComponent(projectile, new Parent { Value = attacking.ValueRO.parent });
-        ecb.SetComponent(projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
-        ecb.SetComponent(projectile, new PhysicsVelocity { Linear = projectileVelocity });
-        return ecb;
-    }
+            All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform) },
+            None = new ComponentType[] { typeof(Drone), typeof(Boid) }
+        };
+        int count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
 
-    private bool BufferContains(DynamicBuffer<PossibleAttackTargets> attackableUnitTypes, AttackableUnitType attackableUnitType)
-    {
-        for (int i = attackableUnitTypes.Length - 1; i >= 0; i--)
+        int i = 0;
+        pEntityUnitArray = new NativeArray<Entity>(count, Allocator.Persistent);
+        foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, Entity entity)
+            in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>>().WithEntityAccess().WithNone<Drone, Boid>())
         {
-            if (attackableUnitTypes[i].possibleAttackTarget == attackableUnitType)
-                return true;
+            pEntityUnitArray[i] = entity;
+            i++;
         }
-        return false;
+
+        if (i == 0)
+            return false;
+
+        return true;
     }
 }

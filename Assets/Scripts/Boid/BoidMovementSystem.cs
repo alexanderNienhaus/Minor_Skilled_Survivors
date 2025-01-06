@@ -2,7 +2,9 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
+using Unity.Burst;
 
+[BurstCompile]
 public partial class BoidMovementSystem : SystemBase
 {
     private CollisionWorld collisionWorld;
@@ -14,6 +16,7 @@ public partial class BoidMovementSystem : SystemBase
         RequireForUpdate<BoidSettings>();
     }
 
+    [BurstCompile]
     protected override void OnUpdate()
     {
         boidSettings = SystemAPI.GetSingleton<BoidSettings>();
@@ -21,7 +24,7 @@ public partial class BoidMovementSystem : SystemBase
 
         NativeArray<Boid> boidArray;
         NativeArray<LocalTransform> boidLocalTransformArray;
-        CountBoids(out boidArray, out boidLocalTransformArray, World.GetExistingSystemManaged<WaveSystem>().currentNumberOfBoids);
+        CountBoids(out boidArray, out boidLocalTransformArray);
 
         ComputeBoidsJob computeBoidsJob = new ComputeBoidsJob
         {
@@ -34,11 +37,18 @@ public partial class BoidMovementSystem : SystemBase
         computeBoidsJob.ScheduleParallel();
     }
 
-    private void CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray, int spawnCount)
+    [BurstCompile]
+    private void CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray)
     {
+        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
+        {
+            All = new ComponentType[] { typeof(Boid) },
+        };
+        int count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+
         int i = 0;
-        boidArray = new NativeArray<Boid>(spawnCount + 1, Allocator.Persistent);
-        boidLocalTransformArray = new NativeArray<LocalTransform>(spawnCount + 1, Allocator.Persistent);
+        boidArray = new NativeArray<Boid>(count, Allocator.Persistent);
+        boidLocalTransformArray = new NativeArray<LocalTransform>(count, Allocator.Persistent);
         foreach ((RefRW<Boid> boid, RefRW<LocalTransform> localTransform)
             in SystemAPI.Query<RefRW<Boid>, RefRW<LocalTransform>>())
         {

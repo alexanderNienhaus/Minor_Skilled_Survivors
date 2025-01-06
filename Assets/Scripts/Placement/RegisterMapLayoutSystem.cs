@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateBefore(typeof(WaveSystem))]
 public partial class RegisterMapLayoutSystem : SystemBase
 {
     protected override void OnCreate()

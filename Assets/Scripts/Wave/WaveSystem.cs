@@ -1,17 +1,17 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[UpdateAfter(typeof(RegisterMapLayoutSystem))]
 public partial class WaveSystem : SystemBase
 {
-    public int currentNumberOfBoids;
 
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
     private EntityCommandBuffer ecb;
     private DynamicBuffer<Spawn> spawns;
-    private DynamicBuffer<Wave> waves;
     private TimerSystem timerSystem;
     private bool isActive;
     private int currentWaveNumber;
@@ -20,6 +20,14 @@ public partial class WaveSystem : SystemBase
     private int currentSpawnNumber;
     private BoidSettings boidSettings;
     private bool lastWave;
+    private NativeList<PathPositions> topPath;
+    private NativeList<PathPositions> midPath;
+    private NativeList<PathPositions> botPath;
+    private float3 topSpawn;
+    private float3 midSpawn;
+    private float3 botSpawn;
+    private bool pathFound;
+    private int currentNumberOfBoids;
 
     protected override void OnCreate()
     {
@@ -31,11 +39,24 @@ public partial class WaveSystem : SystemBase
         currentWaveTolerance = 0.05f;
         lastWave = false;
         isActive = false;
+        pathFound = false;
     }
 
     protected override void OnUpdate()
     {
         EventBus<OnWaveNumberChangedEvent>.Publish(new OnWaveNumberChangedEvent(currentWaveNumber));
+
+        if (!pathFound)
+        {
+            DronePathFindingSystem dronePathFindingSystem = World.GetExistingSystemManaged<DronePathFindingSystem>();
+            topSpawn = new float3(175, 0, -185);
+            midSpawn = new float3(175, 0, 0);
+            botSpawn = new float3(175, 0, 185);
+            topPath = dronePathFindingSystem.FindPath(topSpawn + new float3(-25, 0, 0));
+            midPath = dronePathFindingSystem.FindPath(midSpawn + new float3(-25, 0, 0));
+            botPath = dronePathFindingSystem.FindPath(botSpawn + new float3(-25, 0, 0));
+            pathFound = true;
+        }
 
         if (!isActive)
             return;
@@ -48,7 +69,6 @@ public partial class WaveSystem : SystemBase
             return;
 
         spawns = SystemAPI.GetSingletonBuffer<Spawn>();
-        waves = SystemAPI.GetSingletonBuffer<Wave>();
         boidSettings = SystemAPI.GetSingleton<BoidSettings>();
 
         SpawnFromWaves();
@@ -130,7 +150,7 @@ public partial class WaveSystem : SystemBase
             float length = r.NextFloat(spawnRadiusMin, spawnRadiusMax);
             float3 randomDistance = facingDirection * length;
 
-            float3 pos = spawnPosition + randomDistance;
+            float3 worldPos = spawnPosition + randomDistance;
             quaternion rotation = quaternion.LookRotation(facingDirection, new float3(0, 1, 0));
             Entity entity = ecb.Instantiate(prefab);
 
@@ -145,6 +165,28 @@ public partial class WaveSystem : SystemBase
                     break;
                 default:
                 case AttackableUnitType.Drone:
+                    if (math.all(spawnPosition == topSpawn))
+                    {
+                        foreach (PathPositions pathPositions in topPath)
+                        {
+                            ecb.AppendToBuffer(entity, pathPositions);
+                        }
+                    }
+                    else if (math.all(spawnPosition == midSpawn))
+                    {
+                        foreach (PathPositions pathPositions in midPath)
+                        {
+                            ecb.AppendToBuffer(entity, pathPositions);
+                        }
+                    }
+                    else if (math.all(spawnPosition == botSpawn))
+                    {
+                        foreach (PathPositions pathPositions in botPath)
+                        {
+                            ecb.AppendToBuffer(entity, pathPositions);
+                        }
+                    }                    
+                    ecb.AppendToBuffer(entity, new PathPositions() { pos = worldPos });
                     break;
                 case AttackableUnitType.Tank:
                     rotation = quaternion.LookRotation(new float3(1, 0, 0), new float3(0, 1, 0));
@@ -153,7 +195,7 @@ public partial class WaveSystem : SystemBase
 
             ecb.SetComponent(entity, new LocalTransform
             {
-                Position = pos,
+                Position = worldPos,
                 Rotation = rotation,
                 Scale = unitSize
             });

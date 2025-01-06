@@ -1,7 +1,6 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Physics;
 using Unity.Transforms;
 
 [BurstCompile]
@@ -11,78 +10,51 @@ public partial class TankAttackingSystem : SystemBase
 
     protected override void OnCreate()
     {
-        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
     [BurstCompile]
     protected override void OnUpdate()
     {
+        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
 
-        foreach ((RefRW<PathFollow> pathFollowTank, RefRO<LocalTransform> localTransformTank, RefRW<Attacking> attackingTank, DynamicBuffer<PossibleAttackTargets> possibleAttackTargets)
-            in SystemAPI.Query<RefRW<PathFollow>, RefRO<LocalTransform>, RefRW<Attacking>, DynamicBuffer<PossibleAttackTargets>>().WithAny<Tank>())
+        if (!CountEnemies(out NativeArray<Entity> entityEnemyArray))
+            return;
+
+        TankAttackingJob tankAttackingJob = new()
         {
-            pathFollowTank.ValueRW.enemyPos = float3.zero;
-            if (!pathFollowTank.ValueRO.isInAttackMode)
-            {
-                attackingTank.ValueRW.currentTime = 0;
-                continue;
-            }
-
-            foreach ((RefRO<LocalTransform> localTransformEnemy, RefRW<Attackable> attackableEnemy, Entity entityEnemy)
-                in SystemAPI.Query<RefRO<LocalTransform>, RefRW<Attackable>>().WithEntityAccess().WithAll<Drone>())
-            {
-                float3 unitToEnemy = attackableEnemy.ValueRO.halfBounds + localTransformEnemy.ValueRO.Position - localTransformTank.ValueRO.Position;
-                float distanceUnitToEnemySq = math.lengthsq(unitToEnemy);
-
-                if (distanceUnitToEnemySq - attackableEnemy.ValueRO.boundsRadius * attackableEnemy.ValueRO.boundsRadius < attackingTank.ValueRO.range * attackingTank.ValueRO.range)
-                {
-                    attackingTank.ValueRW.currentTime += SystemAPI.Time.DeltaTime;
-                    pathFollowTank.ValueRW.enemyPos = localTransformEnemy.ValueRO.Position;
-                    if (attackingTank.ValueRO.currentTime > attackingTank.ValueRO.attackSpeed)
-                    {
-                        ecb = SpawnProjectile(ecb, localTransformTank, attackingTank, unitToEnemy, distanceUnitToEnemySq);
-
-                        attackableEnemy.ValueRW.currentHp -= attackingTank.ValueRO.dmg;
-                        attackingTank.ValueRW.currentTime = 0;
-                        if (attackableEnemy.ValueRW.currentHp <= 0)
-                        {
-                            EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(attackableEnemy.ValueRO.ressourceCost));
-                            ecb.DestroyEntity(entityEnemy);
-                        }
-                    }
-                    break;
-                }
-            }
-        }
+            ecbParallelWriter = ecb.AsParallelWriter(),
+            allAttackables = GetComponentLookup<Attackable>(),
+            allLocalTransforms = GetComponentLookup<LocalTransform>(),
+            ressource = SystemAPI.GetSingletonRW<Ressource>(),
+            allEntityEnemies = entityEnemyArray,
+            deltaTime = SystemAPI.Time.DeltaTime
+        };
+        Dependency = tankAttackingJob.ScheduleParallel(Dependency);
+        beginFixedStepSimulationEcbSystem.AddJobHandleForProducer(Dependency);
     }
 
-    private EntityCommandBuffer SpawnProjectile(EntityCommandBuffer ecb, RefRO<LocalTransform> localTransformEnemy, RefRW<Attacking> attacking, float3 enemyToUnit, float distanceEnemyToUnit)
+    [BurstCompile]
+    private bool CountEnemies(out NativeArray<Entity> pEntityEnemyArray)
     {
-        float3 projectileVelocity = math.normalizesafe(enemyToUnit) * attacking.ValueRO.projectileSpeed * SystemAPI.Time.DeltaTime;
-        float timeToLife = 2 * (distanceEnemyToUnit / (attacking.ValueRO.projectileSpeed * attacking.ValueRO.projectileSpeed * SystemAPI.Time.DeltaTime * SystemAPI.Time.DeltaTime));
-
-        Entity projectile = ecb.Instantiate(attacking.ValueRO.projectilePrefab);
-        ecb.SetComponent(projectile, new LocalTransform
+        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
         {
-            Position = localTransformEnemy.ValueRO.Position + attacking.ValueRO.projectileSpawnOffset,
-            Rotation = quaternion.Euler(enemyToUnit),
-            Scale = 0.5f
-        });
-        //ecb.AddComponent<Parent>(projectile);
-        //ecb.SetComponent(projectile, new Parent { Value = attacking.ValueRO.parent });
-        ecb.SetComponent(projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
-        ecb.SetComponent(projectile, new PhysicsVelocity { Linear = projectileVelocity });
-        return ecb;
-    }
+            All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform), typeof(Drone) },
+        };
+        int count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
 
-    private bool BufferContains(DynamicBuffer<PossibleAttackTargets> attackableUnitTypes, AttackableUnitType attackableUnitType)
-    {
-        for (int i = attackableUnitTypes.Length - 1; i >= 0; i--)
+        int i = 0;
+        pEntityEnemyArray = new NativeArray<Entity>(count, Allocator.Persistent);
+        foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, Entity entity)
+            in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>>().WithEntityAccess().WithAll<Drone>())
         {
-            if (attackableUnitTypes[i].possibleAttackTarget == attackableUnitType)
-                return true;
+            pEntityEnemyArray[i] = entity;
+            i++;
         }
-        return false;
+
+        if (i == 0)
+            return false;
+
+        return true;
     }
 }

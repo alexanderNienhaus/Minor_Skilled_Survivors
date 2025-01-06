@@ -30,7 +30,7 @@ public partial class TimerSystem : SystemBase
         currentBuildTime += SystemAPI.Time.DeltaTime;
         EventBus<OnTimeChangedEvent>.Publish(new OnTimeChangedEvent((int)math.floor(timer.maxBuildTime - currentBuildTime), true));
 
-        if (currentBuildTime > timer.maxBuildTime)
+        if (currentBuildTime > timer.maxBuildTime - 1)
         {
             isFighting = true;
             waveSystem.NextWave();
