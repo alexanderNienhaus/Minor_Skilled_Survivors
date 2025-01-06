@@ -60,9 +60,9 @@ public partial struct AATurretAttackingJob : IJobEntity
 
     [BurstCompile]
     private EntityCommandBuffer.ParallelWriter SpawnProjectile(EntityCommandBuffer.ParallelWriter pEcbParallelWriter, AATurret pAATurret,
-        Attacking pAttacking, float3 pUnitPos, float3 pEnemyPos, PhysicsVelocity pEnemyVelocity, float pDeltaTime, int pChunkIndexInQuery)
+        Attacking pAttackingAATurret, float3 pAATurretPos, float3 pEnemyPos, PhysicsVelocity pEnemyVelocity, float pDeltaTime, int pChunkIndexInQuery)
     {
-        Entity projectile = pEcbParallelWriter.Instantiate(pChunkIndexInQuery, pAttacking.projectilePrefab);
+        Entity projectile = pEcbParallelWriter.Instantiate(pChunkIndexInQuery, pAttackingAATurret.projectilePrefab);
 
         Entity modelEntity = children.ElementAt(pAATurret.childNumberModel).Value;
         Entity mountEntity = children.ElementAt(pAATurret.childNumberMount).Value;
@@ -72,11 +72,11 @@ public partial struct AATurretAttackingJob : IJobEntity
         LocalTransform mountLocalTransform = allLocalTransforms.GetRefRW(mountEntity).ValueRW;
         LocalTransform headLocalTransform = allLocalTransforms.GetRefRW(headEntity).ValueRW;
 
-        float3 spawnPos = pUnitPos + modelLocalTransform.Position + mountLocalTransform.Position + headLocalTransform.Position + pAttacking.projectileSpawnOffset;
+        float3 spawnPos = pAATurretPos + modelLocalTransform.Position + mountLocalTransform.Position + headLocalTransform.Position + pAttackingAATurret.projectileSpawnOffset;
         float3 targetVelocity = pEnemyVelocity.Linear;
         float3 unitToEnemy = pEnemyPos - spawnPos;
         float unitToEnemyDist = math.length(unitToEnemy);
-        float timeAdjustedProjectileSpeed = pAttacking.projectileSpeed * pDeltaTime;
+        float timeAdjustedProjectileSpeed = pAttackingAATurret.projectileSpeed * pDeltaTime;
         if (timeAdjustedProjectileSpeed != 0)
         {
             float projectileFlightTime = unitToEnemyDist / timeAdjustedProjectileSpeed;
@@ -86,14 +86,16 @@ public partial struct AATurretAttackingJob : IJobEntity
             pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
         }
 
-        float3 projectileVelocity = math.normalizesafe(unitToEnemy) * timeAdjustedProjectileSpeed;
-        pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new PhysicsVelocity { Linear = projectileVelocity });
+        float3 unitToEnemyNormalized = math.normalizesafe(unitToEnemy);
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new LocalTransform
         {
             Position = spawnPos,
-            Rotation = quaternion.Euler(unitToEnemy),
-            Scale = 1f
+            Rotation = quaternion.LookRotation(unitToEnemyNormalized, new float3(0, 1, 0)),
+            Scale = pAttackingAATurret.projectileSize
         });
+
+        float3 projectileVelocity = unitToEnemyNormalized * timeAdjustedProjectileSpeed;
+        pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new PhysicsVelocity { Linear = projectileVelocity });
 
         //ecb.AddComponent<Parent>(projectile);
         //ecb.SetComponent(projectile, new Parent { Value = children.ElementAt(6).Value });

@@ -671,6 +671,7 @@ Transform:
   - {fileID: 848025821}
   - {fileID: 1083997130}
   - {fileID: 1280755980}
+  - {fileID: 1988180756}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &309490112
@@ -1783,8 +1784,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9ddd1d2a405b9049ba8ffd3a019d27d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wonScene: 
-  lostScene: 
+  wonScene: MinorSkilledSurvivors_Won
+  lostScene: MinorSkilledSurvivors_Lost
 --- !u!1 &1420684036
 GameObject:
   m_ObjectHideFlags: 0
@@ -1798,7 +1799,7 @@ GameObject:
   - component: {fileID: 1420684038}
   - component: {fileID: 1420684037}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: MainCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2397,7 +2398,7 @@ MonoBehaviour:
   placedObjectTypeSOList:
   - {fileID: 11400000, guid: 4888d583d19ede249b95ab89b2e375d8, type: 2}
   - {fileID: 11400000, guid: 02eec218f962aa340a57f9bf48df5cd9, type: 2}
-  - {fileID: 11400000, guid: 1d1c760c14e092348810f7a59d3eb7ea, type: 2}
+  - {fileID: 11400000, guid: f619d6285ed43454c9d6346457602d8f, type: 2}
   - {fileID: 11400000, guid: b0661fba845c2004ba08722619584f9b, type: 2}
   mouseColliderMask:
     serializedVersion: 2
@@ -2707,6 +2708,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1988180755
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1988180756}
+  - component: {fileID: 1988180757}
+  m_Layer: 0
+  m_Name: SceneLoader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1988180756
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988180755}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 112.55078, y: 156.50772, z: -2.71274}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 154634669}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1988180757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988180755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2a463d4d9d1f29439c4293e2d759d6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  menuScene: {fileID: 102900000, guid: d6bf4acf23af371408991db8f3f3c9a6, type: 3}
+  mainScene: {fileID: 102900000, guid: 8bf74f4cbbcbf9649b1c99e84bcd760d, type: 3}
+  wonScene: {fileID: 102900000, guid: e7d6ebd69d3400e4fad5906b12e7146e, type: 3}
+  lostScene: {fileID: 102900000, guid: 5c9ab9ec840fce24582ec3f2b3ef2ce3, type: 3}
 --- !u!1 &1991850921
 GameObject:
   m_ObjectHideFlags: 0

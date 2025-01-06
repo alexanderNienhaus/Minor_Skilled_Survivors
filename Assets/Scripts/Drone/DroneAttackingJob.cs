@@ -21,7 +21,7 @@ public partial struct DroneAttackingJob : IJobEntity
     public void Execute(ref LocalTransform pLocalTransformDrone, ref Attacking pAttackingDrone, ref PathFollow pPathFollowDrone, [ChunkIndexInQuery] int pChunkIndexInQuery)
     {
         pPathFollowDrone.enemyPos = float3.zero;
-        pLocalTransformDrone.Position.y = 0;
+        //pLocalTransformDrone.Position.y = 0;
         for (int i = 0; i < allUnitEntities.Length; i++)
         {
             Entity unitEntity = allUnitEntities[i];
@@ -62,18 +62,19 @@ public partial struct DroneAttackingJob : IJobEntity
     {
         Entity projectile = pEcbParallelWriter.Instantiate(pChunkIndexInQuery, pAttackingDrone.projectilePrefab);
 
-        float3 projectileVelocity = math.normalizesafe(pDroneToUnit) * pAttackingDrone.projectileSpeed * pDeltaTime;
+        float3 pDroneToUnitNormalized = math.normalizesafe(pDroneToUnit);
+        float3 projectileVelocity = pDroneToUnitNormalized * pAttackingDrone.projectileSpeed * pDeltaTime;
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new LocalTransform
         {
             Position = pLocalTransformEnemy.Position + pAttackingDrone.projectileSpawnOffset,
-            Rotation = quaternion.Euler(pDroneToUnit),
-            Scale = 0.5f
+            Rotation = quaternion.LookRotation(pDroneToUnitNormalized, new float3(0, 1, 0)),
+            Scale = pAttackingDrone.projectileSize
         });
 
         //ecb.AddComponent<Parent>(projectile);
         //ecb.SetComponent(projectile, new Parent { Value = attacking.ValueRO.parent });
 
-        float timeToLife = ((pDistanceDroneToUnitSq + pBoundsRadius * pBoundsRadius) / (pAttackingDrone.projectileSpeed * pDeltaTime * pAttackingDrone.projectileSpeed * pDeltaTime));
+        float timeToLife = (pDistanceDroneToUnitSq + pBoundsRadius * pBoundsRadius) / (pAttackingDrone.projectileSpeed * pDeltaTime * pAttackingDrone.projectileSpeed * pDeltaTime);
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
 
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new PhysicsVelocity { Linear = projectileVelocity });

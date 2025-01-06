@@ -26,7 +26,7 @@ public partial class BoidMovementSystem : SystemBase
         NativeArray<LocalTransform> boidLocalTransformArray;
         CountBoids(out boidArray, out boidLocalTransformArray);
 
-        ComputeBoidsJob computeBoidsJob = new ComputeBoidsJob
+        ComputeBoidsJob computeBoidsJob = new ()
         {
             allBoids = boidArray,
             allBoidLocalTransforms = boidLocalTransformArray,
@@ -40,7 +40,7 @@ public partial class BoidMovementSystem : SystemBase
     [BurstCompile]
     private void CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray)
     {
-        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
+        EntityQueryDesc entityQueryDesc = new ()
         {
             All = new ComponentType[] { typeof(Boid) },
         };

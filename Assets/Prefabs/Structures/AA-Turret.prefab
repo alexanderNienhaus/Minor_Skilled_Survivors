@@ -111,6 +111,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   turnSpeed: 10
+  childNumberModel: 1
+  childNumberMount: 3
+  childNumberHead: 6
 --- !u!114 &-7220084786378101114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,7 +294,7 @@ MonoBehaviour:
         Category04: 1
         Category05: 1
         Category06: 0
-        Category07: 1
+        Category07: 0
         Category08: 1
         Category09: 1
         Category10: 1

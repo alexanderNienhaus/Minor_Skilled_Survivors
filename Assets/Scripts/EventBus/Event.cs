@@ -104,3 +104,13 @@ public class OnInfoMenuTextChangeEvent : CustomEvent
         text = pText;
     }
 }
+
+public class OnSceneChangeEvent : CustomEvent
+{
+    public int id;
+
+    public OnSceneChangeEvent(int pId)
+    {
+        id = pId;
+    }
+}

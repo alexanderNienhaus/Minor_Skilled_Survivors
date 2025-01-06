@@ -14,4 +14,5 @@ public class AttackingSO : ScriptableObject
     public GameObject projectilePrefab;
     public float projectileSpeed;
     public Vector3 projectileSpawnOffset;
+    public float projectileSize;
 }

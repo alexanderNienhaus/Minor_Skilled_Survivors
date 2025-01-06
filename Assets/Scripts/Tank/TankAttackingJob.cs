@@ -73,7 +73,7 @@ public partial struct TankAttackingJob : IJobEntity
         {
             Position = pLocalTransformTank.Position + pAttackingTank.projectileSpawnOffset,
             Rotation = quaternion.Euler(pTankToEnemy),
-            Scale = 0.5f
+            Scale = pAttackingTank.projectileSize
         });
 
         //ecb.AddComponent<Parent>(projectile);
