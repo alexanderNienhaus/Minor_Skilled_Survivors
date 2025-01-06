@@ -982,10 +982,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2a463d4d9d1f29439c4293e2d759d6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  menuScene: {fileID: 0}
-  mainScene: {fileID: 0}
-  wonScene: {fileID: 0}
-  lostScene: {fileID: 0}
 --- !u!1001 &339410242
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4054,10 +4050,6 @@ MonoBehaviour:
   waves:
   - {fileID: 11400000, guid: 9abd2aaefd1bc6e4aa2480b6f20034f7, type: 2}
   - {fileID: 11400000, guid: a675eb63db2c0274eb06cd2f46eefb01, type: 2}
-  - {fileID: 11400000, guid: 2fd2475a5fe51d748a2706f3c8eb4dfc, type: 2}
-  - {fileID: 11400000, guid: 3c78d550fcb0db849acd40f63c566183, type: 2}
-  - {fileID: 11400000, guid: 1ac65bc19ccdb4a4c849a33f5e16de40, type: 2}
-  - {fileID: 11400000, guid: 01f667a963860a743a46a371eb6f4729, type: 2}
 --- !u!1 &1716812784
 GameObject:
   m_ObjectHideFlags: 0

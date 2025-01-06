@@ -39,8 +39,7 @@ public class WaveAuthoring : MonoBehaviour
                         isSphericalSpawn = spawn.isSphericalSpawn,
                         spawnRadiusMax = spawn.spawnRadiusMax,
                         spawnRadiusMin = spawn.spawnRadiusMin,
-                        whenToSpawn = spawn.whenToSpawn,
-                        spawningDuration = spawn.spawningDuration
+                        whenToSpawn = spawn.whenToSpawn
                     });
                 }
 
@@ -70,7 +69,6 @@ public struct Spawn : IBufferElementData
     public float spawnRadiusMin;
     public bool isSphericalSpawn;
     public float whenToSpawn;
-    public float spawningDuration;
 }
 
 [BurstCompile]

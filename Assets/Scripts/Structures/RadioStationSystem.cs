@@ -23,7 +23,7 @@ public partial class RadioStationSystem : SystemBase
             if (!radioStation.ValueRO.hasSpawned)
             {
                 waveSystem.Spawn(radioStation.ValueRO.prefab, localTransform.ValueRO.Position + radioStation.ValueRO.spawnPosition,
-                    radioStation.ValueRO.amountToSpawn, radioStation.ValueRO.unitType, radioStation.ValueRO.unitSize, radioStation.ValueRO.whenToSpawn,
+                    radioStation.ValueRO.amountToSpawn, radioStation.ValueRO.unitType, radioStation.ValueRO.unitSize,
                     radioStation.ValueRO.spawnRadiusMin, radioStation.ValueRO.spawnRadiusMax, radioStation.ValueRO.isSphericalSpawn);
                 radioStation.ValueRW.hasSpawned = true;
             }

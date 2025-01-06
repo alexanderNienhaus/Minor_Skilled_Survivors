@@ -27,6 +27,5 @@ public class SpawnSO : ScriptableObject
 
     [Header("Timing")]
     public float whenToSpawn;
-    public float spawningDuration;
 }
 

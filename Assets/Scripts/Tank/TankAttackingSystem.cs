@@ -10,6 +10,7 @@ public partial class TankAttackingSystem : SystemBase
 
     protected override void OnCreate()
     {
+        RequireForUpdate<Ressource>();
     }
 
     [BurstCompile]
@@ -18,8 +19,7 @@ public partial class TankAttackingSystem : SystemBase
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
 
-        if (!CountEnemies(out NativeArray<Entity> entityEnemyArray))
-            return;
+        CountEnemies(out NativeArray<Entity> entityEnemyArray);
 
         TankAttackingJob tankAttackingJob = new()
         {
@@ -39,7 +39,8 @@ public partial class TankAttackingSystem : SystemBase
     {
         EntityQueryDesc entityQueryDesc = new EntityQueryDesc
         {
-            All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform), typeof(Drone) },
+            All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform) },
+            Any = new ComponentType[] { typeof(Drone) }
         };
         int count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
 

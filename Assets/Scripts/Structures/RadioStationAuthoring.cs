@@ -23,8 +23,7 @@ public class RadioStationAuthoring : MonoBehaviour
                 isSphericalSpawn = pAuthoring.spawn.isSphericalSpawn,
                 spawnRadiusMax = pAuthoring.spawn.spawnRadiusMax,
                 spawnRadiusMin = pAuthoring.spawn.spawnRadiusMin,
-                whenToSpawn = pAuthoring.spawn.whenToSpawn,
-                spawningDuration = pAuthoring.spawn.spawningDuration
+                whenToSpawn = pAuthoring.spawn.whenToSpawn
             });
         }
     }

@@ -8,7 +8,6 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(RegisterMapLayoutSystem))]
 public partial class WaveSystem : SystemBase
 {
-
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
     private EntityCommandBuffer ecb;
     private DynamicBuffer<Spawn> spawns;
@@ -26,8 +25,11 @@ public partial class WaveSystem : SystemBase
     private float3 topSpawn;
     private float3 midSpawn;
     private float3 botSpawn;
-    private bool pathFound;
+    private bool doOnce;
+    private bool spawning;
     private int currentNumberOfBoids;
+    private int totalNumberOfEnemies;
+    private int totalSpawnedNumber;
 
     protected override void OnCreate()
     {
@@ -37,16 +39,20 @@ public partial class WaveSystem : SystemBase
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         currentWaveNumber = 0;
         currentWaveTolerance = 0.05f;
+        totalNumberOfEnemies = 0;
+        totalSpawnedNumber = 0;
         lastWave = false;
         isActive = false;
-        pathFound = false;
+        doOnce = false;
+        spawning = false;
     }
 
     protected override void OnUpdate()
     {
         EventBus<OnWaveNumberChangedEvent>.Publish(new OnWaveNumberChangedEvent(currentWaveNumber));
+        spawns = SystemAPI.GetSingletonBuffer<Spawn>();
 
-        if (!pathFound)
+        if (!doOnce)
         {
             DronePathFindingSystem dronePathFindingSystem = World.GetExistingSystemManaged<DronePathFindingSystem>();
             topSpawn = new float3(175, 0, -185);
@@ -55,7 +61,11 @@ public partial class WaveSystem : SystemBase
             topPath = dronePathFindingSystem.FindPath(topSpawn + new float3(-25, 0, 0));
             midPath = dronePathFindingSystem.FindPath(midSpawn + new float3(-25, 0, 0));
             botPath = dronePathFindingSystem.FindPath(botSpawn + new float3(-25, 0, 0));
-            pathFound = true;
+            doOnce = true;
+            foreach (Spawn spawn in spawns)
+            {
+                totalNumberOfEnemies += spawn.amountToSpawn;
+            }
         }
 
         if (!isActive)
@@ -64,14 +74,12 @@ public partial class WaveSystem : SystemBase
         currentWaveTime += SystemAPI.Time.DeltaTime;
 
         timerSystem = World.GetExistingSystemManaged<TimerSystem>();
-
-        if (CheckForWaveEnd())
-            return;
-
-        spawns = SystemAPI.GetSingletonBuffer<Spawn>();
         boidSettings = SystemAPI.GetSingleton<BoidSettings>();
 
         SpawnFromWaves();
+
+        if (CheckForWaveEnd())
+            return;
     }
 
     private bool CheckForWaveEnd()
@@ -84,7 +92,7 @@ public partial class WaveSystem : SystemBase
 
         //Debug.Log("Fighting Phase: " + currentWaveTime + " numberOfEnemies: " + numberOfEnemies + " currentSpawnNumber: " + currentSpawnNumber + " currentWaveNumber: " + currentWaveNumber);
 
-        if (numberOfEnemies <= 0 && currentSpawnNumber > 1)
+        if (numberOfEnemies <= 0 && currentSpawnNumber > 1 && !spawning)
         {
             isActive = false;
             timerSystem.BuildPhaseStart();
@@ -99,18 +107,21 @@ public partial class WaveSystem : SystemBase
 
     private void SpawnFromWaves()
     {
+        spawning = false;
         foreach (Spawn spawn in spawns)
         {
             if (spawn.waveNumber != currentWaveNumber || currentSpawnNumber != spawn.spawnNumber ||
                 !(spawn.whenToSpawn > currentWaveTime - currentWaveTolerance && spawn.whenToSpawn <= currentWaveTime + currentWaveTolerance))
                 continue;
 
-            Spawn(spawn.prefab, spawn.spawnPosition, spawn.amountToSpawn, spawn.unitType, spawn.unitSize, spawn.whenToSpawn, spawn.spawnRadiusMin,
+            Spawn(spawn.prefab, spawn.spawnPosition, spawn.amountToSpawn, spawn.unitType, spawn.unitSize, spawn.spawnRadiusMin,
                 spawn.spawnRadiusMax, spawn.isSphericalSpawn);
 
+            spawning = true;
             currentSpawnNumber++;
+            totalSpawnedNumber += spawn.amountToSpawn;
 
-            if (currentSpawnNumber >= spawns.Length)
+            if (totalSpawnedNumber >= totalNumberOfEnemies)
             {
                 lastWave = true;
             }
@@ -127,7 +138,7 @@ public partial class WaveSystem : SystemBase
     }
 
     public void Spawn(Entity prefab, float3 spawnPosition, int amountToSpawn, AttackableUnitType unitType, float unitSize,
-        float whenToSpawn, float spawnRadiusMin, float spawnRadiusMax, bool isSphericalSpawn)
+        float spawnRadiusMin, float spawnRadiusMax, bool isSphericalSpawn)
     {
         ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
 

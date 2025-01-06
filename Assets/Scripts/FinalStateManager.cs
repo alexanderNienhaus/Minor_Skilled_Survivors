@@ -6,7 +6,7 @@ public class FinalStateManager : MonoBehaviour
     [SerializeField] private string wonScene;
     [SerializeField] private string lostScene;
     private float currentWaitTime = 0;
-    private int maxWaitTime = 2;
+    private int maxWaitTime = 0;
     private OnEndGameEvent onEndGameEvent;
 
     private void OnEnable()
