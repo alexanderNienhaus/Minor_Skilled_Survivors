@@ -68,11 +68,12 @@ public partial struct TankAttackingJob : IJobEntity
     {
         Entity projectile = pEcbParallelWriter.Instantiate(pChunkIndexInQuery, pAttackingTank.projectilePrefab);
 
+        float3 pTankToUnitNormalized = math.normalizesafe(pTankToEnemy);
         float3 projectileVelocity = math.normalizesafe(pTankToEnemy) * pAttackingTank.projectileSpeed * pDeltaTime;
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new LocalTransform
         {
             Position = pLocalTransformTank.Position + pAttackingTank.projectileSpawnOffset,
-            Rotation = quaternion.Euler(pTankToEnemy),
+            Rotation = quaternion.LookRotation(new float3(0, 1, 0), pTankToUnitNormalized),
             Scale = pAttackingTank.projectileSize
         });
 

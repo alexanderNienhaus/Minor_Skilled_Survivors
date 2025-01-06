@@ -37,7 +37,7 @@ public partial class TankAttackingSystem : SystemBase
     [BurstCompile]
     private bool CountEnemies(out NativeArray<Entity> pEntityEnemyArray)
     {
-        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
+        EntityQueryDesc entityQueryDesc = new ()
         {
             All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform) },
             Any = new ComponentType[] { typeof(Drone) }

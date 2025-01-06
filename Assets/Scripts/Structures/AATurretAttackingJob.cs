@@ -90,7 +90,7 @@ public partial struct AATurretAttackingJob : IJobEntity
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new LocalTransform
         {
             Position = spawnPos,
-            Rotation = quaternion.LookRotation(unitToEnemyNormalized, new float3(0, 1, 0)),
+            Rotation = quaternion.LookRotation(new float3(0, 1, 0), unitToEnemyNormalized),
             Scale = pAttackingAATurret.projectileSize
         });
 

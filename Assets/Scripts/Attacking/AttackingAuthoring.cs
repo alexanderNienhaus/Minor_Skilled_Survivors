@@ -25,15 +25,6 @@ public class AttackingAuthoring : MonoBehaviour
                 hasTarget = false,
                 projectileSize = pAuthoring.attackingSO.projectileSize
             });
-
-            AddBuffer<PossibleAttackTargets>(entity);
-            foreach (AttackableUnitType attackableUnitType in pAuthoring.attackingSO.possibleAttackTargets)
-            {
-                AppendToBuffer(entity, new PossibleAttackTargets
-                {
-                    possibleAttackTarget = attackableUnitType
-                });
-            }
         }
     }
 }
@@ -51,11 +42,4 @@ public struct Attacking : IComponentData
     public float3 projectileSpawnOffset;
     public bool hasTarget;
     public float projectileSize;
-}
-
-[BurstCompile]
-[InternalBufferCapacity(0)]
-public struct PossibleAttackTargets : IBufferElementData
-{
-    public AttackableUnitType possibleAttackTarget;
 }

@@ -21,7 +21,6 @@ public partial struct DroneAttackingJob : IJobEntity
     public void Execute(ref LocalTransform pLocalTransformDrone, ref Attacking pAttackingDrone, ref PathFollow pPathFollowDrone, [ChunkIndexInQuery] int pChunkIndexInQuery)
     {
         pPathFollowDrone.enemyPos = float3.zero;
-        //pLocalTransformDrone.Position.y = 0;
         for (int i = 0; i < allUnitEntities.Length; i++)
         {
             Entity unitEntity = allUnitEntities[i];
@@ -67,7 +66,7 @@ public partial struct DroneAttackingJob : IJobEntity
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new LocalTransform
         {
             Position = pLocalTransformEnemy.Position + pAttackingDrone.projectileSpawnOffset,
-            Rotation = quaternion.LookRotation(pDroneToUnitNormalized, new float3(0, 1, 0)),
+            Rotation = quaternion.LookRotation(new float3(0, 1, 0), pDroneToUnitNormalized),
             Scale = pAttackingDrone.projectileSize
         });
 
@@ -81,16 +80,4 @@ public partial struct DroneAttackingJob : IJobEntity
 
         return pEcbParallelWriter;
     }
-
-    /*
-    private bool BufferContains(DynamicBuffer<PossibleAttackTargets> attackableUnitTypes, AttackableUnitType attackableUnitType)
-    {
-        for (int i = attackableUnitTypes.Length - 1; i >= 0; i--)
-        {
-            if (attackableUnitTypes[i].possibleAttackTarget == attackableUnitType)
-                return true;
-        }
-        return false;
-    }
-    */
 }

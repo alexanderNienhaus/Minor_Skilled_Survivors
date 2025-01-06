@@ -11,7 +11,7 @@ public partial class AATurretAttackingSystem : SystemBase
 
     protected override void OnCreate()
     {
-
+        RequireForUpdate<Ressource>();
     }
 
     [BurstCompile]
@@ -20,8 +20,7 @@ public partial class AATurretAttackingSystem : SystemBase
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
 
-        if (!CountEnemies(out NativeArray<Entity> entityEnemyArray))
-            return;
+        CountEnemies(out NativeArray<Entity> entityEnemyArray);
 
         AATurretAttackingJob aaTurretAttackingJob = new()
         {
@@ -39,9 +38,9 @@ public partial class AATurretAttackingSystem : SystemBase
     }
 
     [BurstCompile]
-    private bool CountEnemies(out NativeArray<Entity> pEntityEnemyArray)
+    private void CountEnemies(out NativeArray<Entity> pEntityEnemyArray)
     {
-        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
+        EntityQueryDesc entityQueryDesc = new ()
         {
             All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform), typeof(PhysicsVelocity) },
             Any = new ComponentType[] { typeof(Boid) }
@@ -56,10 +55,5 @@ public partial class AATurretAttackingSystem : SystemBase
             pEntityEnemyArray[i] = entity;
             i++;
         }
-
-        if (i == 0)
-            return false;
-
-        return true;
     }
 }

@@ -18,8 +18,7 @@ public partial class DroneAttackingSystem : SystemBase
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
 
-        if (!CountUnits(out NativeArray<Entity> entityUnitArray))
-            return;
+        CountUnits(out NativeArray<Entity> entityUnitArray);
 
         DroneAttackingJob droneAttackingJob = new()
         {
@@ -34,9 +33,9 @@ public partial class DroneAttackingSystem : SystemBase
     }
 
     [BurstCompile]
-    private bool CountUnits(out NativeArray<Entity> pEntityUnitArray)
+    private void CountUnits(out NativeArray<Entity> pEntityUnitArray)
     {
-        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
+        EntityQueryDesc entityQueryDesc = new ()
         {
             All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform) },
             None = new ComponentType[] { typeof(Drone), typeof(Boid) }
@@ -51,10 +50,5 @@ public partial class DroneAttackingSystem : SystemBase
             pEntityUnitArray[i] = entity;
             i++;
         }
-
-        if (i == 0)
-            return false;
-
-        return true;
     }
 }
