@@ -11,6 +11,7 @@ public class DroneAuthoring : MonoBehaviour
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new Drone
             {
+                foundPath = false
             });
         }
     }
@@ -19,5 +20,7 @@ public class DroneAuthoring : MonoBehaviour
 [BurstCompile]
 public struct Drone : IComponentData
 {
+    public bool foundPath;
+    public SpawnPoint spawnPoint;
 }
 

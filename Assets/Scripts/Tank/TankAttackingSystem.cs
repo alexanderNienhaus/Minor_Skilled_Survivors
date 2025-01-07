@@ -7,6 +7,7 @@ using Unity.Transforms;
 public partial class TankAttackingSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
+    private int count;
 
     [BurstCompile]
     protected override void OnUpdate()
@@ -14,7 +15,8 @@ public partial class TankAttackingSystem : SystemBase
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
 
-        CountEnemies(out NativeArray<Entity> entityEnemyArray);
+        CountEnemies();
+        GetEnemyEntityArray(out NativeArray<Entity> entityEnemyArray);
 
         TankAttackingJob tankAttackingJob = new()
         {
@@ -29,15 +31,19 @@ public partial class TankAttackingSystem : SystemBase
     }
 
     [BurstCompile]
-    private bool CountEnemies(out NativeArray<Entity> pEntityEnemyArray)
+    public void CountEnemies()
     {
         EntityQueryDesc entityQueryDesc = new ()
         {
             All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform) },
             Any = new ComponentType[] { typeof(Drone) }
         };
-        int count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+        count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+    }
 
+    [BurstCompile]
+    private void GetEnemyEntityArray(out NativeArray<Entity> pEntityEnemyArray)
+    {
         int i = 0;
         pEntityEnemyArray = new NativeArray<Entity>(count, Allocator.Persistent);
         foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, Entity entity)
@@ -46,10 +52,5 @@ public partial class TankAttackingSystem : SystemBase
             pEntityEnemyArray[i] = entity;
             i++;
         }
-
-        if (i == 0)
-            return false;
-
-        return true;
     }
 }

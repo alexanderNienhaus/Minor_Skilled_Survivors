@@ -17,7 +17,7 @@ public partial class ProjectileSystem : SystemBase
         foreach ((RefRW<Projectile> projectile, Entity entity) in SystemAPI.Query<RefRW<Projectile>>().WithEntityAccess())
         {
             projectile.ValueRW.currentTimeToLife += SystemAPI.Time.DeltaTime;
-            if (projectile.ValueRO.currentTimeToLife > projectile.ValueRO.maxTimeToLife)
+            if (float.IsNaN(projectile.ValueRO.maxTimeToLife) || projectile.ValueRO.currentTimeToLife > projectile.ValueRO.maxTimeToLife)
             {
                 ecb.DestroyEntity(entity);
             }

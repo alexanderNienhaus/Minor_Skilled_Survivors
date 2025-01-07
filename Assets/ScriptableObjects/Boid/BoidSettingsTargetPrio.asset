@@ -15,8 +15,8 @@ MonoBehaviour:
   dmg: 25
   minSpeed: 5
   maxSpeed: 10
-  perceptionRadius: 6
-  avoidanceRadius: 6
+  perceptionRadius: 8
+  avoidanceRadius: 8
   maxSteerForce: 12
   alignWeight: 2
   cohesionWeight: 1

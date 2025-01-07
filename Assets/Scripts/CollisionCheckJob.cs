@@ -15,6 +15,7 @@ public struct CollisionCheckJob : ITriggerEventsJob
 
     public EntityCommandBuffer ecb;
 
+    [BurstCompile]
     public void Execute(TriggerEvent pTriggerEvent)
     {
         Entity entityA = pTriggerEvent.EntityA;

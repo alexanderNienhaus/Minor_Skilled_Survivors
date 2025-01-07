@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DroneAttackableStandard
   m_EditorClassIdentifier: 
   attackableUnitType: 1
-  startHp: 25
-  ressourceCost: 1
+  startHp: 50
+  ressourceCost: 2
   halfBounds: {x: 0, y: 0, z: 0}
   boundsRadius: 1

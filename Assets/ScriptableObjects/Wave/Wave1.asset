@@ -14,3 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawns:
   - {fileID: 11400000, guid: dc67ae36904727f4495ca516e856cd83, type: 2}
+  - {fileID: 11400000, guid: 03311e56927f4734a91087ab3fb425d7, type: 2}
+  - {fileID: 11400000, guid: a661b7c53d9a05f48af8bb319b9eaf20, type: 2}
+  - {fileID: 11400000, guid: ba2ae800edb4b5f48acd3d184da88dc9, type: 2}

@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackableUnitType: 0
   startHp: 1
-  ressourceCost: 2
+  ressourceCost: 1
+  halfBounds: {x: 0, y: 0, z: 0}
   boundsRadius: 0

@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8670ffbc1205ea4f8c0f44053ce18bf, type: 3}
-  m_Name: 1000Boids0
+  m_Name: Top10Drones0
   m_EditorClassIdentifier: 
-  prefab: {fileID: 4115476135907606149, guid: cba545abebac33e49bc5256f9728b435, type: 3}
-  unitType: 0
-  unitSize: 5
-  amountToSpawn: 1000
-  spawnPosition: {x: 0, y: 30, z: 0}
-  spawnRadiusMax: 5
+  prefab: {fileID: 2547632407910942000, guid: af9f138ca1214ae41beb955d1406704e, type: 3}
+  unitType: 1
+  unitSize: 1
+  amountToSpawn: 10
+  spawnPosition: {x: 175, y: 2, z: -185}
+  spawnRadiusMax: 8
   spawnRadiusMin: 10
-  isSphericalSpawn: 1
+  isSphericalSpawn: 0
   whenToSpawn: 0

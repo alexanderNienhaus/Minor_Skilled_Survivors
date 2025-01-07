@@ -1,3 +1,4 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -5,6 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[BurstCompile]
 [UpdateAfter(typeof(RegisterMapLayoutSystem))]
 public partial class WaveSystem : SystemBase
 {
@@ -18,7 +20,6 @@ public partial class WaveSystem : SystemBase
     private float minWaveTime;
     private float waveTimeTolerance;
     private int currentSpawnNumber;
-    private BoidSettings boidSettings;
     private bool lastWave;
     private NativeList<PathPositions> topPath;
     private NativeList<PathPositions> midPath;
@@ -27,10 +28,10 @@ public partial class WaveSystem : SystemBase
     private float3 midSpawn;
     private float3 botSpawn;
     private bool doOnce;
-    private int currentNumberOfBoids;
     private int totalNumberOfEnemies;
     private int totalSpawnedNumber;
 
+    [BurstCompile]
     protected override void OnCreate()
     {
         RequireForUpdate<Wave>();
@@ -47,6 +48,7 @@ public partial class WaveSystem : SystemBase
         minWaveTime = 3;
     }
 
+    [BurstCompile]
     protected override void OnUpdate()
     {
         EventBus<OnWaveNumberChangedEvent>.Publish(new OnWaveNumberChangedEvent(currentWaveNumber));
@@ -55,12 +57,6 @@ public partial class WaveSystem : SystemBase
         if (!doOnce)
         {
             DronePathFindingSystem dronePathFindingSystem = World.GetExistingSystemManaged<DronePathFindingSystem>();
-            topSpawn = new float3(175, 2, -185);
-            midSpawn = new float3(175, 2, 0);
-            botSpawn = new float3(175, 2, 185);
-            topPath = dronePathFindingSystem.FindPath(topSpawn + new float3(-25, 0, 0));
-            midPath = dronePathFindingSystem.FindPath(midSpawn + new float3(-25, 0, 0));
-            botPath = dronePathFindingSystem.FindPath(botSpawn + new float3(-25, 0, 0));
             doOnce = true;
             foreach (Spawn spawn in spawns)
             {
@@ -76,11 +72,11 @@ public partial class WaveSystem : SystemBase
             return;
 
         timerSystem = World.GetExistingSystemManaged<TimerSystem>();
-        boidSettings = SystemAPI.GetSingleton<BoidSettings>();
 
         SpawnFromWaves();
     }
 
+    [BurstCompile]
     private bool CheckForWaveEnd()
     {
         EntityQueryDesc entityQueryDesc = new EntityQueryDesc
@@ -104,6 +100,7 @@ public partial class WaveSystem : SystemBase
         return false;
     }
 
+    [BurstCompile]
     private void SpawnFromWaves()
     {
         foreach (Spawn spawn in spawns)
@@ -125,88 +122,36 @@ public partial class WaveSystem : SystemBase
         }
     }
 
+    [BurstCompile]
     public void NextWave()
     {
         isActive = true;
         currentSpawnNumber = 1;
         currentWaveTime = 0;
         currentWaveNumber++;
-        currentNumberOfBoids = 0;
     }
 
+    [BurstCompile]
     public void Spawn(Entity prefab, float3 spawnPosition, int amountToSpawn, AttackableUnitType unitType, float unitSize,
         float spawnRadiusMin, float spawnRadiusMax, bool isSphericalSpawn)
     {
-        ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
+        RefRW<WaveSpawning> waveSpawning = SystemAPI.GetSingletonRW<WaveSpawning>();
 
-        //Debug.Log("SPAWN");
-        Random r = new Random((uint)(amountToSpawn + 1));
-        float3 boidStartSpeed = (boidSettings.minSpeed + boidSettings.maxSpeed) / 2;
-        for (int i = 0; i < amountToSpawn; i++)
-        {
-            float3 facingDirection;
-            if (!isSphericalSpawn)
-            {
-                float2 facingDirection2D = r.NextFloat2Direction();
-                facingDirection = new float3(facingDirection2D.x, 0, facingDirection2D.y);
-            }
-            else
-            {
-                facingDirection = r.NextFloat3Direction();
-            }
+        waveSpawning.ValueRW.prefab = prefab;
+        waveSpawning.ValueRW.spawnPosition = spawnPosition;
+        waveSpawning.ValueRW.amountToSpawn = amountToSpawn;
+        waveSpawning.ValueRW.unitType = unitType;
+        waveSpawning.ValueRW.unitSize = unitSize;
+        waveSpawning.ValueRW.spawnRadiusMin = spawnRadiusMin;
+        waveSpawning.ValueRW.spawnRadiusMax = spawnRadiusMax;
+        waveSpawning.ValueRW.isSphericalSpawn = isSphericalSpawn;
+        waveSpawning.ValueRW.boidSettings = SystemAPI.GetSingleton<BoidSettings>();
+        waveSpawning.ValueRW.topSpawn = topSpawn;
+        waveSpawning.ValueRW.midSpawn = midSpawn;
+        waveSpawning.ValueRW.botSpawn = botSpawn;
+        waveSpawning.ValueRW.doSpawn = true;
 
-            float length = r.NextFloat(spawnRadiusMin, spawnRadiusMax);
-            float3 randomDistance = facingDirection * length;
-
-            float3 worldPos = spawnPosition + randomDistance;
-            quaternion rotation = quaternion.LookRotationSafe(facingDirection, new float3(0, 1, 0));
-            Entity entity = ecb.Instantiate(prefab);
-
-            //ecb.AddComponent<Parent>(entity);
-            //ecb.SetComponent(entity, new Parent { Value = spawn.parent });
-
-            switch (unitType)
-            {
-                case AttackableUnitType.Boid:
-                    currentNumberOfBoids++;
-                    ecb.SetComponent(entity, new Boid { id = currentNumberOfBoids, velocity = facingDirection * boidStartSpeed, dmg = boidSettings.dmg });
-                    break;
-                default:
-                case AttackableUnitType.Drone:
-                    if (math.all(spawnPosition == topSpawn))
-                    {
-                        foreach (PathPositions pathPositions in topPath)
-                        {
-                            ecb.AppendToBuffer(entity, pathPositions);
-                        }
-                    }
-                    else if (math.all(spawnPosition == midSpawn))
-                    {
-                        foreach (PathPositions pathPositions in midPath)
-                        {
-                            ecb.AppendToBuffer(entity, pathPositions);
-                        }
-                    }
-                    else if (math.all(spawnPosition == botSpawn))
-                    {
-                        foreach (PathPositions pathPositions in botPath)
-                        {
-                            ecb.AppendToBuffer(entity, pathPositions);
-                        }
-                    }                    
-                    ecb.AppendToBuffer(entity, new PathPositions() { pos = worldPos });
-                    break;
-                case AttackableUnitType.Tank:
-                    rotation = quaternion.LookRotation(new float3(1, 0, 0), new float3(0, 1, 0));
-                    break;
-            }
-
-            ecb.SetComponent(entity, new LocalTransform
-            {
-                Position = worldPos,
-                Rotation = rotation,
-                Scale = unitSize
-            });
-        }
+        //World.GetExistingSystemManaged<AATurretAttackingSystem>().CountEnemies();
+        //World.GetExistingSystemManaged<TankAttackingSystem>().CountEnemies();
     }
 }

@@ -8,14 +8,16 @@ using Unity.Collections;
 public partial class AATurretAttackingSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
+    private int count;
 
     [BurstCompile]
     protected override void OnUpdate()
     {
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
-
-        CountEnemies(out NativeArray<Entity> entityEnemyArray);
+        
+        CountEnemies();
+        GetEnemyEntityArray(out NativeArray<Entity> entityEnemyArray);
 
         AATurretAttackingJob aaTurretAttackingJob = new()
         {
@@ -32,15 +34,19 @@ public partial class AATurretAttackingSystem : SystemBase
     }
 
     [BurstCompile]
-    private void CountEnemies(out NativeArray<Entity> pEntityEnemyArray)
+    public void CountEnemies()
     {
         EntityQueryDesc entityQueryDesc = new ()
         {
             All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform), typeof(PhysicsVelocity) },
             Any = new ComponentType[] { typeof(Boid) }
         };
-        int count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+        count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+    }
 
+    [BurstCompile]
+    private void GetEnemyEntityArray(out NativeArray<Entity> pEntityEnemyArray)
+    {
         int i = 0;
         pEntityEnemyArray = new NativeArray<Entity>(count, Allocator.Persistent);
         foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, RefRO<PhysicsVelocity> physicsVelocity, Entity entity)
@@ -50,4 +56,5 @@ public partial class AATurretAttackingSystem : SystemBase
             i++;
         }
     }
+
 }

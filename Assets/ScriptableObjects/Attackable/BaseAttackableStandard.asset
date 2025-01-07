@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BaseAttackableStandard
   m_EditorClassIdentifier: 
   attackableUnitType: 5
-  startHp: 1
+  startHp: 10000
   ressourceCost: 0
   halfBounds: {x: 0, y: 0, z: 0}
   boundsRadius: 4

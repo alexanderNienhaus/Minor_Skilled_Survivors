@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba9d4f8d4d7f1b44d9a5325b60337fe7, type: 3}
   m_Name: DronePathFollowStandard
   m_EditorClassIdentifier: 
-  movementSpeed: 5000
+  movementSpeed: 500
   rotationSpeed: 5
   yValue: 2
   checkDistanceEndDestination: 0.5

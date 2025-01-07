@@ -37,6 +37,12 @@ public partial class TimerSystem : SystemBase
         }
     }
 
+    public void BuildPhaseEnd()
+    {
+        timer = SystemAPI.GetSingleton<Timer>();
+        currentBuildTime = timer.maxBuildTime;
+    }
+
     public void BuildPhaseStart()
     {
         isFighting = false;

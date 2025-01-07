@@ -19,17 +19,18 @@ public partial class AttackableSystem : SystemBase
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
         resource = SystemAPI.GetSingletonRW<Resource>();
 
-        foreach ((RefRO<Attackable> attackable, Entity entity) in SystemAPI.Query<RefRO<Attackable>>().WithEntityAccess().WithNone<Base>())
+        foreach ((RefRW<Attackable> attackable, Entity entity) in SystemAPI.Query<RefRW<Attackable>>().WithEntityAccess().WithNone<Base>())
         {
             if (attackable.ValueRO.currentHp > 0)
                 continue;
 
             ecb.DestroyEntity(entity);
 
-            if (!(attackable.ValueRO.attackableUnitType == AttackableUnitType.Boid || attackable.ValueRO.attackableUnitType == AttackableUnitType.Drone))
+            if (float.IsNaN(attackable.ValueRO.currentHp) || !(attackable.ValueRO.attackableUnitType == AttackableUnitType.Boid || attackable.ValueRO.attackableUnitType == AttackableUnitType.Drone))
                 continue;
 
             resource.ValueRW.currentRessourceCount += attackable.ValueRO.ressourceCost;
+            attackable.ValueRW.ressourceCost = 0;
         }
     }
 }
