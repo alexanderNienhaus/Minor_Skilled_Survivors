@@ -1,17 +1,11 @@
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 [UpdateAfter(typeof(RegisterMapLayoutSystem))]
 public partial class WaveSystem : SystemBase
 {
-    private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
-    private EntityCommandBuffer ecb;
     private DynamicBuffer<Spawn> spawns;
     private TimerSystem timerSystem;
     private bool isActive;
@@ -21,9 +15,6 @@ public partial class WaveSystem : SystemBase
     private float waveTimeTolerance;
     private int currentSpawnNumber;
     private bool lastWave;
-    private NativeList<PathPositions> topPath;
-    private NativeList<PathPositions> midPath;
-    private NativeList<PathPositions> botPath;
     private float3 topSpawn;
     private float3 midSpawn;
     private float3 botSpawn;
@@ -37,9 +28,8 @@ public partial class WaveSystem : SystemBase
         RequireForUpdate<Wave>();
         RequireForUpdate<Spawn>();
         RequireForUpdate<BoidSettings>();
-        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         currentWaveNumber = 0;
-        waveTimeTolerance = 0.05f;
+        waveTimeTolerance = 0.01f;
         totalNumberOfEnemies = 0;
         totalSpawnedNumber = 0;
         lastWave = false;
@@ -56,7 +46,6 @@ public partial class WaveSystem : SystemBase
 
         if (!doOnce)
         {
-            DronePathFindingSystem dronePathFindingSystem = World.GetExistingSystemManaged<DronePathFindingSystem>();
             doOnce = true;
             foreach (Spawn spawn in spawns)
             {

@@ -4,7 +4,6 @@ using Unity.Burst;
 using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
-using Ray = UnityEngine.Ray;
 using RaycastHit = Unity.Physics.RaycastHit;
 
 [BurstCompile]

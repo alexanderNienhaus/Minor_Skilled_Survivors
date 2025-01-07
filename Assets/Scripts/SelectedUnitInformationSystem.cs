@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(UnitSelectionSystem))]
+//[UpdateAfter(typeof(UnitSelectionSystem))]
 public partial class SelectedUnitInformationSystem : SystemBase
 {
     private int count;

@@ -6,7 +6,8 @@ using Unity.Jobs;
 using Unity.Burst;
 using Unity.Transforms;
 
-[BurstCompile][UpdateAfter(typeof(UnitSelectionSystem))]
+[BurstCompile]
+//[UpdateAfter(typeof(UnitSelectionSystem))]
 public partial class SelectedTankPathFindingSystem : SystemBase
 {
     protected override void OnCreate()

@@ -1,21 +1,24 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Physics;
 using Unity.Transforms;
 
-public partial class BoidTargetSystem : SystemBase
+[BurstCompile]
+public partial struct BoidTargetSystem : ISystem
 {
-    protected override void OnCreate()
+    [BurstCompile]
+    public void OnCreate(ref SystemState pSystemState)
     {
-        RequireForUpdate<BoidTarget>();
+        pSystemState.RequireForUpdate<BoidTarget>();
     }
 
-    protected override void OnUpdate()
+    [BurstCompile]
+    public void OnUpdate(ref SystemState pSystemState)
     {
         foreach ((RefRW<Boid> boid, RefRO<LocalTransform> localTransformBoid)
             in SystemAPI.Query<RefRW<Boid>, RefRO<LocalTransform>>())
         {
-            if (EntityManager.Exists(boid.ValueRO.target))
+            if (pSystemState.EntityManager.Exists(boid.ValueRO.target))
                 continue;
 
             boid.ValueRW.targetPosition = float3.zero;
@@ -24,7 +27,7 @@ public partial class BoidTargetSystem : SystemBase
             {
                 boid = boid,
                 localTransformBoid = localTransformBoid.ValueRO,
-                em = EntityManager
+                em = pSystemState.EntityManager
             };
             findTargetJob.ScheduleParallel();
             //Dependency.Complete();

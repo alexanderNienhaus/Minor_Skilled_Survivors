@@ -33,9 +33,9 @@ public partial class DronePathFindingSystem : SystemBase
     {
         if (doOnce)
         {
-            topSpawn = new float3(175, 2, -185);
-            midSpawn = new float3(175, 2, 0);
-            botSpawn = new float3(175, 2, 185);
+            topSpawn = new float3(225, 2, -185);
+            midSpawn = new float3(225, 2, 0);
+            botSpawn = new float3(225, 2, 185);
             topPath = FindPath(topSpawn + new float3(-25, 0, 0));
             midPath = FindPath(midSpawn + new float3(-25, 0, 0));
             botPath = FindPath(botSpawn + new float3(-25, 0, 0));

@@ -23,7 +23,6 @@ public partial class TimerSystem : SystemBase
             return;
         }
 
-        //Debug.Log("Building Phase: " + currentBuildTime);
         timer = SystemAPI.GetSingleton<Timer>();
         waveSystem = World.GetExistingSystemManaged<WaveSystem>();
 

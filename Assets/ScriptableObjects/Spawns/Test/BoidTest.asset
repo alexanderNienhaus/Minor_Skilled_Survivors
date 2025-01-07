@@ -16,7 +16,7 @@ MonoBehaviour:
   unitType: 0
   unitSize: 5
   amountToSpawn: 5000
-  spawnPosition: {x: 175, y: 30, z: 0}
+  spawnPosition: {x: 225, y: 30, z: 0}
   spawnRadiusMax: 20
   spawnRadiusMin: 0
   isSphericalSpawn: 1

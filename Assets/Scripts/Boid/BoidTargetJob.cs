@@ -3,7 +3,6 @@ using Unity.Mathematics;
 using Unity.Burst;
 using Unity.Transforms;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Collections;
 
 [BurstCompile]
 [WithAll(typeof(BoidTarget))]

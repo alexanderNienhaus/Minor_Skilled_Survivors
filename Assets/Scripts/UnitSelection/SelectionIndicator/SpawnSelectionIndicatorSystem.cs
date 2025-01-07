@@ -2,13 +2,7 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Transforms;
 
-[BurstCompile]
-public struct SelectionIndicatorData : ICleanupComponentData
-{
-    public Entity selectionIndicator;
-}
-
-[UpdateAfter(typeof(UnitSelectionSystem))]
+//[UpdateAfter(typeof(UnitSelectionSystem))]
 public partial class SpawnSelectionIndicatorSystem : SystemBase
 {
     private BeginInitializationEntityCommandBufferSystem beginInitializationEcbSystem;
@@ -17,11 +11,11 @@ public partial class SpawnSelectionIndicatorSystem : SystemBase
     {        
         RequireForUpdate<SelectionIndicatorPrefab>();
         RequireForUpdate<SelectedUnitTag>();
-        beginInitializationEcbSystem = World.GetExistingSystemManaged<BeginInitializationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
+        beginInitializationEcbSystem = World.GetExistingSystemManaged<BeginInitializationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginInitializationEcbSystem.CreateCommandBuffer();
 
         foreach ((RefRO<LocalTransform> localTransform, Entity entity)

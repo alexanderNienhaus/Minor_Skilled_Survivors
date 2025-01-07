@@ -5,24 +5,24 @@ using Unity.Collections;
 using Unity.Burst;
 
 [BurstCompile]
-public partial class BoidMovementSystem : SystemBase
+public partial struct BoidMovementSystem : ISystem
 {
     private CollisionWorld collisionWorld;
     private BoidSettings boidSettings;
 
-    protected override void OnCreate()
+    public void OnCreate(ref SystemState pSystemState)
     {
-        RequireForUpdate<Boid>();
-        RequireForUpdate<BoidSettings>();
+        pSystemState.RequireForUpdate<Boid>();
+        pSystemState.RequireForUpdate<BoidSettings>();
     }
 
     [BurstCompile]
-    protected override void OnUpdate()
+    public void OnUpdate(ref SystemState pSystemState)
     {
         boidSettings = SystemAPI.GetSingleton<BoidSettings>();
         collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld.CollisionWorld;
 
-        CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform>  boidLocalTransformArray);
+        CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray, ref pSystemState);
 
         BoidMovementJob boidMovementJob = new ()
         {
@@ -36,13 +36,12 @@ public partial class BoidMovementSystem : SystemBase
     }
 
     [BurstCompile]
-    private void CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray)
+    private void CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray, ref SystemState pSystemState)
     {
-        EntityQueryDesc entityQueryDesc = new ()
-        {
-            All = new ComponentType[] { typeof(Boid) },
-        };
-        int count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+        EntityQueryBuilder entityQueryBuilder = new(Allocator.Temp);
+        entityQueryBuilder.WithAll<Boid>();
+        int count = pSystemState.GetEntityQuery(entityQueryBuilder).CalculateEntityCount();
+        entityQueryBuilder.Dispose();
 
         int i = 0;
         boidArray = new NativeArray<Boid>(count, Allocator.Persistent);
