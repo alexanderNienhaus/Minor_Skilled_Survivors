@@ -21,6 +21,11 @@ public partial struct PathFollowJob : IJobEntity
             return;
         }
 
+        if (float.IsNaN(pathFollow.enemyPos.x) || float.IsNaN(pathFollow.enemyPos.y) || float.IsNaN(pathFollow.enemyPos.z))
+        {
+            pathFollow.enemyPos = float3.zero;
+        }
+
         if (!math.all(pathFollow.enemyPos == float3.zero))
         {
             pPhysicsVelocity.Linear = float3.zero;

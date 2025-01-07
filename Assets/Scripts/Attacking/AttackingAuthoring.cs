@@ -22,7 +22,6 @@ public class AttackingAuthoring : MonoBehaviour
                 currentTime = pAuthoring.attackingSO.attackSpeed,
                 projectileSpeed = pAuthoring.attackingSO.projectileSpeed,
                 projectileSpawnOffset = pAuthoring.attackingSO.projectileSpawnOffset,
-                hasTarget = false,
                 projectileSize = pAuthoring.attackingSO.projectileSize
             });
         }
@@ -40,6 +39,5 @@ public struct Attacking : IComponentData
     public float currentTime;
     public float projectileSpeed;
     public float3 projectileSpawnOffset;
-    public bool hasTarget;
     public float projectileSize;
 }

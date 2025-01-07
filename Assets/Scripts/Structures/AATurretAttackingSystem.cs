@@ -9,11 +9,6 @@ public partial class AATurretAttackingSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
 
-    protected override void OnCreate()
-    {
-        RequireForUpdate<Ressource>();
-    }
-
     [BurstCompile]
     protected override void OnUpdate()
     {
@@ -30,7 +25,6 @@ public partial class AATurretAttackingSystem : SystemBase
             allLocalTransforms = GetComponentLookup<LocalTransform>(),
             allPhysicsVelocities = GetComponentLookup<PhysicsVelocity>(),
             allEntityEnemies = entityEnemyArray,
-            ressource = SystemAPI.GetSingletonRW<Ressource>(),
             deltaTime = SystemAPI.Time.DeltaTime            
         };
         Dependency = aaTurretAttackingJob.ScheduleParallel(Dependency);

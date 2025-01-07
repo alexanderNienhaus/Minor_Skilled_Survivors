@@ -11,7 +11,7 @@ public class RessourceAuthoring : MonoBehaviour
         public override void Bake(RessourceAuthoring pAuthoring)
         {
             Entity entity = GetEntity(TransformUsageFlags.None);
-            AddComponent(entity, new Ressource
+            AddComponent(entity, new Resource
             {
                 currentRessourceCount = pAuthoring.startRessourceCount
             });
@@ -20,7 +20,7 @@ public class RessourceAuthoring : MonoBehaviour
 }
 
 [BurstCompile]
-public struct Ressource : IComponentData
+public struct Resource : IComponentData
 {
     public int currentRessourceCount;
 }

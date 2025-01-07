@@ -11,13 +11,13 @@ public partial struct BoidTargetJob : IJobEntity
     public LocalTransform localTransformBoid;
 
     [BurstCompile]
-    public void Execute(ref LocalTransform localTransformTarget, Entity entity)
+    public void Execute(ref LocalTransform localTransformTarget, in Attackable attackable, Entity entity)
     {
         if (!math.all(boid.ValueRW.targetPosition == float3.zero)
             && math.lengthsq(boid.ValueRW.targetPosition - localTransformBoid.Position) <= math.lengthsq(localTransformTarget.Position - localTransformBoid.Position))
             return;
 
         boid.ValueRW.target = entity;
-        boid.ValueRW.targetPosition = localTransformTarget.Position;
+        boid.ValueRW.targetPosition = localTransformTarget.Position + attackable.halfBounds;
     }
 }

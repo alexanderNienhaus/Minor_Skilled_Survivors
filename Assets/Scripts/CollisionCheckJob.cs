@@ -37,19 +37,23 @@ public struct CollisionCheckJob : ITriggerEventsJob
             if (allBoids.HasComponent(entityA) && allAttackables.HasComponent(entityB))
             {
                 allAttackables.GetRefRW(entityB).ValueRW.currentHp -= allBoids.GetRefRO(entityA).ValueRO.dmg;
+                /*
                 if (allAttackables.GetRefRW(entityB).ValueRW.currentHp <= 0)
                 {
                     ecb.DestroyEntity(entityB);
                 }
+                */
                 ecb.DestroyEntity(entityA);
             }
             else if (allBoids.HasComponent(entityB) && allAttackables.HasComponent(entityA))
             {
                 allAttackables.GetRefRW(entityA).ValueRW.currentHp -= allBoids.GetRefRO(entityB).ValueRO.dmg;
+                /*
                 if (allAttackables.GetRefRW(entityA).ValueRW.currentHp <= 0)
                 {
                     ecb.DestroyEntity(entityA);
                 }
+                */
                 ecb.DestroyEntity(entityB);
             }
         }

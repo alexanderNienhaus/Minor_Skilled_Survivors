@@ -8,16 +8,16 @@ public class ResourceDisplay : MonoBehaviour
 
     private void OnEnable()
     {
-        EventBus<OnResourceChangedUIEvent>.OnEvent += OnResource;
+        EventBus<OnResourceChangedUIEvent>.OnEvent += OnResourceChangedUI;
     }
 
     private void OnDisable()
     {
-        EventBus<OnResourceChangedUIEvent>.OnEvent -= OnResource;
+        EventBus<OnResourceChangedUIEvent>.OnEvent -= OnResourceChangedUI;
     }
 
-    private void OnResource(OnResourceChangedUIEvent pOnResourceChangedEvent)
+    private void OnResourceChangedUI(OnResourceChangedUIEvent pOnResourceChangedUIEvent)
     {
-        textField.SetText(text + " " + pOnResourceChangedEvent.resource);
+        textField.SetText(text + " " + pOnResourceChangedUIEvent.resource);
     }
 }

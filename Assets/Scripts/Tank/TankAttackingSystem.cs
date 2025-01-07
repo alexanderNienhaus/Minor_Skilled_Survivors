@@ -8,11 +8,6 @@ public partial class TankAttackingSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
 
-    protected override void OnCreate()
-    {
-        RequireForUpdate<Ressource>();
-    }
-
     [BurstCompile]
     protected override void OnUpdate()
     {
@@ -26,7 +21,6 @@ public partial class TankAttackingSystem : SystemBase
             ecbParallelWriter = ecb.AsParallelWriter(),
             allAttackables = GetComponentLookup<Attackable>(),
             allLocalTransforms = GetComponentLookup<LocalTransform>(),
-            ressource = SystemAPI.GetSingletonRW<Ressource>(),
             allEntityEnemies = entityEnemyArray,
             deltaTime = SystemAPI.Time.DeltaTime
         };

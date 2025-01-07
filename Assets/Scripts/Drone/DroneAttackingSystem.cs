@@ -8,10 +8,6 @@ public partial class DroneAttackingSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
 
-    protected override void OnCreate()
-    {
-    }
-
     [BurstCompile]
     protected override void OnUpdate()
     {

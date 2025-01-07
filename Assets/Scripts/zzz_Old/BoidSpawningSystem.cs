@@ -28,7 +28,7 @@ public partial class BoidSpawningSystem : SystemBase
                 ecb.SetComponent(boid, new LocalTransform
                 {
                     Position = pos,
-                    Rotation = quaternion.LookRotation(r.NextFloat3Direction(), LocalTransform.Identity.Up()),
+                    Rotation = quaternion.LookRotationSafe(r.NextFloat3Direction(), LocalTransform.Identity.Up()),
                     Scale = boidSpawning.ValueRO.scale
                 });
                 ecb.SetComponent(boid, new Boid { id = i });

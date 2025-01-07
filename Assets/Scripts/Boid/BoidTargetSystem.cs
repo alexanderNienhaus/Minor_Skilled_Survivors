@@ -29,14 +29,15 @@ public partial class BoidTargetSystem : SystemBase
             Dependency.Complete();
         }
 
+        /*
         ComponentLookup<LocalTransform> allLocalTransforms = GetComponentLookup<LocalTransform>(true);
         foreach (RefRW<Boid> boid in SystemAPI.Query<RefRW<Boid>>())
         {
             if (!EntityManager.Exists(boid.ValueRO.target) || !allLocalTransforms.HasComponent(boid.ValueRO.target))
                 continue;
             
-            LocalTransform lt = allLocalTransforms[boid.ValueRO.target];
-            boid.ValueRW.targetPosition = lt.Position + new float3(0, 1.5f, 0);
+            boid.ValueRW.targetPosition = allLocalTransforms[boid.ValueRO.target].Position + new float3(0, 1.5f, 0);
         }
+        */
     }
 }
