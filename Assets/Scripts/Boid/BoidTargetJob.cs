@@ -1,20 +1,23 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Burst;
 using Unity.Transforms;
-using Unity.Mathematics;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Collections;
 
-[BurstCompile][WithAll(typeof(BoidTarget))]
+[BurstCompile]
+[WithAll(typeof(BoidTarget))]
 public partial struct BoidTargetJob : IJobEntity
 {
     [NativeDisableUnsafePtrRestriction] public RefRW<Boid> boid;
     public LocalTransform localTransformBoid;
+    [NativeDisableContainerSafetyRestriction] public EntityManager em;
 
     [BurstCompile]
     public void Execute(ref LocalTransform localTransformTarget, in Attackable attackable, Entity entity)
     {
-        if (!math.all(boid.ValueRW.targetPosition == float3.zero)
-            && math.lengthsq(boid.ValueRW.targetPosition - localTransformBoid.Position) <= math.lengthsq(localTransformTarget.Position - localTransformBoid.Position))
+        if (!em.Exists(entity) || (!math.all(boid.ValueRW.targetPosition == float3.zero)
+            && math.lengthsq(boid.ValueRW.targetPosition - localTransformBoid.Position) <= math.lengthsq(localTransformTarget.Position - localTransformBoid.Position)))
             return;
 
         boid.ValueRW.target = entity;

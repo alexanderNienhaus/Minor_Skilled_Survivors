@@ -4,28 +4,30 @@ using Unity.Entities;
 using Unity.Transforms;
 
 [BurstCompile]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial class DroneAttackingSystem : SystemBase
 {
-    private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
+    private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
 
     [BurstCompile]
     protected override void OnUpdate()
     {
-        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
-        EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
+        beginSimulationEcbSystem = World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
+        EntityCommandBuffer ecb = beginSimulationEcbSystem.CreateCommandBuffer();
 
         CountUnits(out NativeArray<Entity> entityUnitArray);
 
         DroneAttackingJob droneAttackingJob = new()
         {
             ecbParallelWriter = ecb.AsParallelWriter(),
+            em = EntityManager,
             allAttackables = GetComponentLookup<Attackable>(),
             allLocalTransforms = GetComponentLookup<LocalTransform>(),
             allUnitEntities = entityUnitArray,
             deltaTime = SystemAPI.Time.DeltaTime
         };
         Dependency = droneAttackingJob.ScheduleParallel(Dependency);
-        beginFixedStepSimulationEcbSystem.AddJobHandleForProducer(Dependency);
+        beginSimulationEcbSystem.AddJobHandleForProducer(Dependency);
     }
 
     [BurstCompile]
@@ -43,6 +45,9 @@ public partial class DroneAttackingSystem : SystemBase
         foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, Entity entity)
             in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>>().WithEntityAccess().WithNone<Drone, Boid>())
         {
+            if (!EntityManager.Exists(entity))
+                continue;
+
             pEntityUnitArray[i] = entity;
             i++;
         }

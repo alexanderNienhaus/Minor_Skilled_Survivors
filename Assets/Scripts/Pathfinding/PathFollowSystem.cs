@@ -13,6 +13,7 @@ public partial class PathFollowSystem : SystemBase
 
         PathFollowJob followpathJob = new PathFollowJob
         {
+            em = EntityManager,
             allPathPositions = GetBufferLookup<PathPositions>(),
             gridOriginPos = grid.GetOriginPos(),
             gridCellSize = grid.GetCellSize(),

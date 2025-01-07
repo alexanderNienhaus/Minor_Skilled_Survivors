@@ -8,8 +8,10 @@ using Unity.Collections.LowLevel.Unsafe;
 
 [BurstCompile]
 [WithAll(typeof(Drone))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial struct DroneAttackingJob : IJobEntity
 {
+    [NativeDisableContainerSafetyRestriction] public EntityManager em;
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
@@ -22,6 +24,9 @@ public partial struct DroneAttackingJob : IJobEntity
         pPathFollowDrone.enemyPos = float3.zero;
         for (int i = 0; i < allUnitEntities.Length; i++)
         {
+            if (!em.Exists(allUnitEntities[i]))
+                continue;
+
             Entity unitEntity = allUnitEntities[i];
             LocalTransform localTransformUnit = allLocalTransforms[unitEntity];
             Attackable attackableUnit = allAttackables[unitEntity];
@@ -45,7 +50,12 @@ public partial struct DroneAttackingJob : IJobEntity
             pAttackingDrone.currentTime = 0;
 
             allAttackables.GetRefRW(unitEntity).ValueRW.currentHp -= pAttackingDrone.dmg;
+            
+            if (attackableUnit.currentHp > 0)
+                continue;
 
+            ecbParallelWriter.DestroyEntity(pChunkIndexInQuery, unitEntity);
+            
             return;
         }
     }

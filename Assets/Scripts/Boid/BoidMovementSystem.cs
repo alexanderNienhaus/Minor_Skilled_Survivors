@@ -22,11 +22,9 @@ public partial class BoidMovementSystem : SystemBase
         boidSettings = SystemAPI.GetSingleton<BoidSettings>();
         collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld.CollisionWorld;
 
-        NativeArray<Boid> boidArray;
-        NativeArray<LocalTransform> boidLocalTransformArray;
-        CountBoids(out boidArray, out boidLocalTransformArray);
+        CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform>  boidLocalTransformArray);
 
-        ComputeBoidsJob computeBoidsJob = new ()
+        BoidMovementJob boidMovementJob = new ()
         {
             allBoids = boidArray,
             allBoidLocalTransforms = boidLocalTransformArray,
@@ -34,7 +32,7 @@ public partial class BoidMovementSystem : SystemBase
             boidSettings = boidSettings,
             deltaTime = SystemAPI.Time.DeltaTime
         };
-        computeBoidsJob.ScheduleParallel();
+        boidMovementJob.ScheduleParallel();
     }
 
     [BurstCompile]

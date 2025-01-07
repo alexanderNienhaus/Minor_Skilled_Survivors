@@ -8,6 +8,7 @@ using Unity.Physics;
 [BurstCompile]
 public partial struct PathFollowJob : IJobEntity
 {
+    [NativeDisableContainerSafetyRestriction] public EntityManager em;
     [NativeDisableContainerSafetyRestriction] public BufferLookup<PathPositions> allPathPositions;
     public float3 gridOriginPos;
     public float gridCellSize;
@@ -16,10 +17,8 @@ public partial struct PathFollowJob : IJobEntity
     [BurstCompile]
     public void Execute(Entity pEntity, ref LocalTransform pLocalTransform, ref PhysicsVelocity pPhysicsVelocity, ref PathFollow pathFollow)
     {
-        if (!allPathPositions.HasBuffer(pEntity))
-        {
+        if (!em.Exists(pEntity) || !allPathPositions.HasBuffer(pEntity))
             return;
-        }
 
         if (float.IsNaN(pathFollow.enemyPos.x) || float.IsNaN(pathFollow.enemyPos.y) || float.IsNaN(pathFollow.enemyPos.z))
         {

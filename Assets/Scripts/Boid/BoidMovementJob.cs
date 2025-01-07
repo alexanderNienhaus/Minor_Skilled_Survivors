@@ -8,7 +8,7 @@ using Ray = UnityEngine.Ray;
 using RaycastHit = Unity.Physics.RaycastHit;
 
 [BurstCompile]
-public partial struct ComputeBoidsJob : IJobEntity
+public partial struct BoidMovementJob : IJobEntity
 {
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Boid> allBoids;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalTransform> allBoidLocalTransforms;

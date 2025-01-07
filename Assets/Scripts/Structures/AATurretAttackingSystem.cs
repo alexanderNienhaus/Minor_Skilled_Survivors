@@ -5,16 +5,23 @@ using Unity.Physics;
 using Unity.Collections;
 
 [BurstCompile]
+//[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial class AATurretAttackingSystem : SystemBase
 {
-    private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
+    private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
     private int count;
+
+    [BurstCompile]
+    protected override void OnCreate()
+    {
+        RequireForUpdate<Resource>();
+    }
 
     [BurstCompile]
     protected override void OnUpdate()
     {
-        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
-        EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
+        beginSimulationEcbSystem = World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
+        EntityCommandBuffer ecb = beginSimulationEcbSystem.CreateCommandBuffer();
         
         CountEnemies();
         GetEnemyEntityArray(out NativeArray<Entity> entityEnemyArray);
@@ -22,15 +29,16 @@ public partial class AATurretAttackingSystem : SystemBase
         AATurretAttackingJob aaTurretAttackingJob = new()
         {
             ecbParallelWriter = ecb.AsParallelWriter(),
-            entityManager = EntityManager,
+            em = EntityManager,
             allAttackables = GetComponentLookup<Attackable>(),
             allLocalTransforms = GetComponentLookup<LocalTransform>(),
             allPhysicsVelocities = GetComponentLookup<PhysicsVelocity>(),
             allEntityEnemies = entityEnemyArray,
+            resource = SystemAPI.GetSingletonRW<Resource>(),
             deltaTime = SystemAPI.Time.DeltaTime            
         };
         Dependency = aaTurretAttackingJob.ScheduleParallel(Dependency);
-        beginFixedStepSimulationEcbSystem.AddJobHandleForProducer(Dependency);
+        beginSimulationEcbSystem.AddJobHandleForProducer(Dependency);
     }
 
     [BurstCompile]
@@ -52,6 +60,9 @@ public partial class AATurretAttackingSystem : SystemBase
         foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, RefRO<PhysicsVelocity> physicsVelocity, Entity entity)
             in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>, RefRO<PhysicsVelocity>>().WithEntityAccess().WithAny<Boid>())
         {
+            if (!EntityManager.Exists(entity))
+                continue;
+
             pEntityEnemyArray[i] = entity;
             i++;
         }

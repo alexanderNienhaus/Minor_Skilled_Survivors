@@ -5,18 +5,19 @@ using Unity.Transforms;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Physics;
 using Unity.Collections;
-using UnityEngine;
 
 [BurstCompile]
 [WithAll(typeof(AATurret))]
+//[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial struct AATurretAttackingJob : IJobEntity
 {
+    [NativeDisableContainerSafetyRestriction] public EntityManager em;
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
-    [NativeDisableContainerSafetyRestriction] public EntityManager entityManager;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<PhysicsVelocity> allPhysicsVelocities;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
+    [NativeDisableUnsafePtrRestriction] public RefRW<Resource> resource;
     public float deltaTime;
 
     [NativeDisableContainerSafetyRestriction] public DynamicBuffer<LinkedEntityGroup> children;
@@ -24,9 +25,12 @@ public partial struct AATurretAttackingJob : IJobEntity
     [BurstCompile]
     public void Execute(ref LocalTransform pLocalTransformAATurret, ref AATurret pAATurret, ref Attacking pAttackingAATurret, Entity aaTurretEntity, [ChunkIndexInQuery] int pChunkIndexInQuery)
     {
-        children = entityManager.GetBuffer<LinkedEntityGroup>(aaTurretEntity);
+        children = em.GetBuffer<LinkedEntityGroup>(aaTurretEntity);
         for (int i = 0; i < allEntityEnemies.Length; i++)
         {
+            if (!em.Exists(allEntityEnemies[i]))
+                continue;
+
             Entity enemyEntity = allEntityEnemies[i];
             LocalTransform localTransformEnemy = allLocalTransforms[enemyEntity];
             Attackable attackableEnemy = allAttackables[enemyEntity];
@@ -47,6 +51,12 @@ public partial struct AATurretAttackingJob : IJobEntity
             pAttackingAATurret.currentTime = 0;
 
             allAttackables.GetRefRW(enemyEntity).ValueRW.currentHp -= pAttackingAATurret.dmg;
+            
+            if (attackableEnemy.currentHp > 0)
+                continue;
+            
+            ecbParallelWriter.DestroyEntity(pChunkIndexInQuery, enemyEntity);
+            resource.ValueRW.currentRessourceCount += attackableEnemy.ressourceCost;
 
             return;
         }

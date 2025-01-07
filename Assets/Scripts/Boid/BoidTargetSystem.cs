@@ -23,12 +23,12 @@ public partial class BoidTargetSystem : SystemBase
             BoidTargetJob findTargetJob = new()
             {
                 boid = boid,
-                localTransformBoid = localTransformBoid.ValueRO
+                localTransformBoid = localTransformBoid.ValueRO,
+                em = EntityManager
             };
-            Dependency = findTargetJob.ScheduleParallel(Dependency);
-            Dependency.Complete();
+            findTargetJob.ScheduleParallel();
+            //Dependency.Complete();
         }
-
         /*
         ComponentLookup<LocalTransform> allLocalTransforms = GetComponentLookup<LocalTransform>(true);
         foreach (RefRW<Boid> boid in SystemAPI.Query<RefRW<Boid>>())

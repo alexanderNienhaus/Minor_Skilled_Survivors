@@ -9,7 +9,7 @@ partial struct WaveSpawnerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        
+        state.RequireForUpdate<WaveSpawning>();
     }
 
     [BurstCompile]

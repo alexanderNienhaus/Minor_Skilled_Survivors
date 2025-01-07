@@ -7,17 +7,21 @@ using Unity.Collections.LowLevel.Unsafe;
 [BurstCompile]
 public struct CollisionCheckJob : ITriggerEventsJob
 {
+    [NativeDisableContainerSafetyRestriction] public EntityManager em;
+    public EntityCommandBuffer ecb;
+
     [ReadOnly] public ComponentLookup<SelectedUnitTag> allSelectedUnits;
     [ReadOnly] public ComponentLookup<SelectionVolumeTag> allSelectionVolumes;
 
     [ReadOnly] public ComponentLookup<Boid> allBoids;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
 
-    public EntityCommandBuffer ecb;
-
     [BurstCompile]
     public void Execute(TriggerEvent pTriggerEvent)
     {
+        if (!em.Exists(pTriggerEvent.EntityA) || !em.Exists(pTriggerEvent.EntityB))
+            return;
+
         Entity entityA = pTriggerEvent.EntityA;
         Entity entityB = pTriggerEvent.EntityB;
 
@@ -38,24 +42,22 @@ public struct CollisionCheckJob : ITriggerEventsJob
             if (allBoids.HasComponent(entityA) && allAttackables.HasComponent(entityB))
             {
                 allAttackables.GetRefRW(entityB).ValueRW.currentHp -= allBoids.GetRefRO(entityA).ValueRO.dmg;
-                /*
-                if (allAttackables.GetRefRW(entityB).ValueRW.currentHp <= 0)
-                {
-                    ecb.DestroyEntity(entityB);
-                }
-                */
                 ecb.DestroyEntity(entityA);
+
+                if (allAttackables[entityB].currentHp > 0)
+                    return;
+
+                ecb.DestroyEntity(entityB);
             }
             else if (allBoids.HasComponent(entityB) && allAttackables.HasComponent(entityA))
             {
                 allAttackables.GetRefRW(entityA).ValueRW.currentHp -= allBoids.GetRefRO(entityB).ValueRO.dmg;
-                /*
-                if (allAttackables.GetRefRW(entityA).ValueRW.currentHp <= 0)
-                {
-                    ecb.DestroyEntity(entityA);
-                }
-                */
                 ecb.DestroyEntity(entityB);
+
+                if (allAttackables[entityA].currentHp > 0)
+                    return;
+
+                ecb.DestroyEntity(entityA);
             }
         }
     }

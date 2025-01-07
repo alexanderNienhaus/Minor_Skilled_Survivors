@@ -3,12 +3,11 @@ using Unity.Transforms;
 
 public partial class ProjectileSystem : SystemBase
 {
-    private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
+    private BeginSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
 
     protected override void OnCreate()
     {
-        RequireForUpdate<Attackable>();
-        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
+        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -16,13 +15,15 @@ public partial class ProjectileSystem : SystemBase
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
         foreach ((RefRW<Projectile> projectile, Entity entity) in SystemAPI.Query<RefRW<Projectile>>().WithEntityAccess())
         {
-            projectile.ValueRW.currentTimeToLife += SystemAPI.Time.DeltaTime;
-            if (float.IsNaN(projectile.ValueRO.maxTimeToLife) || projectile.ValueRO.currentTimeToLife > projectile.ValueRO.maxTimeToLife)
-            {
-                ecb.DestroyEntity(entity);
-            }
+            if (!EntityManager.Exists(entity))
+                continue;
 
-            //ecb.RemoveComponent<Parent>(entity);
+            projectile.ValueRW.currentTimeToLife += SystemAPI.Time.DeltaTime;
+
+            if (!float.IsNaN(projectile.ValueRO.maxTimeToLife) && projectile.ValueRO.currentTimeToLife <= projectile.ValueRO.maxTimeToLife)
+                continue;
+            
+            ecb.DestroyEntity(entity);
         }
     }
 }

@@ -8,12 +8,16 @@ using Unity.Collections;
 
 [BurstCompile]
 [WithAll(typeof(Tank))]
+//[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial struct TankAttackingJob : IJobEntity
 {
+    [NativeDisableContainerSafetyRestriction] public EntityManager em;
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
+    [NativeDisableUnsafePtrRestriction] public RefRW<Resource> resource;
+
     public float deltaTime;
 
     [BurstCompile]
@@ -29,6 +33,9 @@ public partial struct TankAttackingJob : IJobEntity
         pLocalTransformTank.Position.y = 0;
         for (int i = 0; i < allEntityEnemies.Length; i++)
         {
+            if (!em.Exists(allEntityEnemies[i]))
+                continue;
+
             Entity enemyEntity = allEntityEnemies[i];
             LocalTransform localTransformEnemy = allLocalTransforms[enemyEntity];
             Attackable attackableEnemy = allAttackables[enemyEntity];
@@ -49,6 +56,12 @@ public partial struct TankAttackingJob : IJobEntity
             pAttackingTank.currentTime = 0;
 
             allAttackables.GetRefRW(enemyEntity).ValueRW.currentHp -= pAttackingTank.dmg;
+            
+            if (attackableEnemy.currentHp > 0)
+                continue;
+
+            ecbParallelWriter.DestroyEntity(pChunkIndexInQuery, enemyEntity);
+            resource.ValueRW.currentRessourceCount += attackableEnemy.ressourceCost;
 
             return;
         }

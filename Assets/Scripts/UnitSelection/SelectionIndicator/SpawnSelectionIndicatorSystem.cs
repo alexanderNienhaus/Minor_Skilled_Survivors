@@ -16,6 +16,7 @@ public partial class SpawnSelectionIndicatorSystem : SystemBase
     protected override void OnCreate()
     {        
         RequireForUpdate<SelectionIndicatorPrefab>();
+        RequireForUpdate<SelectedUnitTag>();
         beginInitializationEcbSystem = World.GetExistingSystemManaged<BeginInitializationEntityCommandBufferSystem>();
     }
 

@@ -4,16 +4,23 @@ using Unity.Entities;
 using Unity.Transforms;
 
 [BurstCompile]
+//[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial class TankAttackingSystem : SystemBase
 {
-    private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
+    private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
     private int count;
+
+    [BurstCompile]
+    protected override void OnCreate()
+    {
+        RequireForUpdate<Resource>();
+    }
 
     [BurstCompile]
     protected override void OnUpdate()
     {
-        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
-        EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
+        beginSimulationEcbSystem = World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
+        EntityCommandBuffer ecb = beginSimulationEcbSystem.CreateCommandBuffer();
 
         CountEnemies();
         GetEnemyEntityArray(out NativeArray<Entity> entityEnemyArray);
@@ -21,13 +28,15 @@ public partial class TankAttackingSystem : SystemBase
         TankAttackingJob tankAttackingJob = new()
         {
             ecbParallelWriter = ecb.AsParallelWriter(),
+            em = EntityManager,
             allAttackables = GetComponentLookup<Attackable>(),
             allLocalTransforms = GetComponentLookup<LocalTransform>(),
             allEntityEnemies = entityEnemyArray,
+            resource = SystemAPI.GetSingletonRW<Resource>(),
             deltaTime = SystemAPI.Time.DeltaTime
         };
         Dependency = tankAttackingJob.ScheduleParallel(Dependency);
-        beginFixedStepSimulationEcbSystem.AddJobHandleForProducer(Dependency);
+        beginSimulationEcbSystem.AddJobHandleForProducer(Dependency);
     }
 
     [BurstCompile]
@@ -49,6 +58,9 @@ public partial class TankAttackingSystem : SystemBase
         foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, Entity entity)
             in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>>().WithEntityAccess().WithAll<Drone>())
         {
+            if (!EntityManager.Exists(entity))
+                continue;
+
             pEntityEnemyArray[i] = entity;
             i++;
         }

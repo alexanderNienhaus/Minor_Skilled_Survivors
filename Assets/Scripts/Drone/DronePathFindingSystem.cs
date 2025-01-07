@@ -26,6 +26,7 @@ public partial class DronePathFindingSystem : SystemBase
     protected override void OnCreate()
     {
         doOnce = true;
+        RequireForUpdate<Base>();
     }
 
     protected override void OnUpdate()
