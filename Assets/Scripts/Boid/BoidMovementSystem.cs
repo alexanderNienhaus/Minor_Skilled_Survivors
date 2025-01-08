@@ -22,13 +22,12 @@ public partial struct BoidMovementSystem : ISystem
         boidSettings = SystemAPI.GetSingleton<BoidSettings>();
         collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld.CollisionWorld;
 
-        GetBoidEntityArray(out NativeArray<Entity> boidEntityArray, ref pSystemState);
+        CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray, ref pSystemState);
 
         BoidMovementJob boidMovementJob = new ()
         {
-            allBoidEntities = boidEntityArray,
-            allLocalTransforms = pSystemState.GetComponentLookup<LocalTransform>(true),
-            allBoids = pSystemState.GetComponentLookup<Boid>(true),
+            allBoids = boidArray,
+            allBoidLocalTransforms = boidLocalTransformArray,
             collisionWorld = collisionWorld,
             boidSettings = boidSettings,
             deltaTime = SystemAPI.Time.DeltaTime
@@ -37,13 +36,23 @@ public partial struct BoidMovementSystem : ISystem
     }
 
     [BurstCompile]
-    private void GetBoidEntityArray(out NativeArray<Entity> pBoidEntityArray, ref SystemState pSystemState)
+    private void CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray, ref SystemState pSystemState)
     {
-        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
-        entityQueryDesc.WithAll<Boid>();
-        EntityQuery query = pSystemState.GetEntityQuery(entityQueryDesc);
-        pBoidEntityArray = query.ToEntityArray(Allocator.Persistent);
-        entityQueryDesc.Dispose();
+        EntityQueryBuilder entityQueryBuilder = new(Allocator.Temp);
+        entityQueryBuilder.WithAll<Boid>();
+        int count = pSystemState.GetEntityQuery(entityQueryBuilder).CalculateEntityCount();
+        entityQueryBuilder.Dispose();
+
+        int i = 0;
+        boidArray = new NativeArray<Boid>(count, Allocator.Persistent);
+        boidLocalTransformArray = new NativeArray<LocalTransform>(count, Allocator.Persistent);
+        foreach ((RefRW<Boid> boid, RefRW<LocalTransform> localTransform)
+            in SystemAPI.Query<RefRW<Boid>, RefRW<LocalTransform>>())
+        {
+            boidArray[i] = boid.ValueRO;
+            boidLocalTransformArray[i] = localTransform.ValueRO;
+            i++;
+        }
     }
 }
 

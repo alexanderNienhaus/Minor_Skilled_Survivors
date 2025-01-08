@@ -5,15 +5,13 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
 using RaycastHit = Unity.Physics.RaycastHit;
-using Unity.Collections.LowLevel.Unsafe;
 
 [BurstCompile]
 public partial struct BoidMovementJob : IJobEntity
 {
-    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allBoidEntities;
-    [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<Boid> allBoids;
-    [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
-    [NativeDisableContainerSafetyRestriction] [ReadOnly] public CollisionWorld collisionWorld;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Boid> allBoids;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalTransform> allBoidLocalTransforms;
+    [ReadOnly] public CollisionWorld collisionWorld;
     public BoidSettings boidSettings;
     public float deltaTime;
 
@@ -25,11 +23,10 @@ public partial struct BoidMovementJob : IJobEntity
         boidA.centreOfFlockmates = 0;
         boidA.avgAvoidanceHeading = 0;
 
-        for (int i = 0; i < allBoidEntities.Length; i++)
+        for (int i = 0; i < allBoids.Length; i++)
         {
-            Entity boidBEntity = allBoidEntities[i];
-            Boid boidB = allBoids[boidBEntity];
-            LocalTransform localTransformB = allLocalTransforms[boidBEntity];
+            Boid boidB = allBoids[i];
+            LocalTransform localTransformB = allBoidLocalTransforms[i];
 
             if (boidA.id == boidB.id)
                 continue;
@@ -93,14 +90,14 @@ public partial struct BoidMovementJob : IJobEntity
 
         localTransform.Position += boid.velocity * deltaTime;
         //physicsVelocity.Linear = boid.velocity * deltaTime;
-        localTransform.Rotation = quaternion.LookRotationSafe(dir, localTransform.Up());
+        localTransform.Rotation = quaternion.LookRotation(dir, localTransform.Up());
     }
 
     [BurstCompile]
     private float3 SteerTowards(float3 vector, Boid boid, BoidSettings boidSettings)
     {
         float3 v = math.normalizesafe(vector, float3.zero) * boidSettings.maxSpeed - boid.velocity;
-        return math.normalizesafe(v, float3.zero) * math.min(math.length(v), boidSettings.maxSteerForce);
+        return math.normalize(v) * math.min(math.length(v), boidSettings.maxSteerForce);
     }
 
     [BurstCompile]
@@ -113,7 +110,7 @@ public partial struct BoidMovementJob : IJobEntity
             Filter = new CollisionFilter
             {
                 BelongsTo = (uint)CollisionLayers.Boid,
-                CollidesWith = (uint)(CollisionLayers.Ground | CollisionLayers.Building)// | CollisionLayers.AATurret | CollisionLayers.Walls | CollisionLayers.Tanks)
+                CollidesWith = (uint)(CollisionLayers.Walls | CollisionLayers.Ground | CollisionLayers.Building)
             }
         };
         return collisionWorld.CastRay(raycastInput, out pRaycastHit);

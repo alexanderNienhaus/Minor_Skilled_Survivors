@@ -5,7 +5,6 @@ public class BoidSettingsSO : ScriptableObject
 {
     [Header("Combat")]
     public int dmg = 100;
-    public float strikeDistance = 0.1f;
 
     [Header("Movement")]
     public float minSpeed = 5;

@@ -29,5 +29,4 @@ public struct Boid : IComponentData
     public float3 centreOfFlockmates;
     public int numPerceivedFlockmates;
     public int dmg;
-    public float strikeDistance;
 }

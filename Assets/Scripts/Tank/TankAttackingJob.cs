@@ -8,7 +8,6 @@ using Unity.Collections;
 
 [BurstCompile]
 [WithAll(typeof(Tank))]
-//  [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial struct TankAttackingJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;

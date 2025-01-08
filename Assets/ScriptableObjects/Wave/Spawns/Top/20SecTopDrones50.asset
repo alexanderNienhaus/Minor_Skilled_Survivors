@@ -20,4 +20,4 @@ MonoBehaviour:
   spawnRadiusMax: 5
   spawnRadiusMin: 0
   isSphericalSpawn: 0
-  whenToSpawn: 10
+  whenToSpawn: 20

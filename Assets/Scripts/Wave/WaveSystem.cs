@@ -8,7 +8,6 @@ using Unity.Mathematics;
 public partial class WaveSystem : SystemBase
 {
     private DynamicBuffer<Spawn> spawns;
-    private NativeArray<Spawn> spawnsPerWave;
     private TimerSystem timerSystem;
     private bool isActive;
     private int currentWaveNumber;
@@ -72,7 +71,6 @@ public partial class WaveSystem : SystemBase
         int i = 0;
         foreach (Spawn spawn in spawns)
         {
-            //spawnsPerWave[i] = spawn;
             numberOfEnemiesPerWave[spawn.waveNumber - 1] += spawn.amountToSpawn;
             totalNumberOfEnemies += spawn.amountToSpawn;
             i++;
@@ -86,7 +84,7 @@ public partial class WaveSystem : SystemBase
         {
             Any = new ComponentType[] { typeof(Boid), typeof(Drone) },
         };
-        int numberOfEnemies = GetEntityQuery(entityQueryDesc).CalculateEntityCount();         //Debug.Log("Fighting Phase: " + currentWaveTime + " numberOfEnemies: " + numberOfEnemies + " currentSpawnNumber: " + currentSpawnNumber + " currentWaveNumber: " + currentWaveNumber);
+        int numberOfEnemies = GetEntityQuery(entityQueryDesc).CalculateEntityCount(); //Debug.Log("Fighting Phase: " + currentWaveTime + " numberOfEnemies: " + numberOfEnemies + " currentSpawnNumber: " + currentSpawnNumber + " currentWaveNumber: " + currentWaveNumber);
 
         if (numberOfEnemies > 0 || currentSpawnNumber <= 1 || currentWaveTime <= minWaveTime
             || totalSpawnedNumberThisWave < numberOfEnemiesPerWave[currentWaveNumber - 1])
