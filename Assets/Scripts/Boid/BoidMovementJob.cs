@@ -90,14 +90,14 @@ public partial struct BoidMovementJob : IJobEntity
 
         localTransform.Position += boid.velocity * deltaTime;
         //physicsVelocity.Linear = boid.velocity * deltaTime;
-        localTransform.Rotation = quaternion.LookRotation(dir, localTransform.Up());
+        localTransform.Rotation = quaternion.LookRotationSafe(dir, localTransform.Up());
     }
 
     [BurstCompile]
     private float3 SteerTowards(float3 vector, Boid boid, BoidSettings boidSettings)
     {
         float3 v = math.normalizesafe(vector, float3.zero) * boidSettings.maxSpeed - boid.velocity;
-        return math.normalize(v) * math.min(math.length(v), boidSettings.maxSteerForce);
+        return math.normalizesafe(v, float3.zero) * math.min(math.length(v), boidSettings.maxSteerForce);
     }
 
     [BurstCompile]

@@ -177,6 +177,7 @@ public class GridObjectPlacementManager : MonoBehaviour
             EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(notEnoughResources));
             return;
         }
+
         EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(-placedObjectTypeSO.cost));
         EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(objectPlacedSuccessfully));
         PlaceBuilding(x, z, gridPosList);

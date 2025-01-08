@@ -194,7 +194,7 @@ MonoBehaviour:
     RotationOrder: 4
   m_InertiaTensor:
     x: Infinity
-    y: 1000
+    y: 0
     z: Infinity
   m_WorldIndex: 0
   m_CustomTags:

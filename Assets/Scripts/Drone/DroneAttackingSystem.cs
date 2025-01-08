@@ -8,6 +8,7 @@ using Unity.Transforms;
 public partial class DroneAttackingSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
+    private int enemyCount;
 
     [BurstCompile]
     protected override void OnUpdate()
@@ -22,7 +23,7 @@ public partial class DroneAttackingSystem : SystemBase
             ecbParallelWriter = ecb.AsParallelWriter(),
             em = EntityManager,
             allAttackables = GetComponentLookup<Attackable>(),
-            allLocalTransforms = GetComponentLookup<LocalTransform>(),
+            allLocalTransforms = GetComponentLookup<LocalTransform>(true),
             allUnitEntities = entityUnitArray,
             deltaTime = SystemAPI.Time.DeltaTime
         };
@@ -38,10 +39,10 @@ public partial class DroneAttackingSystem : SystemBase
             All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform) },
             None = new ComponentType[] { typeof(Drone), typeof(Boid) }
         };
-        int count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+        enemyCount = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
 
         int i = 0;
-        pEntityUnitArray = new NativeArray<Entity>(count, Allocator.Persistent);
+        pEntityUnitArray = new NativeArray<Entity>(enemyCount, Allocator.Persistent);
         foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, Entity entity)
             in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>>().WithEntityAccess().WithNone<Drone, Boid>())
         {

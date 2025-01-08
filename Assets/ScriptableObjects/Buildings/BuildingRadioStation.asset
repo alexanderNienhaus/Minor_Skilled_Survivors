@@ -15,7 +15,7 @@ MonoBehaviour:
   index: 1
   name: Radiostation
   visual: {fileID: 8047838369015550063, guid: 47edf9214623d3b4aa1ca1d3014d6e01, type: 3}
-  cost: 100
+  cost: 25
   width: 8
   length: 4
   scale: 1

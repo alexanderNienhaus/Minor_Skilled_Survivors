@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[BurstCompile]
 partial struct WaveSpawnerSystem : ISystem
 {
     [BurstCompile]
@@ -19,12 +20,9 @@ partial struct WaveSpawnerSystem : ISystem
         if (!waveSpawning.ValueRO.doSpawn)
             return;
 
-        //ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
-
         NativeArray<Entity> instiatedEntities = state.EntityManager.Instantiate(waveSpawning.ValueRO.prefab, waveSpawning.ValueRO.amountToSpawn, Allocator.Persistent);
 
-        //Debug.Log("SPAWN");
-        Random r = new Random((uint)(waveSpawning.ValueRO.amountToSpawn + 1));
+        Random r = new ((uint)(waveSpawning.ValueRO.amountToSpawn + 1));
         for (int i = 0; i < waveSpawning.ValueRO.amountToSpawn; i++)
         {
             Entity entity = instiatedEntities[i];
@@ -93,11 +91,7 @@ partial struct WaveSpawnerSystem : ISystem
 
             waveSpawning.ValueRW.doSpawn = false;
         }
-    }
 
-    [BurstCompile]
-    public void OnDestroy(ref SystemState state)
-    {
-        
+        instiatedEntities.Dispose();
     }
 }

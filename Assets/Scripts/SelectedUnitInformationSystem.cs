@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-//[UpdateAfter(typeof(UnitSelectionSystem))]
+[UpdateAfter(typeof(UnitSelectionSystem))]
 public partial class SelectedUnitInformationSystem : SystemBase
 {
     private int count;
@@ -28,13 +28,15 @@ public partial class SelectedUnitInformationSystem : SystemBase
     {
         int c = 0;
         float3 cumulativePos = float3.zero;
-        foreach ((RefRO<SelectedUnitTag> selectedTag, RefRO<PathFollow> pathFollow, RefRO<LocalTransform> localTransform)
-            in SystemAPI.Query<RefRO<SelectedUnitTag>, RefRO<PathFollow>, RefRO<LocalTransform>>())
+        foreach ((RefRO<PathFollow> pathFollow, RefRO<LocalTransform> localTransform)
+            in SystemAPI.Query<RefRO<PathFollow>, RefRO<LocalTransform>>().WithAll<SelectedUnitTag>())
         {
             c++;
             cumulativePos += localTransform.ValueRO.Position;
         }
-        groupStartPos = cumulativePos / c;
+
+        if(c != 0)
+            groupStartPos = cumulativePos / c;
         count = c;
         EventBus<OnSelectedUnitCountChangeEvent>.Publish(new OnSelectedUnitCountChangeEvent(count));
     }

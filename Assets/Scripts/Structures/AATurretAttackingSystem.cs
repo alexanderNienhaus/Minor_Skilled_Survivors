@@ -31,8 +31,8 @@ public partial class AATurretAttackingSystem : SystemBase
             ecbParallelWriter = ecb.AsParallelWriter(),
             em = EntityManager,
             allAttackables = GetComponentLookup<Attackable>(),
-            allLocalTransforms = GetComponentLookup<LocalTransform>(),
-            allPhysicsVelocities = GetComponentLookup<PhysicsVelocity>(),
+            allLocalTransforms = GetComponentLookup<LocalTransform>(true),
+            allPhysicsVelocities = GetComponentLookup<PhysicsVelocity>(true),
             allEntityEnemies = entityEnemyArray,
             resource = SystemAPI.GetSingletonRW<Resource>(),
             deltaTime = SystemAPI.Time.DeltaTime            

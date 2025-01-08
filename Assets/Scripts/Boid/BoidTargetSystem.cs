@@ -29,18 +29,18 @@ public partial struct BoidTargetSystem : ISystem
                 localTransformBoid = localTransformBoid.ValueRO,
                 em = pSystemState.EntityManager
             };
-            findTargetJob.ScheduleParallel();
-            //Dependency.Complete();
+            pSystemState.Dependency = findTargetJob.ScheduleParallel(pSystemState.Dependency);
+            pSystemState.Dependency.Complete();
         }
-        /*
-        ComponentLookup<LocalTransform> allLocalTransforms = GetComponentLookup<LocalTransform>(true);
+        
+        ComponentLookup<LocalTransform> allLocalTransforms = pSystemState.GetComponentLookup<LocalTransform>(true);
         foreach (RefRW<Boid> boid in SystemAPI.Query<RefRW<Boid>>())
         {
-            if (!EntityManager.Exists(boid.ValueRO.target) || !allLocalTransforms.HasComponent(boid.ValueRO.target))
+            if (!pSystemState.EntityManager.Exists(boid.ValueRO.target) || !allLocalTransforms.HasComponent(boid.ValueRO.target))
                 continue;
             
             boid.ValueRW.targetPosition = allLocalTransforms[boid.ValueRO.target].Position + new float3(0, 1.5f, 0);
         }
-        */
+        
     }
 }

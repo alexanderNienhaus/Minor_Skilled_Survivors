@@ -8,7 +8,7 @@ using Unity.Transforms;
 public partial class TankAttackingSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
-    private int count;
+    private int enemyCount;
 
     [BurstCompile]
     protected override void OnCreate()
@@ -47,14 +47,14 @@ public partial class TankAttackingSystem : SystemBase
             All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform) },
             Any = new ComponentType[] { typeof(Drone) }
         };
-        count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+        enemyCount = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
     }
 
     [BurstCompile]
     private void GetEnemyEntityArray(out NativeArray<Entity> pEntityEnemyArray)
     {
         int i = 0;
-        pEntityEnemyArray = new NativeArray<Entity>(count, Allocator.Persistent);
+        pEntityEnemyArray = new NativeArray<Entity>(enemyCount, Allocator.Persistent);
         foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, Entity entity)
             in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>>().WithEntityAccess().WithAll<Drone>())
         {

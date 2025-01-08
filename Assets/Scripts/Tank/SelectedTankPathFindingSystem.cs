@@ -7,7 +7,7 @@ using Unity.Burst;
 using Unity.Transforms;
 
 [BurstCompile]
-//[UpdateAfter(typeof(UnitSelectionSystem))]
+[UpdateAfter(typeof(UnitSelectionSystem))]
 public partial class SelectedTankPathFindingSystem : SystemBase
 {
     protected override void OnCreate()
@@ -20,7 +20,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
         if (Input.GetMouseButtonDown(1) && PathfindingGridSetup.Instance != null)
         {
             GridXZ<GridNode> grid = PathfindingGridSetup.Instance.pathfindingGrid;
-            int2 gridSize = new int2(grid.GetWidth(), grid.GetLength());
+            int2 gridSize = new (grid.GetWidth(), grid.GetLength());
             float3 gridOriginPos = grid.GetOriginPos();
             float gridCellSize = grid.GetCellSize();
             float3 mouseEndPos = GetMouseWorldPos();
@@ -37,7 +37,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
             NativeArray<float3> endPositions = CalculateEndPositionOffsetsPointRotation(selectedUnitCount, gridCellSize * 4, currentGroupMovement, mouseEndPos);
             SetEndPositions(endPositions);
 
-            FindTankPathJob findGroupPathJob = new FindTankPathJob
+            FindTankPathJob findGroupPathJob = new ()
             {
                 pathPositions = GetBufferLookup<PathPositions>(),
                 pathNodeArray = GetPathNodeArray(grid, gridSize),
@@ -64,9 +64,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
                 in SystemAPI.Query<RefRW<FormationPosition>, RefRO<LocalTransform>>().WithAll<SelectedUnitTag>())
             {
                 if (formationPosition.ValueRO.isSet)
-                {
                     continue;
-                }
 
                 float currentDistance = math.lengthsq(endPositions[i] - localTransform.ValueRO.Position);
                 if (currentDistance < shortestDistance)
@@ -104,13 +102,13 @@ public partial class SelectedTankPathFindingSystem : SystemBase
 
     private NativeArray<PathNode> GetPathNodeArray(GridXZ<GridNode> pGrid, int2 pGridSize)
     {
-        NativeArray<PathNode> pathNodeArray = new NativeArray<PathNode>(pGridSize.x * pGridSize.y, Allocator.Persistent);
+        NativeArray<PathNode> pathNodeArray = new(pGridSize.x * pGridSize.y, Allocator.Persistent);
 
         for (int x = 0; x < pGridSize.x; x++)
         {
             for (int z = 0; z < pGridSize.y; z++)
             {
-                PathNode pathNode = new PathNode
+                PathNode pathNode = new ()
                 {
                     x = x,
                     z = z,
@@ -135,7 +133,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
         int boxSize = (int)math.ceil(math.sqrt(selectedUnitCount));
         int excessPositions = boxSize * boxSize - selectedUnitCount;
 
-        NativeArray<float3> endPositionOffsets = new NativeArray<float3>(boxSize * boxSize, Allocator.Persistent);
+        NativeArray<float3> endPositionOffsets = new (boxSize * boxSize, Allocator.Persistent);
         if (boxSize == 1)
         {
             endPositionOffsets[0] = mousePos;
@@ -147,7 +145,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
         int i = 0;
         int zMax = boxSize;
         int xMax = boxSize;
-        float2 offset = new float2(xMax * 0.5f + 0.5f, zMax * 0.5f + 0.5f);
+        float2 offset = new (xMax * 0.5f + 0.5f, zMax * 0.5f + 0.5f);
 
         for (int x = xMax; x > 0; x--)
         {
@@ -159,7 +157,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
 
             for (int z = zMax; z > 0; z--)
             {
-                float2 pos = new float2(x, z);
+                float2 pos = new (x, z);
                 pos -= offset;
                 pos *= pSpread;
                 float2 rotatedPos = RotatePoint(pos, groupRotation);

@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Burst;
 
 [BurstCompile]
-//[UpdateAfter(typeof(UnitSelectionSystem))]
+[UpdateAfter(typeof(UnitSelectionSystem))]
 public partial class DestroySelectionIndicatorSystem : SystemBase
 {
     private BeginInitializationEntityCommandBufferSystem beginInitializationEcbSystem;

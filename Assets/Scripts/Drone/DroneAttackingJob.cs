@@ -5,6 +5,7 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine;
 
 [BurstCompile]
 [WithAll(typeof(Drone))]
@@ -13,11 +14,11 @@ public partial struct DroneAttackingJob : IJobEntity
 {
     [NativeDisableContainerSafetyRestriction] public EntityManager em;
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
-    [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> allLocalTransforms;
+    [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allUnitEntities;
     public float deltaTime;
-
+        
     [BurstCompile]
     public void Execute(ref LocalTransform pLocalTransformDrone, ref Attacking pAttackingDrone, ref PathFollow pPathFollowDrone, [ChunkIndexInQuery] int pChunkIndexInQuery)
     {
@@ -50,8 +51,7 @@ public partial struct DroneAttackingJob : IJobEntity
             pAttackingDrone.currentTime = 0;
 
             allAttackables.GetRefRW(unitEntity).ValueRW.currentHp -= pAttackingDrone.dmg;
-            
-            if (attackableUnit.currentHp > 0)
+            if (attackableUnit.currentHp - pAttackingDrone.dmg > 0)
                 continue;
 
             ecbParallelWriter.DestroyEntity(pChunkIndexInQuery, unitEntity);
@@ -79,7 +79,7 @@ public partial struct DroneAttackingJob : IJobEntity
         float timeToLife = (pDistanceDroneToUnitSq + pBoundsRadius * pBoundsRadius) / (pAttackingDrone.projectileSpeed * pDeltaTime * pAttackingDrone.projectileSpeed * pDeltaTime);
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
 
-        float3 projectileVelocity = math.normalizesafe(pDroneToUnit) * pAttackingDrone.projectileSpeed * pDeltaTime;
+        float3 projectileVelocity = math.normalizesafe(pDroneToUnit, float3.zero) * pAttackingDrone.projectileSpeed * pDeltaTime;
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new PhysicsVelocity { Linear = projectileVelocity });
 
         return pEcbParallelWriter;

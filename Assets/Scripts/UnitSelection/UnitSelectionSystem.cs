@@ -23,9 +23,6 @@ public enum CollisionLayers
     Building = 1 << 5
 }
 
-//[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-//[UpdateBefore(typeof(PhysicsSystemGroup))]
-//[AlwaysUpdateSystem]
 [BurstCompile]
 public partial class UnitSelectionSystem : SystemBase
 {

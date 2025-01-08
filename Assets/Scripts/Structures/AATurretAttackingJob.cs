@@ -14,8 +14,8 @@ public partial struct AATurretAttackingJob : IJobEntity
     [NativeDisableContainerSafetyRestriction] public EntityManager em;
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
-    [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> allLocalTransforms;
-    [NativeDisableContainerSafetyRestriction] public ComponentLookup<PhysicsVelocity> allPhysicsVelocities;
+    [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
+    [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<PhysicsVelocity> allPhysicsVelocities;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
     [NativeDisableUnsafePtrRestriction] public RefRW<Resource> resource;
     public float deltaTime;
@@ -52,7 +52,7 @@ public partial struct AATurretAttackingJob : IJobEntity
 
             allAttackables.GetRefRW(enemyEntity).ValueRW.currentHp -= pAttackingAATurret.dmg;
             
-            if (attackableEnemy.currentHp > 0)
+            if (attackableEnemy.currentHp - pAttackingAATurret.dmg > 0)
                 continue;
             
             ecbParallelWriter.DestroyEntity(pChunkIndexInQuery, enemyEntity);
@@ -97,7 +97,7 @@ public partial struct AATurretAttackingJob : IJobEntity
             Scale = pAttackingAATurret.projectileSize
         });
 
-        float3 projectileVelocity = math.normalizesafe(unitToEnemy) * timeAdjustedProjectileSpeed;
+        float3 projectileVelocity = math.normalizesafe(unitToEnemy, float3.zero) * timeAdjustedProjectileSpeed;
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new PhysicsVelocity { Linear = projectileVelocity });
 
         //ecb.AddComponent<Parent>(projectile);
@@ -106,7 +106,7 @@ public partial struct AATurretAttackingJob : IJobEntity
 
         float3 mountToEnemy = pEnemyPos - spawnPos;
         mountToEnemy.y = 0;
-        mountToEnemy = math.normalizesafe(mountToEnemy);
+        mountToEnemy = math.normalizesafe(mountToEnemy, float3.zero);
         quaternion targetRotMount = quaternion.LookRotationSafe(mountToEnemy, new float3(0, 1, 0));
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, mountEntity, new LocalTransform
         {
@@ -117,7 +117,7 @@ public partial struct AATurretAttackingJob : IJobEntity
 
         float3 headToEnemy = pEnemyPos - spawnPos;
         headToEnemy.z = math.abs(headToEnemy.z);
-        headToEnemy = math.normalizesafe(headToEnemy);
+        headToEnemy = math.normalizesafe(headToEnemy, float3.zero);
         quaternion targetRotHead = quaternion.LookRotationSafe(headToEnemy, new float3(0, 1, 0));
         float3 targetRotHeadEuler = ComputeAngles(targetRotHead);
         targetRotHeadEuler.y = 0;

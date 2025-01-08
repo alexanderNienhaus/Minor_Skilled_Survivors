@@ -8,7 +8,7 @@ using Unity.Collections;
 
 [BurstCompile]
 [WithAll(typeof(Tank))]
-//[UpdateInGroup(typeof(LateSimulationSystemGroup))]
+//  [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial struct TankAttackingJob : IJobEntity
 {
     [NativeDisableContainerSafetyRestriction] public EntityManager em;
@@ -21,7 +21,7 @@ public partial struct TankAttackingJob : IJobEntity
     public float deltaTime;
 
     [BurstCompile]
-    public void Execute(ref LocalTransform pLocalTransformTank, ref Attacking pAttackingTank, ref PathFollow pPathFollowTank, [ChunkIndexInQuery] int pChunkIndexInQuery)
+    public void Execute(ref LocalTransform pLocalTransformTank, ref Attacking pAttackingTank, ref PathFollow pPathFollowTank, [ChunkIndexInQuery] in int pChunkIndexInQuery)
     {
         pPathFollowTank.enemyPos = float3.zero;
         if (!pPathFollowTank.isInAttackMode)
@@ -57,11 +57,12 @@ public partial struct TankAttackingJob : IJobEntity
 
             allAttackables.GetRefRW(enemyEntity).ValueRW.currentHp -= pAttackingTank.dmg;
             
-            if (attackableEnemy.currentHp > 0)
+            if (attackableEnemy.currentHp - pAttackingTank.dmg > 0)
                 continue;
 
             ecbParallelWriter.DestroyEntity(pChunkIndexInQuery, enemyEntity);
             resource.ValueRW.currentRessourceCount += attackableEnemy.ressourceCost;
+            allAttackables.GetRefRW(enemyEntity).ValueRW.ressourceCost = 0;
 
             return;
         }
@@ -86,7 +87,7 @@ public partial struct TankAttackingJob : IJobEntity
         float timeToLife = (pDistanceTankToEnemySq + pBoundsRadius * pBoundsRadius) / (pAttackingTank.projectileSpeed * pDeltaTime * pAttackingTank.projectileSpeed * pDeltaTime);
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
 
-        float3 projectileVelocity = math.normalizesafe(pTankToEnemy) * pAttackingTank.projectileSpeed * pDeltaTime;
+        float3 projectileVelocity = math.normalizesafe(pTankToEnemy, float3.zero) * pAttackingTank.projectileSpeed * pDeltaTime;
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new PhysicsVelocity { Linear = projectileVelocity });
 
         return pEcbParallelWriter;

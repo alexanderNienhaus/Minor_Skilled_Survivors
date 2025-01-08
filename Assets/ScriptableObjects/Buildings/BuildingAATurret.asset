@@ -15,7 +15,7 @@ MonoBehaviour:
   index: 0
   name: AA-Turret
   visual: {fileID: 1740990030366238962, guid: 82abb30962043c04f84a3476432ee519, type: 3}
-  cost: 100
+  cost: 25
   width: 6
   length: 6
   scale: 1

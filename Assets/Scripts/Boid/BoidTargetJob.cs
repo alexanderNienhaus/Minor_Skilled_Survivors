@@ -13,7 +13,7 @@ public partial struct BoidTargetJob : IJobEntity
     [NativeDisableContainerSafetyRestriction] public EntityManager em;
 
     [BurstCompile]
-    public void Execute(ref LocalTransform localTransformTarget, in Attackable attackable, Entity entity)
+    public void Execute(in LocalTransform localTransformTarget, in Attackable attackable, Entity entity)
     {
         if (!em.Exists(entity) || (!math.all(boid.ValueRW.targetPosition == float3.zero)
             && math.lengthsq(boid.ValueRW.targetPosition - localTransformBoid.Position) <= math.lengthsq(localTransformTarget.Position - localTransformBoid.Position)))

@@ -36,4 +36,20 @@ public class FinalStateManager : MonoBehaviour
     {
         onEndGameEvent = pOnEndGameEvent;
     }
+
+    // 1 unit = 500 enemies
+    // 1 Tank = 50 Drones
+    // 1 AA = 500 Boids
+
+    //      100 - 1000 - 15000       Enemies
+
+    //      1   - 5    - 25          Units
+    //      0.2 - 2    - 30          Needed to kill
+    //      x5  - x2.5 - x0.8
+
+    //Res       1       0
+    //          Drones  Boids   Res
+    //Wave 1    100     0       100
+    //Wave 2    500     205     500               
+    //Wave 3    10000   5000    10000
 }

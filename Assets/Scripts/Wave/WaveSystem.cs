@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -21,6 +22,7 @@ public partial class WaveSystem : SystemBase
     private bool doOnce;
     private int totalNumberOfEnemies;
     private int totalSpawnedNumber;
+    private NativeArray<int> numberOfEnemiesPerWave;
 
     [BurstCompile]
     protected override void OnCreate()
@@ -29,13 +31,16 @@ public partial class WaveSystem : SystemBase
         RequireForUpdate<Spawn>();
         RequireForUpdate<BoidSettings>();
         currentWaveNumber = 0;
-        waveTimeTolerance = 0.01f;
+        waveTimeTolerance = 0.5f;
         totalNumberOfEnemies = 0;
         totalSpawnedNumber = 0;
         lastWave = false;
         isActive = false;
         doOnce = false;
         minWaveTime = 3;
+        topSpawn = new float3(225, 2, -185);
+        midSpawn = new float3(225, 2, 0);
+        botSpawn = new float3(225, 2, 185);
     }
 
     [BurstCompile]
@@ -56,11 +61,10 @@ public partial class WaveSystem : SystemBase
         if (!isActive)
             return;
 
+        timerSystem = World.GetExistingSystemManaged<TimerSystem>();
         currentWaveTime += SystemAPI.Time.DeltaTime;
         if (CheckForWaveEnd())
             return;
-
-        timerSystem = World.GetExistingSystemManaged<TimerSystem>();
 
         SpawnFromWaves();
     }
@@ -68,7 +72,7 @@ public partial class WaveSystem : SystemBase
     [BurstCompile]
     private bool CheckForWaveEnd()
     {
-        EntityQueryDesc entityQueryDesc = new EntityQueryDesc
+        EntityQueryDesc entityQueryDesc = new ()
         {
             Any = new ComponentType[] { typeof(Boid), typeof(Drone) }, 
         };
@@ -118,6 +122,10 @@ public partial class WaveSystem : SystemBase
         currentSpawnNumber = 1;
         currentWaveTime = 0;
         currentWaveNumber++;
+        foreach (RefRW<Attackable> attackable in SystemAPI.Query<RefRW<Attackable>>().WithAny<Tank, RadioStation, AATurret>())
+        {
+            attackable.ValueRW.currentHp = attackable.ValueRO.startHp;
+        }
     }
 
     [BurstCompile]

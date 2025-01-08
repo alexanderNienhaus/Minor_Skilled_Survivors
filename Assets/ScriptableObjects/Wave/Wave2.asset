@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Wave2
   m_EditorClassIdentifier: 
   spawns:
-  - {fileID: 11400000, guid: 03311e56927f4734a91087ab3fb425d7, type: 2}
-  - {fileID: 11400000, guid: a661b7c53d9a05f48af8bb319b9eaf20, type: 2}
-  - {fileID: 11400000, guid: 615cd52de29e8334ba758df3b7e3b051, type: 2}
-  - {fileID: 11400000, guid: cb1e05a84924eef4fbfca04b90a14fdc, type: 2}
-  - {fileID: 11400000, guid: cb1e05a84924eef4fbfca04b90a14fdc, type: 2}
-  - {fileID: 11400000, guid: 69e412876508c9b4491e5e3004011c84, type: 2}
+  - {fileID: 11400000, guid: 0e4ea219a7a93e64b9e3676ca4e7060e, type: 2}
+  - {fileID: 11400000, guid: 345212e6fc8ad9242a7484e3424dd9bc, type: 2}
+  - {fileID: 11400000, guid: 7dd21a5220582614592481150e1f0df7, type: 2}
+  - {fileID: 11400000, guid: 1922a8880feac0848aad40bc560f97ab, type: 2}
+  - {fileID: 11400000, guid: d0ac040a9f7486e4d824e9ebc3990f68, type: 2}
+  - {fileID: 11400000, guid: d9d922655271ad74c98eb980525ffe58, type: 2}

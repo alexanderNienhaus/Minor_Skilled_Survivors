@@ -1,18 +1,14 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
 
 [BurstCompile]
 public partial class BaseSystem : SystemBase
 {
-    private EndFixedStepSimulationEntityCommandBufferSystem beginFixedStepSimulationEcbSystem;
-
     [BurstCompile]
     protected override void OnUpdate()
     {
-        beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
-        EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
-
-        foreach ((RefRO<Attackable> attackable, Entity entity) in SystemAPI.Query<RefRO<Attackable>>().WithEntityAccess().WithAll<Base>())
+        foreach (RefRO<Attackable> attackable in SystemAPI.Query<RefRO<Attackable>>().WithAll<Base>())
         {
             float hp = attackable.ValueRO.currentHp;
             if (hp < 0)
@@ -20,11 +16,10 @@ public partial class BaseSystem : SystemBase
                 hp = 0;
             }
 
-            EventBus<OnBaseHPEvent>.Publish(new OnBaseHPEvent(hp));
+            EventBus<OnBaseHPEvent>.Publish(new OnBaseHPEvent(math.ceil(hp)));
             if (hp <= 0)
             {
                 EventBus<OnEndGameEvent>.Publish(new OnEndGameEvent(false));
-                ecb.DestroyEntity(entity);
             }
         }
     }
