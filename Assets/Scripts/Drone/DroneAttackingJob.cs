@@ -46,7 +46,7 @@ public partial struct DroneAttackingJob : IJobEntity
             pAttackingDrone.currentTime = 0;
 
             allAttackables.GetRefRW(unitEntity).ValueRW.currentHp -= pAttackingDrone.dmg;
-            if (attackableUnit.currentHp - pAttackingDrone.dmg > 0)
+            if (attackableUnit.currentHp - pAttackingDrone.dmg > 0 || attackableUnit.attackableUnitType == AttackableUnitType.Base)
                 continue;
 
             ecbParallelWriter.DestroyEntity(pChunkIndexInQuery, unitEntity);

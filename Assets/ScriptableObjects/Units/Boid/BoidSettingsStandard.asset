@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BoidSettingsStandard
   m_EditorClassIdentifier: 
   dmg: 250
-  strikeDistance: 2
+  strikeDistance: 3
   minSpeed: 5
   maxSpeed: 8
   perceptionRadius: 2.5

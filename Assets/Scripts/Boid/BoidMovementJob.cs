@@ -113,7 +113,7 @@ public partial struct BoidMovementJob : IJobEntity
             Filter = new CollisionFilter
             {
                 BelongsTo = (uint)CollisionLayers.Boid,
-                CollidesWith = (uint)(CollisionLayers.Walls | CollisionLayers.Ground | CollisionLayers.Building | CollisionLayers.AATurret | CollisionLayers.Tanks)
+                CollidesWith = (uint)(CollisionLayers.Ground | CollisionLayers.Building)// | CollisionLayers.AATurret | CollisionLayers.Walls | CollisionLayers.Tanks)
             }
         };
         return collisionWorld.CastRay(raycastInput, out pRaycastHit);
