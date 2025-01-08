@@ -13,10 +13,11 @@ public partial struct AATurretAttackingJob : IJobEntity
 {
     [NativeDisableContainerSafetyRestriction] public EntityManager em;
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
+
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
     [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<PhysicsVelocity> allPhysicsVelocities;
-    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
     [NativeDisableUnsafePtrRestriction] public RefRW<Resource> resource;
     public float deltaTime;
 
@@ -28,9 +29,6 @@ public partial struct AATurretAttackingJob : IJobEntity
         children = em.GetBuffer<LinkedEntityGroup>(aaTurretEntity);
         for (int i = 0; i < allEntityEnemies.Length; i++)
         {
-            if (!em.Exists(allEntityEnemies[i]))
-                continue;
-
             Entity enemyEntity = allEntityEnemies[i];
             LocalTransform localTransformEnemy = allLocalTransforms[enemyEntity];
             Attackable attackableEnemy = allAttackables[enemyEntity];

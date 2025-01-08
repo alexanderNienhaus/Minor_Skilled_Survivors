@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c0ede4041a6b4c4bbf7bfe5bae428f8, type: 3}
   m_Name: BoidSettingsStandard
   m_EditorClassIdentifier: 
-  dmg: 25
+  dmg: 250
+  strikeDistance: 2
   minSpeed: 5
   maxSpeed: 8
   perceptionRadius: 2.5
   avoidanceRadius: 4
-  maxSteerForce: 8
+  maxSteerForce: 16
   alignWeight: 2
   cohesionWeight: 1
   seperateWeight: 2

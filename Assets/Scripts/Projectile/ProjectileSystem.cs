@@ -14,9 +14,6 @@ public partial class ProjectileSystem : SystemBase
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
         foreach ((RefRW<Projectile> projectile, Entity entity) in SystemAPI.Query<RefRW<Projectile>>().WithEntityAccess())
         {
-            if (!EntityManager.Exists(entity))
-                continue;
-
             projectile.ValueRW.currentTimeToLife += SystemAPI.Time.DeltaTime;
 
             if (!float.IsNaN(projectile.ValueRO.maxTimeToLife) && projectile.ValueRO.currentTimeToLife <= projectile.ValueRO.maxTimeToLife)

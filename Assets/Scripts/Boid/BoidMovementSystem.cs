@@ -22,12 +22,13 @@ public partial struct BoidMovementSystem : ISystem
         boidSettings = SystemAPI.GetSingleton<BoidSettings>();
         collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld.CollisionWorld;
 
-        CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray, ref pSystemState);
+        GetBoidEntityArray(out NativeArray<Entity> boidEntityArray, ref pSystemState);
 
         BoidMovementJob boidMovementJob = new ()
         {
-            allBoids = boidArray,
-            allBoidLocalTransforms = boidLocalTransformArray,
+            allBoidEntities = boidEntityArray,
+            allLocalTransforms = pSystemState.GetComponentLookup<LocalTransform>(true),
+            allBoids = pSystemState.GetComponentLookup<Boid>(true),
             collisionWorld = collisionWorld,
             boidSettings = boidSettings,
             deltaTime = SystemAPI.Time.DeltaTime
@@ -36,23 +37,13 @@ public partial struct BoidMovementSystem : ISystem
     }
 
     [BurstCompile]
-    private void CountBoids(out NativeArray<Boid> boidArray, out NativeArray<LocalTransform> boidLocalTransformArray, ref SystemState pSystemState)
+    private void GetBoidEntityArray(out NativeArray<Entity> pBoidEntityArray, ref SystemState pSystemState)
     {
-        EntityQueryBuilder entityQueryBuilder = new(Allocator.Temp);
-        entityQueryBuilder.WithAll<Boid>();
-        int count = pSystemState.GetEntityQuery(entityQueryBuilder).CalculateEntityCount();
-        entityQueryBuilder.Dispose();
-
-        int i = 0;
-        boidArray = new NativeArray<Boid>(count, Allocator.Persistent);
-        boidLocalTransformArray = new NativeArray<LocalTransform>(count, Allocator.Persistent);
-        foreach ((RefRW<Boid> boid, RefRW<LocalTransform> localTransform)
-            in SystemAPI.Query<RefRW<Boid>, RefRW<LocalTransform>>())
-        {
-            boidArray[i] = boid.ValueRO;
-            boidLocalTransformArray[i] = localTransform.ValueRO;
-            i++;
-        }
+        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
+        entityQueryDesc.WithAll<Boid>();
+        EntityQuery query = pSystemState.GetEntityQuery(entityQueryDesc);
+        pBoidEntityArray = query.ToEntityArray(Allocator.Persistent);
+        entityQueryDesc.Dispose();
     }
 }
 

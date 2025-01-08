@@ -5,14 +5,12 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine;
 
 [BurstCompile]
 [WithAll(typeof(Drone))]
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial struct DroneAttackingJob : IJobEntity
 {
-    [NativeDisableContainerSafetyRestriction] public EntityManager em;
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
     [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
@@ -25,9 +23,6 @@ public partial struct DroneAttackingJob : IJobEntity
         pPathFollowDrone.enemyPos = float3.zero;
         for (int i = 0; i < allUnitEntities.Length; i++)
         {
-            if (!em.Exists(allUnitEntities[i]))
-                continue;
-
             Entity unitEntity = allUnitEntities[i];
             LocalTransform localTransformUnit = allLocalTransforms[unitEntity];
             Attackable attackableUnit = allAttackables[unitEntity];

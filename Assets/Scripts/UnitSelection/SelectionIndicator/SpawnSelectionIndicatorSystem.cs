@@ -20,19 +20,13 @@ public partial struct SpawnSelectionIndicatorSystem : ISystem
     {
         EntityQueryBuilder entityQueryBuilder = new(Allocator.Temp);
         entityQueryBuilder.WithAll<SelectedUnitTag>().WithNone<SelectionIndicatorData>();
-        int count = pSystemState.GetEntityQuery(entityQueryBuilder).CalculateEntityCount();
-        entityQueryBuilder.Dispose();
-        NativeArray<Entity> selectedUnitEntities = new(count, Allocator.Temp);
+        EntityQuery entityQuery = pSystemState.GetEntityQuery(entityQueryBuilder);
+        int count = entityQuery.CalculateEntityCount();
         if (count == 0)
             return;
 
-        count = 0;
-        foreach ((RefRO<LocalTransform> localTransform, Entity entity)
-            in SystemAPI.Query<RefRO<LocalTransform>>().WithNone<SelectionIndicatorData>().WithAll<SelectedUnitTag>().WithEntityAccess())
-        {
-            selectedUnitEntities[count] = entity;
-            count++;
-        }
+        NativeArray<Entity> selectedUnitEntities = entityQuery.ToEntityArray(Allocator.Temp);
+        entityQueryBuilder.Dispose();
 
         NativeArray<Entity> instantiatedEntities = pSystemState.EntityManager.Instantiate(SystemAPI.GetSingleton<SelectionIndicatorPrefab>().prefab,
             count, Allocator.Persistent);
@@ -40,10 +34,7 @@ public partial struct SpawnSelectionIndicatorSystem : ISystem
         for (int i = 0; i < count; i++)
         {
             pSystemState.EntityManager.AddComponent<SelectionIndicatorData>(selectedUnitEntities[i]);
-            pSystemState.EntityManager.SetComponentData(selectedUnitEntities[i], new SelectionIndicatorData
-            {
-                selectionIndicator = instantiatedEntities[i]
-            });
+            pSystemState.EntityManager.SetComponentData(selectedUnitEntities[i], new SelectionIndicatorData { selectionIndicator = instantiatedEntities[i] });
             pSystemState.EntityManager.AddComponent<Parent>(instantiatedEntities[i]);
             pSystemState.EntityManager.SetComponentData(instantiatedEntities[i], new Parent { Value = selectedUnitEntities[i] });
         }

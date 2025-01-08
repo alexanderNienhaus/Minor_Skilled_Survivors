@@ -8,7 +8,12 @@ using Unity.Transforms;
 public partial class DroneAttackingSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
-    private int enemyCount;
+
+    [BurstCompile]
+    protected override void OnCreate()
+    {
+        RequireForUpdate<Drone>();
+    }
 
     [BurstCompile]
     protected override void OnUpdate()
@@ -16,12 +21,11 @@ public partial class DroneAttackingSystem : SystemBase
         beginSimulationEcbSystem = World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginSimulationEcbSystem.CreateCommandBuffer();
 
-        CountUnits(out NativeArray<Entity> entityUnitArray);
+        GetUnitEntityArray(out NativeArray<Entity> entityUnitArray);
 
         DroneAttackingJob droneAttackingJob = new()
         {
             ecbParallelWriter = ecb.AsParallelWriter(),
-            em = EntityManager,
             allAttackables = GetComponentLookup<Attackable>(),
             allLocalTransforms = GetComponentLookup<LocalTransform>(true),
             allUnitEntities = entityUnitArray,
@@ -32,25 +36,12 @@ public partial class DroneAttackingSystem : SystemBase
     }
 
     [BurstCompile]
-    private void CountUnits(out NativeArray<Entity> pEntityUnitArray)
+    private void GetUnitEntityArray(out NativeArray<Entity> pEntityUnitArray)
     {
-        EntityQueryDesc entityQueryDesc = new ()
-        {
-            All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform) },
-            None = new ComponentType[] { typeof(Drone), typeof(Boid) }
-        };
-        enemyCount = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
-
-        int i = 0;
-        pEntityUnitArray = new NativeArray<Entity>(enemyCount, Allocator.Persistent);
-        foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, Entity entity)
-            in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>>().WithEntityAccess().WithNone<Drone, Boid>())
-        {
-            if (!EntityManager.Exists(entity))
-                continue;
-
-            pEntityUnitArray[i] = entity;
-            i++;
-        }
+        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
+        entityQueryDesc.WithAll<Attackable, LocalTransform>().WithNone<Drone, Boid>();
+        EntityQuery query = GetEntityQuery(entityQueryDesc);
+        pEntityUnitArray = query.ToEntityArray(Allocator.Persistent);
+        entityQueryDesc.Dispose();
     }
 }

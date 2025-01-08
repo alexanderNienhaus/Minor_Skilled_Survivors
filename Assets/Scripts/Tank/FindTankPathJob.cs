@@ -29,11 +29,16 @@ public partial struct FindTankPathJob : IJobEntity
         pathPositions[pEntity].Clear();
         cellMiddleOffset = new float3(1, 0, 1) * gridCellSize * 0.5f;
         gridWidth = gridSize.x;
+        NativeArray<PathNode> tmpPathNodeArray = new NativeArray<PathNode>(pathNodeArray, Allocator.Temp);
 
         //Get start pos
         int2 startNodePos = GetNearestCornerXZ(pLocalTransform.Position);
         ValidateGridPosition(gridSize[1], ref startNodePos.x, ref startNodePos.y);
         int startNodeIndex = CalculateIndex(startNodePos.x, startNodePos.y);
+        if (!IsPositionInsideGrid(startNodePos) || !tmpPathNodeArray[startNodeIndex].isWalkable)
+        {
+            startNodeIndex = FindEndCandidate(startNodePos, pLocalTransform.Position, tmpPathNodeArray);
+        }
 
         //Get end pos
         float3 preciseEndPos = formationPosition.position;
@@ -41,12 +46,12 @@ public partial struct FindTankPathJob : IJobEntity
         int endNodeIndex = CalculateIndex(endNodePos.x, endNodePos.y);
         bool endNodeChanged = false;
 
-        NativeArray<PathNode> tmpPathNodeArray = new NativeArray<PathNode>(pathNodeArray, Allocator.Temp);
         if (!IsPositionInsideGrid(endNodePos) || !tmpPathNodeArray[endNodeIndex].isWalkable)
         {
             endNodeChanged = true;
             endNodeIndex = FindEndCandidate(endNodePos, preciseEndPos, tmpPathNodeArray);
         }
+
 
         if (endNodeIndex == startNodeIndex)
         {

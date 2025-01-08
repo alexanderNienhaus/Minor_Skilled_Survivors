@@ -50,7 +50,9 @@ partial struct WaveSpawnerSystem : ISystem
                     state.EntityManager.SetComponentData(entity, new Boid {
                         id = waveSpawning.ValueRO.currentNumberOfBoids,
                         velocity = facingDirection * (waveSpawning.ValueRO.boidSettings.minSpeed + waveSpawning.ValueRO.boidSettings.maxSpeed) / 2,
-                        dmg = waveSpawning.ValueRO.boidSettings.dmg });
+                        dmg = waveSpawning.ValueRO.boidSettings.dmg,
+                        strikeDistance = waveSpawning.ValueRO.boidSettings.strikeDistance
+                    });
                     break;
                 default:
                 case AttackableUnitType.Drone:

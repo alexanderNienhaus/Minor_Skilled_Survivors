@@ -14,6 +14,7 @@ public class BoidSettingsAuthoring : MonoBehaviour
             AddComponent(entity, new BoidSettings
             {
                     dmg = pAuthoring.boidSettingsSO.dmg,
+                    strikeDistance = pAuthoring.boidSettingsSO.strikeDistance,
                     minSpeed = pAuthoring.boidSettingsSO.minSpeed,
                     maxSpeed = pAuthoring.boidSettingsSO.maxSpeed,
                     perceptionRadius = pAuthoring.boidSettingsSO.perceptionRadius,
@@ -36,6 +37,7 @@ public class BoidSettingsAuthoring : MonoBehaviour
 public struct BoidSettings : IComponentData
 {
     public int dmg;
+    public float strikeDistance;
 
     public float minSpeed;
     public float maxSpeed;

@@ -15,9 +15,9 @@ MonoBehaviour:
   prefab: {fileID: 2547632407910942000, guid: af9f138ca1214ae41beb955d1406704e, type: 3}
   unitType: 1
   unitSize: 1
-  amountToSpawn: 50
+  amountToSpawn: 100
   spawnPosition: {x: 225, y: 2, z: 0}
-  spawnRadiusMax: 8
-  spawnRadiusMin: 10
+  spawnRadiusMax: 10
+  spawnRadiusMin: 0
   isSphericalSpawn: 0
   whenToSpawn: 0

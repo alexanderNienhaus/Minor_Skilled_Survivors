@@ -17,10 +17,15 @@ public enum CollisionLayers
 {
     Selection = 1 << 0,
     Ground = 1 << 1,
-    Units = 1 << 2,
+    Tanks = 1 << 2,
     Walls = 1 << 3,
     Boid = 1 << 4,
-    Building = 1 << 5
+    Building = 1 << 5,
+    Drone = 1 << 6,
+    Projectile = 1 << 7,
+    AATurret = 1 << 8,
+    Radiostation = 1 << 9,
+    Base = 1 << 10
 }
 
 [BurstCompile]
@@ -149,7 +154,7 @@ public partial class UnitSelectionSystem : SystemBase
         CollisionFilter collisionFilter = new CollisionFilter
         {
             BelongsTo = (uint)CollisionLayers.Selection,
-            CollidesWith = (uint)CollisionLayers.Units
+            CollidesWith = (uint)CollisionLayers.Tanks
         };
 
         Material physicsMaterial = Material.Default;
@@ -185,7 +190,7 @@ public partial class UnitSelectionSystem : SystemBase
             Filter = new CollisionFilter
             {
                 BelongsTo = (uint)CollisionLayers.Selection,
-                CollidesWith = (uint)(CollisionLayers.Ground | CollisionLayers.Units)
+                CollidesWith = (uint)(CollisionLayers.Ground | CollisionLayers.Tanks)
             }
         };
         return collisionWorld.CastRay(raycastInput, out pRaycastHit);

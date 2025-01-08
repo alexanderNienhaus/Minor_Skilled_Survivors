@@ -8,6 +8,7 @@ using Unity.Mathematics;
 public partial class WaveSystem : SystemBase
 {
     private DynamicBuffer<Spawn> spawns;
+    private NativeArray<Spawn> spawnsPerWave;
     private TimerSystem timerSystem;
     private bool isActive;
     private int currentWaveNumber;
@@ -23,6 +24,7 @@ public partial class WaveSystem : SystemBase
     private int totalNumberOfEnemies;
     private int totalSpawnedNumber;
     private NativeArray<int> numberOfEnemiesPerWave;
+    private int totalSpawnedNumberThisWave;
 
     [BurstCompile]
     protected override void OnCreate()
@@ -41,6 +43,7 @@ public partial class WaveSystem : SystemBase
         topSpawn = new float3(225, 2, -185);
         midSpawn = new float3(225, 2, 0);
         botSpawn = new float3(225, 2, 185);
+        numberOfEnemiesPerWave = new NativeArray<int>(4, Allocator.Persistent);
     }
 
     [BurstCompile]
@@ -50,13 +53,7 @@ public partial class WaveSystem : SystemBase
         spawns = SystemAPI.GetSingletonBuffer<Spawn>();
 
         if (!doOnce)
-        {
-            doOnce = true;
-            foreach (Spawn spawn in spawns)
-            {
-                totalNumberOfEnemies += spawn.amountToSpawn;
-            }
-        }
+            DoOnce();
 
         if (!isActive)
             return;
@@ -69,28 +66,40 @@ public partial class WaveSystem : SystemBase
         SpawnFromWaves();
     }
 
+    private void DoOnce()
+    {
+        doOnce = true;
+        int i = 0;
+        foreach (Spawn spawn in spawns)
+        {
+            //spawnsPerWave[i] = spawn;
+            numberOfEnemiesPerWave[spawn.waveNumber - 1] += spawn.amountToSpawn;
+            totalNumberOfEnemies += spawn.amountToSpawn;
+            i++;
+        }
+    }
+
     [BurstCompile]
     private bool CheckForWaveEnd()
     {
-        EntityQueryDesc entityQueryDesc = new ()
+        EntityQueryDesc entityQueryDesc = new()
         {
-            Any = new ComponentType[] { typeof(Boid), typeof(Drone) }, 
+            Any = new ComponentType[] { typeof(Boid), typeof(Drone) },
         };
-        int numberOfEnemies = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
+        int numberOfEnemies = GetEntityQuery(entityQueryDesc).CalculateEntityCount();         //Debug.Log("Fighting Phase: " + currentWaveTime + " numberOfEnemies: " + numberOfEnemies + " currentSpawnNumber: " + currentSpawnNumber + " currentWaveNumber: " + currentWaveNumber);
 
-        //Debug.Log("Fighting Phase: " + currentWaveTime + " numberOfEnemies: " + numberOfEnemies + " currentSpawnNumber: " + currentSpawnNumber + " currentWaveNumber: " + currentWaveNumber);
+        if (numberOfEnemies > 0 || currentSpawnNumber <= 1 || currentWaveTime <= minWaveTime
+            || totalSpawnedNumberThisWave < numberOfEnemiesPerWave[currentWaveNumber - 1])
+            return false;
 
-        if (numberOfEnemies <= 0 && currentSpawnNumber > 1 && currentWaveTime > minWaveTime)
-        {
-            isActive = false;
-            timerSystem.BuildPhaseStart();
-            if (lastWave)
-            {
-                EventBus<OnEndGameEvent>.Publish(new OnEndGameEvent(true));
-            }
+        isActive = false;
+        timerSystem.BuildPhaseStart();
+
+        if (!lastWave)
             return true;
-        }
-        return false;
+
+        EventBus<OnEndGameEvent>.Publish(new OnEndGameEvent(true));
+        return true;
     }
 
     [BurstCompile]
@@ -106,6 +115,7 @@ public partial class WaveSystem : SystemBase
                 spawn.spawnRadiusMax, spawn.isSphericalSpawn);
 
             currentSpawnNumber++;
+            totalSpawnedNumberThisWave += spawn.amountToSpawn;
             totalSpawnedNumber += spawn.amountToSpawn;
 
             if (totalSpawnedNumber >= totalNumberOfEnemies)
@@ -121,6 +131,7 @@ public partial class WaveSystem : SystemBase
         isActive = true;
         currentSpawnNumber = 1;
         currentWaveTime = 0;
+        totalSpawnedNumberThisWave = 0;
         currentWaveNumber++;
         foreach (RefRW<Attackable> attackable in SystemAPI.Query<RefRW<Attackable>>().WithAny<Tank, RadioStation, AATurret>())
         {

@@ -5,16 +5,16 @@ using Unity.Physics;
 using Unity.Collections;
 
 [BurstCompile]
-//[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial class AATurretAttackingSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
-    private int count;
 
     [BurstCompile]
     protected override void OnCreate()
     {
         RequireForUpdate<Resource>();
+        RequireForUpdate<AATurret>();
+        RequireForUpdate<Boid>();
     }
 
     [BurstCompile]
@@ -23,7 +23,6 @@ public partial class AATurretAttackingSystem : SystemBase
         beginSimulationEcbSystem = World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginSimulationEcbSystem.CreateCommandBuffer();
         
-        CountEnemies();
         GetEnemyEntityArray(out NativeArray<Entity> entityEnemyArray);
 
         AATurretAttackingJob aaTurretAttackingJob = new()
@@ -42,30 +41,12 @@ public partial class AATurretAttackingSystem : SystemBase
     }
 
     [BurstCompile]
-    public void CountEnemies()
-    {
-        EntityQueryDesc entityQueryDesc = new ()
-        {
-            All = new ComponentType[] { typeof(Attackable), typeof(LocalTransform), typeof(PhysicsVelocity) },
-            Any = new ComponentType[] { typeof(Boid) }
-        };
-        count = GetEntityQuery(entityQueryDesc).CalculateEntityCount();
-    }
-
-    [BurstCompile]
     private void GetEnemyEntityArray(out NativeArray<Entity> pEntityEnemyArray)
     {
-        int i = 0;
-        pEntityEnemyArray = new NativeArray<Entity>(count, Allocator.Persistent);
-        foreach ((RefRO<Attackable> boid, RefRO<LocalTransform> localTransform, RefRO<PhysicsVelocity> physicsVelocity, Entity entity)
-            in SystemAPI.Query<RefRO<Attackable>, RefRO<LocalTransform>, RefRO<PhysicsVelocity>>().WithEntityAccess().WithAny<Boid>())
-        {
-            if (!EntityManager.Exists(entity))
-                continue;
-
-            pEntityEnemyArray[i] = entity;
-            i++;
-        }
+        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
+        entityQueryDesc.WithAll<Attackable, LocalTransform, PhysicsVelocity>().WithAny<Boid>();
+        EntityQuery query = GetEntityQuery(entityQueryDesc);
+        pEntityEnemyArray = query.ToEntityArray(Allocator.Persistent);
+        entityQueryDesc.Dispose();
     }
-
 }
