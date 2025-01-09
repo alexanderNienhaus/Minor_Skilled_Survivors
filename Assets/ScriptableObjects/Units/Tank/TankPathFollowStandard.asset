@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba9d4f8d4d7f1b44d9a5325b60337fe7, type: 3}
   m_Name: TankPathFollowStandard
   m_EditorClassIdentifier: 
-  movementSpeed: 1000
-  rotationSpeed: 10
+  movementSpeed: 1600
+  rotationSpeed: 8
   yValue: 0
   checkDistanceEndDestination: 0.2

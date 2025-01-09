@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: TankAttackingStandard
   m_EditorClassIdentifier: 
   dmg: 55
-  range: 25
-  attackSpeed: 1
+  range: 50
+  attackSpeed: 0.4
   projectilePrefab: {fileID: 7031068637116403174, guid: 1c759570afe136e4ba3514e0dba674e6,
     type: 3}
-  projectileSpeed: 5000
+  projectileSpeed: 12000
   projectileSpawnOffset: {x: 0, y: 3.3, z: 0}
   projectileSize: 10

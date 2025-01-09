@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TankAttackableStandard
   m_EditorClassIdentifier: 
   attackableUnitType: 2
-  startHp: 2500
+  startHp: 4000
   ressourceCost: 0
   halfBounds: {x: 0, y: 0, z: 0}
   boundsRadius: 1

@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -10,7 +11,6 @@ public partial class TimerSystem : SystemBase
 
     protected override void OnCreate()
     {
-        //RequireForUpdate<WaveSystem>();
         RequireForUpdate<Timer>();
         BuildPhaseStart();
     }
@@ -36,10 +36,18 @@ public partial class TimerSystem : SystemBase
         }
     }
 
-    public void BuildPhaseEnd()
+    private void BuildPhaseEnd()
     {
         timer = SystemAPI.GetSingleton<Timer>();
         currentBuildTime = timer.maxBuildTime;
+    }
+
+    public void SkipTurn()
+    {
+        if (isFighting)
+            return;
+
+        BuildPhaseEnd();
     }
 
     public void BuildPhaseStart()

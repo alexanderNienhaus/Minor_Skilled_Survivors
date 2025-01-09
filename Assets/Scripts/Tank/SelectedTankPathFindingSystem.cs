@@ -10,13 +10,32 @@ using Unity.Transforms;
 [UpdateAfter(typeof(UnitSelectionSystem))]
 public partial class SelectedTankPathFindingSystem : SystemBase
 {
+    private bool nextMoveAttack;
+    private string movementOrder;
+    private string attackOrder;
+    private string untis;
+
     protected override void OnCreate()
     {
         RequireForUpdate<SelectedUnitTag>();
+        nextMoveAttack = false;
+        movementOrder = "Movement order issued for ";
+        attackOrder = "Attack order issued for ";
+        untis = " units!";
     }
 
     protected override void OnUpdate()
     {
+        if (Input.GetKey(KeyCode.Space))
+        {
+            nextMoveAttack = true;
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            nextMoveAttack = false;
+        }
+
         if (Input.GetMouseButtonDown(1) && PathfindingGridSetup.Instance != null)
         {
             GridXZ<GridNode> grid = PathfindingGridSetup.Instance.pathfindingGrid;
@@ -33,6 +52,8 @@ public partial class SelectedTankPathFindingSystem : SystemBase
             float3 groupStartPos = selectedUnitCountSystem.GetGroupStartPos();
             float3 currentGroupMovement = mouseEndPos - groupStartPos;
             int selectedUnitCount = selectedUnitCountSystem.GetSelectedUnitCount();
+            if (selectedUnitCount == 0)
+                return;
 
             NativeArray<float3> endPositions = CalculateEndPositionOffsetsPointRotation(selectedUnitCount, gridCellSize * 4, currentGroupMovement, mouseEndPos);
             SetEndPositions(endPositions);
@@ -46,10 +67,12 @@ public partial class SelectedTankPathFindingSystem : SystemBase
                 gridCellSize = gridCellSize,
                 groupMovement = currentGroupMovement,
                 thetaStar = new ThetaStar(),
-                isInAttackMode = Input.GetKey(KeyCode.Space)
+                isInAttackMode = nextMoveAttack
             };
-
             findGroupPathJob.ScheduleParallel();
+
+            EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent((nextMoveAttack ? attackOrder : movementOrder) + selectedUnitCount + untis));
+            nextMoveAttack = false;
         }
     }
 

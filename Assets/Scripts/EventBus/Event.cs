@@ -23,16 +23,6 @@ public class OnMoveCommandIssued : CustomEvent
     }
 }
 
-public class OnSelectedUnitCountChangeEvent : CustomEvent
-{
-    public int selectedUnitCount;
-
-    public OnSelectedUnitCountChangeEvent(int pUnitCount)
-    {
-        selectedUnitCount = pUnitCount;
-    }
-}
-
 public class OnBaseHPEvent : CustomEvent
 {
     public float baseHP;

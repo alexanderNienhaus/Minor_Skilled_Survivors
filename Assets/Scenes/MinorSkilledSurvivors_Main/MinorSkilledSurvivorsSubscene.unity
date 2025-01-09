@@ -2427,7 +2427,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13bab61763adfef4cbbe83a25c14a745, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startRessourceCount: 2500
+  startRessourceCount: 50
 --- !u!1 &1108681767
 GameObject:
   m_ObjectHideFlags: 0

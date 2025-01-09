@@ -22,7 +22,7 @@ partial struct WaveSpawnerSystem : ISystem
 
         NativeArray<Entity> instiatedEntities = state.EntityManager.Instantiate(waveSpawning.ValueRO.prefab, waveSpawning.ValueRO.amountToSpawn, Allocator.Persistent);
 
-        Random r = new ((uint)(waveSpawning.ValueRO.amountToSpawn + 1));
+        Random r = new ((uint)(waveSpawning.ValueRO.amountToSpawn + waveSpawning.ValueRO.spawnPosition.x));
         for (int i = 0; i < waveSpawning.ValueRO.amountToSpawn; i++)
         {
             Entity entity = instiatedEntities[i];

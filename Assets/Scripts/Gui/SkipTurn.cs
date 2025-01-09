@@ -5,6 +5,6 @@ public class SkipTurn : MonoBehaviour
 {
     public void SkipTurnBtn()
     {
-        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<TimerSystem>().BuildPhaseEnd();   
+        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<TimerSystem>().SkipTurn();   
     }
 }

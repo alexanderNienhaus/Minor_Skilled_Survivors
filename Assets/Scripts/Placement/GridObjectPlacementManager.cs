@@ -25,6 +25,7 @@ public class GridObjectPlacementManager : MonoBehaviour
     [Header("Debugging")]
     [SerializeField] private bool gridShowDebug = false;
     [SerializeField] private int gridDebugTextSize = 10;
+    [SerializeField] private bool allowDebugBuildings = false;
 
     private GridXZ<GridObject> grid;
     private PlacableObjectTypeSO placedObjectTypeSO;
@@ -123,7 +124,7 @@ public class GridObjectPlacementManager : MonoBehaviour
             DestroyBuilding();
         }
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R) && allowDebugBuildings)
         {
             direction = PlacableObjectTypeSO.GetNextDir(direction);
         }
@@ -140,13 +141,13 @@ public class GridObjectPlacementManager : MonoBehaviour
             EventBus<OnSelectedPlacableObjectChanged>.Publish(new OnSelectedPlacableObjectChanged());
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        if (Input.GetKeyDown(KeyCode.Alpha3) && allowDebugBuildings)
         {
             placedObjectTypeSO = placedObjectTypeSOList[2];
             EventBus<OnSelectedPlacableObjectChanged>.Publish(new OnSelectedPlacableObjectChanged());
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha4))
+        if (Input.GetKeyDown(KeyCode.Alpha4) && allowDebugBuildings)
         {
             placedObjectTypeSO = placedObjectTypeSOList[3];
             EventBus<OnSelectedPlacableObjectChanged>.Publish(new OnSelectedPlacableObjectChanged());

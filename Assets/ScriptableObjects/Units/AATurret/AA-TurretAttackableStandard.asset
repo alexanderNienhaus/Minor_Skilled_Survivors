@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AA-TurretAttackableStandard
   m_EditorClassIdentifier: 
   attackableUnitType: 3
-  startHp: 10000
-  ressourceCost: 100
+  startHp: 15000
+  ressourceCost: 25
   halfBounds: {x: 6, y: 3, z: 6}
   boundsRadius: 3

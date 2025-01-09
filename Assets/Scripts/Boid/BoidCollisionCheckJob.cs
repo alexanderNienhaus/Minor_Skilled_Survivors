@@ -31,6 +31,9 @@ public struct BoidCollisionCheckJob : ITriggerEventsJob
                 allAttackables.GetRefRW(entityB).ValueRW.currentHp -= dmg;
                 ecb.DestroyEntity(entityA);
 
+                if(allAttackables[entityB].attackableUnitType == AttackableUnitType.Base)
+                    return;
+
                 if (allAttackables[entityB].currentHp - dmg > 0)
                     return;
 
@@ -42,6 +45,9 @@ public struct BoidCollisionCheckJob : ITriggerEventsJob
                     (allAttackables.GetRefRO(entityA).ValueRO.attackableUnitType == AttackableUnitType.Tank ? 10 : 1);
                 allAttackables.GetRefRW(entityA).ValueRW.currentHp -= dmg;
                 ecb.DestroyEntity(entityB);
+
+                if (allAttackables[entityA].attackableUnitType == AttackableUnitType.Base)
+                    return;
 
                 if (allAttackables[entityA].currentHp - dmg > 0)
                     return;

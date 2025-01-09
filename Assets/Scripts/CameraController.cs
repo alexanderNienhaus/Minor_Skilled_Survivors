@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float normalSpeed = 0.5f;
     [SerializeField] private float fastSpeed = 2f;
     [SerializeField] private float movementTime = 5;
-    [SerializeField] private Vector2 moveLimit = new Vector2(100, 100);
+    [SerializeField] private Vector2 moveLimit = new (100, 100);
 
     [Header("Rotation")]
     [SerializeField] private float slowRotationAmount = 0.125f;
@@ -18,10 +18,10 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float rotaionSpeedMouse = 0.1f;
 
     [Header("Zoom")]
-    [SerializeField] private Vector3 slowZoomAmount = new Vector3(0, -0.125f, 0.125f);
-    [SerializeField] private Vector3 normalZoomAmount = new Vector3(0, -0.5f, 0.5f);
-    [SerializeField] private Vector3 fastZoomAmount = new Vector3(0, -2f, 2f);
-    [SerializeField] private Vector2 zoomLimit = new Vector2(-45, 45);
+    [SerializeField] private Vector3 slowZoomAmount = new (0, -0.125f, 0.125f);
+    [SerializeField] private Vector3 normalZoomAmount = new (0, -0.5f, 0.5f);
+    [SerializeField] private Vector3 fastZoomAmount = new (0, -2f, 2f);
+    [SerializeField] private Vector2 zoomLimit = new (-45, 45);
     [SerializeField] private float mouseZoomSpeedUp = 6f;
 
     private float movementSpeed;
@@ -80,12 +80,12 @@ public class CameraController : MonoBehaviour
             newZoom += Input.mouseScrollDelta.y * zoomAmount * mouseZoomSpeedUp;
         }
 
+        /*
         if (Input.GetMouseButtonDown(1))
         {
-            Plane plane = new Plane(Vector3.up, Vector3.zero);
+            Plane plane = new (Vector3.up, Vector3.zero);
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            float entry;
-            if(plane.Raycast(ray, out entry))
+            if(plane.Raycast(ray, out float entry))
             {
                 dragStartPosition = ray.GetPoint(entry);
             }
@@ -93,15 +93,15 @@ public class CameraController : MonoBehaviour
 
         if (Input.GetMouseButton (1))
         {
-            Plane plane = new Plane(Vector3.up, Vector3.zero);
+            Plane plane = new (Vector3.up, Vector3.zero);
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            float entry;
-            if (plane.Raycast(ray, out entry))
+            if (plane.Raycast(ray, out float entry))
             {
                 dragCurrentPosition = ray.GetPoint(entry);
                 newPosition = transform.position + dragStartPosition - dragCurrentPosition;
             }
         }
+                */
 
         if (Input.GetMouseButtonDown(2))
         {
@@ -142,18 +142,20 @@ public class CameraController : MonoBehaviour
         {
             newRotation *= Quaternion.Euler(transform.up * -rotationAmount);
         }
+        /*
         if (Input.GetKey(KeyCode.R))
         {
-            //newZoom += zoomAmount;
+            newZoom += zoomAmount;
         }
         if (Input.GetKey(KeyCode.F))
         {
-            //newZoom -= zoomAmount;
+            newZoom -= zoomAmount;
         }
-        if (Input.GetKey(KeyCode.T))
+        */
+        if (Input.GetKey(KeyCode.R))
         {
             newRotation = initialRotation;
-            newZoom = Vector3.zero;
+            //newZoom = Vector3.zero;
         }
 
         float displacement = cameraTransform.position.y + cameraTransform.localPosition.z;

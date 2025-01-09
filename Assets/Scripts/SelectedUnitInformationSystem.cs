@@ -38,10 +38,10 @@ public partial class SelectedUnitInformationSystem : SystemBase
         if(c != 0)
             groupStartPos = cumulativePos / c;
         count = c;
-        EventBus<OnSelectedUnitCountChangeEvent>.Publish(new OnSelectedUnitCountChangeEvent(count));
     }
 
     protected override void OnUpdate()
     {
+
     }
 }

@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: BoidSettingsTargetPrio
   m_EditorClassIdentifier: 
   dmg: 250
-  strikeDistance: 3
-  minSpeed: 5
-  maxSpeed: 8
+  minSpeed: 2
+  maxSpeed: 12
   perceptionRadius: 6
   avoidanceRadius: 6
   maxSteerForce: 12

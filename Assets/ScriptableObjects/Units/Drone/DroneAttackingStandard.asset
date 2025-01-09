@@ -17,6 +17,6 @@ MonoBehaviour:
   attackSpeed: 0.5
   projectilePrefab: {fileID: 7031068637116403174, guid: cae08de23c893084c9fba59a627f8591,
     type: 3}
-  projectileSpeed: 4000
+  projectileSpeed: 8000
   projectileSpawnOffset: {x: 0, y: 0, z: 0.33}
   projectileSize: 10
