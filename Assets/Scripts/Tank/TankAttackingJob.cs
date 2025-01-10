@@ -12,7 +12,7 @@ public partial struct TankAttackingJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
-    [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> allLocalTransforms;
+    [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
     [NativeDisableUnsafePtrRestriction] public RefRW<Resource> resource;
     public float deltaTime;

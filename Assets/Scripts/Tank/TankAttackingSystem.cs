@@ -27,7 +27,7 @@ public partial class TankAttackingSystem : SystemBase
         {
             ecbParallelWriter = ecb.AsParallelWriter(),
             allAttackables = GetComponentLookup<Attackable>(),
-            allLocalTransforms = GetComponentLookup<LocalTransform>(),
+            allLocalTransforms = GetComponentLookup<LocalTransform>(true),
             allEntityEnemies = entityEnemyArray,
             resource = SystemAPI.GetSingletonRW<Resource>(),
             deltaTime = SystemAPI.Time.DeltaTime

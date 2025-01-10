@@ -9,10 +9,8 @@ using RaycastHit = Unity.Physics.RaycastHit;
 [BurstCompile]
 public partial struct BoidMovementJob : IJobEntity
 {
-    //[DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allBoidEntities;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Boid> allBoids;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalTransform> allLocalTransforms;
-
     [ReadOnly] public CollisionWorld collisionWorld;
     public BoidSettings boidSettings;
     public float deltaTime;
@@ -27,7 +25,6 @@ public partial struct BoidMovementJob : IJobEntity
 
         for (int i = 0; i < allBoids.Length; i++)
         {
-            //Entity boidBEntity = allBoidEntities[i];
             Boid boidB = allBoids[i];
 
             if (boidA.id == boidB.id)

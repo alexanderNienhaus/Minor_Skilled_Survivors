@@ -8,7 +8,6 @@ using Unity.Collections;
 
 [BurstCompile]
 [WithAll(typeof(AATurret))]
-//[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public partial struct AATurretAttackingJob : IJobEntity
 {
     [NativeDisableContainerSafetyRestriction] public EntityManager em;
@@ -17,7 +16,7 @@ public partial struct AATurretAttackingJob : IJobEntity
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
     [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
-    [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<PhysicsVelocity> allPhysicsVelocities;
+    [ReadOnly] public ComponentLookup<PhysicsVelocity> allPhysicsVelocities;
     [NativeDisableUnsafePtrRestriction] public RefRW<Resource> resource;
     public float deltaTime;
 

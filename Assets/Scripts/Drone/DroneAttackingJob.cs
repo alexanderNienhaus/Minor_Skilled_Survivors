@@ -12,9 +12,9 @@ using Unity.Collections.LowLevel.Unsafe;
 public partial struct DroneAttackingJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allUnitEntities;
     [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
-    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allUnitEntities;
     public float deltaTime;
         
     [BurstCompile]
