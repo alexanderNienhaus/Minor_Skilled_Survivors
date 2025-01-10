@@ -11,9 +11,9 @@ using Unity.Collections;
 public partial struct TankAttackingJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ecbParallelWriter;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> allLocalTransforms;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
-    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allEntityEnemies;
     [NativeDisableUnsafePtrRestriction] public RefRW<Resource> resource;
     public float deltaTime;
 

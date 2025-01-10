@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 [BurstCompile]
 [UpdateAfter(typeof(RegisterMapLayoutSystem))]
@@ -24,6 +25,7 @@ public partial class WaveSystem : SystemBase
     private int totalSpawnedNumber;
     private NativeArray<int> numberOfEnemiesPerWave;
     private int totalSpawnedNumberThisWave;
+    private bool queueRadiostationSpawn;
 
     [BurstCompile]
     protected override void OnCreate()
@@ -37,6 +39,7 @@ public partial class WaveSystem : SystemBase
         totalSpawnedNumber = 0;
         lastWave = false;
         isActive = false;
+        queueRadiostationSpawn = false;
         doOnce = false;
         minWaveTime = 3;
         topSpawn = new float3(225, 2, -185);
@@ -48,6 +51,8 @@ public partial class WaveSystem : SystemBase
     [BurstCompile]
     protected override void OnUpdate()
     {
+        RadioStationSpawn();
+
         EventBus<OnWaveNumberChangedEvent>.Publish(new OnWaveNumberChangedEvent(currentWaveNumber));
         spawns = SystemAPI.GetSingletonBuffer<Spawn>();
 
@@ -159,5 +164,39 @@ public partial class WaveSystem : SystemBase
 
         //World.GetExistingSystemManaged<AATurretAttackingSystem>().CountEnemies();
         //World.GetExistingSystemManaged<TankAttackingSystem>().CountEnemies();
+    }
+
+    public void QueueRadioStationSpawn()
+    {
+        queueRadiostationSpawn = true;
+    }
+
+    private void RadioStationSpawn()
+    {
+        if (!queueRadiostationSpawn)
+            return;
+
+        foreach ((RefRW<RadioStation> radioStation, RefRO<LocalTransform> localTransform)
+            in SystemAPI.Query<RefRW<RadioStation>, RefRO<LocalTransform>>())
+        {
+            if (radioStation.ValueRO.hasSpawned)
+                continue;
+
+            RefRW<WaveSpawning> waveSpawning = SystemAPI.GetSingletonRW<WaveSpawning>();
+
+            waveSpawning.ValueRW.prefab = radioStation.ValueRO.prefab;
+            waveSpawning.ValueRW.spawnPosition = localTransform.ValueRO.Position + radioStation.ValueRO.spawnPosition;
+            waveSpawning.ValueRW.amountToSpawn = radioStation.ValueRO.amountToSpawn;
+            waveSpawning.ValueRW.unitType = radioStation.ValueRO.unitType;
+            waveSpawning.ValueRW.unitSize = radioStation.ValueRO.unitSize;
+            waveSpawning.ValueRW.spawnRadiusMin = radioStation.ValueRO.spawnRadiusMin;
+            waveSpawning.ValueRW.spawnRadiusMax = radioStation.ValueRO.spawnRadiusMax;
+            waveSpawning.ValueRW.isSphericalSpawn = radioStation.ValueRO.isSphericalSpawn;
+            waveSpawning.ValueRW.boidSettings = SystemAPI.GetSingleton<BoidSettings>();
+            waveSpawning.ValueRW.doSpawn = true;
+
+            radioStation.ValueRW.hasSpawned = true;
+            queueRadiostationSpawn = false;
+        }
     }
 }

@@ -6,7 +6,7 @@ public class PlacableObjectTypeSO : ScriptableObject
 {
     [Header("Placable Object")]
     public int index;
-    public new string name;
+    public AttackableUnitType type;
     public Transform visual;
     public int cost;
 

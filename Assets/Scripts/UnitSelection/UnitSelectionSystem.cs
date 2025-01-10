@@ -29,6 +29,7 @@ public enum CollisionLayers
 }
 
 [BurstCompile]
+//[UpdateAfter(typeof(UnitInformationSystem))]
 public partial class UnitSelectionSystem : SystemBase
 {
     private PhysicsWorld physicsWorld;

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BuildingAATurret
   m_EditorClassIdentifier: 
   index: 0
-  name: AA-Turret
+  type: 3
   visual: {fileID: 1740990030366238962, guid: 82abb30962043c04f84a3476432ee519, type: 3}
   cost: 25
   width: 6

@@ -9,8 +9,10 @@ using RaycastHit = Unity.Physics.RaycastHit;
 [BurstCompile]
 public partial struct BoidMovementJob : IJobEntity
 {
+    //[DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> allBoidEntities;
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Boid> allBoids;
-    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalTransform> allBoidLocalTransforms;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalTransform> allLocalTransforms;
+
     [ReadOnly] public CollisionWorld collisionWorld;
     public BoidSettings boidSettings;
     public float deltaTime;
@@ -25,11 +27,13 @@ public partial struct BoidMovementJob : IJobEntity
 
         for (int i = 0; i < allBoids.Length; i++)
         {
+            //Entity boidBEntity = allBoidEntities[i];
             Boid boidB = allBoids[i];
-            LocalTransform localTransformB = allBoidLocalTransforms[i];
 
             if (boidA.id == boidB.id)
                 continue;
+
+            LocalTransform localTransformB = allLocalTransforms[i];
 
             float3 offset = localTransformB.Position - localTransformA.Position;
             float sqrDst = offset.x * offset.x + offset.y * offset.y + offset.z * offset.z;

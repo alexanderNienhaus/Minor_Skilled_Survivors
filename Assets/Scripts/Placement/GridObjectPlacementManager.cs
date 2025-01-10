@@ -181,6 +181,8 @@ public class GridObjectPlacementManager : MonoBehaviour
 
         EventBus<OnResourceChangedEvent>.Publish(new OnResourceChangedEvent(-placedObjectTypeSO.cost));
         EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(objectPlacedSuccessfully));
+        if (placedObjectTypeSO.type == AttackableUnitType.RadioStation)
+            World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<WaveSystem>().QueueRadioStationSpawn();
         PlaceBuilding(x, z, gridPosList);
     }
 
