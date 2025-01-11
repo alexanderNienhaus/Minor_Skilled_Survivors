@@ -29,10 +29,11 @@ public partial class AATurretAttackingSystem : SystemBase
         {
             ecbParallelWriter = ecb.AsParallelWriter(),
             em = EntityManager,
+            allEntityEnemies = entityEnemyArray,
             allAttackables = GetComponentLookup<Attackable>(),
             allLocalTransforms = GetComponentLookup<LocalTransform>(true),
             allPhysicsVelocities = GetComponentLookup<PhysicsVelocity>(true),
-            allEntityEnemies = entityEnemyArray,
+            collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld.CollisionWorld,
             resource = SystemAPI.GetSingletonRW<Resource>(),
             deltaTime = SystemAPI.Time.DeltaTime            
         };

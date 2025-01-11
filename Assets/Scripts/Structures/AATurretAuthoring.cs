@@ -30,6 +30,7 @@ public class AATurretAuthoring : MonoBehaviour
 [BurstCompile]
 public struct AATurret : IComponentData
 {
+    public Entity target;
     public float turnSpeed;
     public int childNumberModel;
     public int childNumberMount;
