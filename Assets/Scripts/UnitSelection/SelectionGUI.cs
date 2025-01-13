@@ -19,33 +19,33 @@ public static class SelectionGUI
         }
     }
 
-    public static Rect GetScreenRect(Vector3 screenPosition1, Vector3 screenPosition2)
+    public static Rect GetScreenRect(Vector3 pScreenPosition1, Vector3 pScreenPosition2)
     {
         // Move origin from bottom left to top left
-        screenPosition1.y = Screen.height - screenPosition1.y;
-        screenPosition2.y = Screen.height - screenPosition2.y;
+        pScreenPosition1.y = Screen.height - pScreenPosition1.y;
+        pScreenPosition2.y = Screen.height - pScreenPosition2.y;
         // Calculate corners
-        var topLeft = Vector3.Min(screenPosition1, screenPosition2);
-        var bottomRight = Vector3.Max(screenPosition1, screenPosition2);
+        var topLeft = Vector3.Min(pScreenPosition1, pScreenPosition2);
+        var bottomRight = Vector3.Max(pScreenPosition1, pScreenPosition2);
         // Create Rect
         return Rect.MinMaxRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
     }
 
-    public static void DrawScreenRect(Rect rect, Color color)
+    public static void DrawScreenRect(Rect pRect, Color pColor)
     {
-        GUI.color = color;
-        GUI.DrawTexture(rect, WhiteTexture);
+        GUI.color = pColor;
+        GUI.DrawTexture(pRect, WhiteTexture);
     }
 
-    public static void DrawScreenRectBorder(Rect rect, float thickness, Color color)
+    public static void DrawScreenRectBorder(Rect pRect, float pThickness, Color pColor)
     {
         //Top
-        DrawScreenRect(new Rect(rect.xMin, rect.yMin, rect.width, thickness), color);
+        DrawScreenRect(new Rect(pRect.xMin, pRect.yMin, pRect.width, pThickness), pColor);
         // Left
-        DrawScreenRect(new Rect(rect.xMin, rect.yMin, thickness, rect.height), color);
+        DrawScreenRect(new Rect(pRect.xMin, pRect.yMin, pThickness, pRect.height), pColor);
         // Right
-        DrawScreenRect(new Rect(rect.xMax - thickness, rect.yMin, thickness, rect.height), color);
+        DrawScreenRect(new Rect(pRect.xMax - pThickness, pRect.yMin, pThickness, pRect.height), pColor);
         // Bottom
-        DrawScreenRect(new Rect(rect.xMin, rect.yMax - thickness, rect.width, thickness), color);
+        DrawScreenRect(new Rect(pRect.xMin, pRect.yMax - pThickness, pRect.width, pThickness), pColor);
     }    
 }

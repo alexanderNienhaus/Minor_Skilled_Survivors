@@ -40,9 +40,9 @@ partial struct UnitInformationSystem : ISystem
         SystemAPI.GetSingletonRW<GroupPosition>().ValueRW.pos = groupPos;
     }
 
-    private float3 GetSelectedUnitGroupPosition(int friendlyUnitCount, ref SystemState pSystemState)
+    private float3 GetSelectedUnitGroupPosition(int pFriendlyUnitCount, ref SystemState pSystemState)
     {
-        if (friendlyUnitCount == 0)
+        if (pFriendlyUnitCount == 0)
             return float3.zero;
 
         float3 cumulativePos = float3.zero;
@@ -51,7 +51,7 @@ partial struct UnitInformationSystem : ISystem
             cumulativePos += localTransform.ValueRO.Position;
         }
 
-         return cumulativePos / friendlyUnitCount;
+         return cumulativePos / pFriendlyUnitCount;
     }
 
     private int GetEnemyUnitCount(ref SystemState pSystemState)

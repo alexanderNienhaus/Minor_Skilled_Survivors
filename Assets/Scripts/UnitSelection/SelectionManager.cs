@@ -4,7 +4,7 @@ using Unity.Entities;
 public class SelectionManager : MonoBehaviour
 {
     [SerializeField] private Color borderColor = Color.blue;
-    [SerializeField] private Color fillColor = new Color(0.8f, 0.8f, 0.9f, 0.2f);
+    [SerializeField] private Color fillColor = new (0.8f, 0.8f, 0.9f, 0.2f);
 
     private UnitSelectionSystem unitSelectionSystem;
 

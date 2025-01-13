@@ -24,13 +24,14 @@ public partial struct AATurretAttackingJob : IJobEntity
     [NativeDisableContainerSafetyRestriction] public DynamicBuffer<LinkedEntityGroup> children;
 
     [BurstCompile]
-    public void Execute(ref LocalTransform pLocalTransformAATurret, ref AATurret pAATurret, ref Attacking pAttackingAATurret, Entity aaTurretEntity, [ChunkIndexInQuery] int pChunkIndexInQuery)
+    public void Execute(ref LocalTransform pLocalTransformAATurret, ref AATurret pAATurret, ref Attacking pAttackingAATurret, Entity pAATurretEntity,
+        [ChunkIndexInQuery] int pChunkIndexInQuery)
     {
         pAttackingAATurret.currentTime += deltaTime;
         if (pAttackingAATurret.currentTime <= pAttackingAATurret.attackSpeed)
             return;
 
-        children = em.GetBuffer<LinkedEntityGroup>(aaTurretEntity);
+        children = em.GetBuffer<LinkedEntityGroup>(pAATurretEntity);
         for (int i = 0; i < allEntityEnemies.Length; i++)
         {
             Entity enemyEntity = allEntityEnemies[i];
@@ -148,17 +149,17 @@ public partial struct AATurretAttackingJob : IJobEntity
     }
 
     [BurstCompile]
-    private float ComputeXAngle(quaternion q)
+    private float ComputeXAngle(quaternion pQ)
     {
-        float sinr_cosp = 2 * (q.value.w * q.value.x + q.value.y * q.value.z);
-        float cosr_cosp = 1 - 2 * (q.value.x * q.value.x + q.value.y * q.value.y);
+        float sinr_cosp = 2 * (pQ.value.w * pQ.value.x + pQ.value.y * pQ.value.z);
+        float cosr_cosp = 1 - 2 * (pQ.value.x * pQ.value.x + pQ.value.y * pQ.value.y);
         return math.atan2(sinr_cosp, cosr_cosp);
     }
 
     [BurstCompile]
-    private float ComputeYAngle(quaternion q)
+    private float ComputeYAngle(quaternion pQ)
     {
-        float sinp = 2 * (q.value.w * q.value.y - q.value.z * q.value.x);
+        float sinp = 2 * (pQ.value.w * pQ.value.y - pQ.value.z * pQ.value.x);
         if (math.abs(sinp) >= 1)
             return math.PI / 2 * math.sign(sinp); // use 90 degrees if out of range
         else
@@ -166,29 +167,29 @@ public partial struct AATurretAttackingJob : IJobEntity
     }
 
     [BurstCompile]
-    private float ComputeZAngle(quaternion q)
+    private float ComputeZAngle(quaternion pQ)
     {
-        float siny_cosp = 2 * (q.value.w * q.value.z + q.value.x * q.value.y);
-        float cosy_cosp = 1 - 2 * (q.value.y * q.value.y + q.value.z * q.value.z);
+        float siny_cosp = 2 * (pQ.value.w * pQ.value.z + pQ.value.x * pQ.value.y);
+        float cosy_cosp = 1 - 2 * (pQ.value.y * pQ.value.y + pQ.value.z * pQ.value.z);
         return math.atan2(siny_cosp, cosy_cosp);
     }
 
     [BurstCompile]
-    private float3 ComputeAngles(quaternion q)
+    private float3 ComputeAngles(quaternion pQ)
     {
-        return new float3(ComputeXAngle(q), ComputeYAngle(q), ComputeZAngle(q));
+        return new float3(ComputeXAngle(pQ), ComputeYAngle(pQ), ComputeZAngle(pQ));
     }
 
     [BurstCompile]
-    private quaternion FromAngles(float3 angles)
+    private quaternion FromAngles(float3 pAngles)
     {
 
-        float cy = math.cos(angles.z * 0.5f);
-        float sy = math.sin(angles.z * 0.5f);
-        float cp = math.cos(angles.y * 0.5f);
-        float sp = math.sin(angles.y * 0.5f);
-        float cr = math.cos(angles.x * 0.5f);
-        float sr = math.sin(angles.x * 0.5f);
+        float cy = math.cos(pAngles.z * 0.5f);
+        float sy = math.sin(pAngles.z * 0.5f);
+        float cp = math.cos(pAngles.y * 0.5f);
+        float sp = math.sin(pAngles.y * 0.5f);
+        float cr = math.cos(pAngles.x * 0.5f);
+        float sr = math.sin(pAngles.x * 0.5f);
 
         float4 q;
         q.w = cr * cp * cy + sr * sp * sy;

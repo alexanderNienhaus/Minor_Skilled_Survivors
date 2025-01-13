@@ -2,7 +2,6 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Transforms;
 using Unity.Collections;
-using Unity.Mathematics;
 
 [BurstCompile]
 [UpdateAfter(typeof(UnitSelectionSystem))]

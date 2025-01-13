@@ -24,7 +24,7 @@ public partial struct FindTankPathJob : IJobEntity
     private int gridWidth;
 
     [BurstCompile]
-    public void Execute(Entity pEntity, ref PathFollow pathFollow, in LocalTransform pLocalTransform, in FormationPosition formationPosition)
+    public void Execute(Entity pEntity, ref PathFollow pPathFollow, in LocalTransform pLocalTransform, in FormationPosition pFormationPosition)
     {
         pathPositions[pEntity].Clear();
         cellMiddleOffset = new float3(1, 0, 1) * gridCellSize * 0.5f;
@@ -41,7 +41,7 @@ public partial struct FindTankPathJob : IJobEntity
         }
 
         //Get end pos
-        float3 preciseEndPos = formationPosition.position;
+        float3 preciseEndPos = pFormationPosition.position;
         int2 endNodePos = GetNearestCornerXZ(preciseEndPos);
         int endNodeIndex = CalculateIndex(endNodePos.x, endNodePos.y);
         bool endNodeChanged = false;
@@ -86,20 +86,20 @@ public partial struct FindTankPathJob : IJobEntity
                 });
             }
             CalculatePath(tmpPathNodeArray, endNode, pathPositions[pEntity]);
-            pathFollow.groupMovement = groupMovement;
-            pathFollow.isInAttackMode = isInAttackMode;
+            pPathFollow.groupMovement = groupMovement;
+            pPathFollow.isInAttackMode = isInAttackMode;
         }
         tmpPathNodeArray.Dispose();
     }
 
     [BurstCompile]
-    private void CalculatePath(NativeArray<PathNode> pathNodeArray, PathNode endNode, DynamicBuffer<PathPositions> pathPositionBuffer)
+    private void CalculatePath(NativeArray<PathNode> pPathNodeArray, PathNode pEndNode, DynamicBuffer<PathPositions> pPathPositionBuffer)
     {
-        PathNode currentNode = endNode;
+        PathNode currentNode = pEndNode;
         while (currentNode.cameFromNodeIndex != -1)
         {
-            PathNode cameFromNode = pathNodeArray[currentNode.cameFromNodeIndex];
-            pathPositionBuffer.Add(new PathPositions
+            PathNode cameFromNode = pPathNodeArray[currentNode.cameFromNodeIndex];
+            pPathPositionBuffer.Add(new PathPositions
             {
                 pos = GetWorldPositionXZ(cameFromNode.x, cameFromNode.z)
             });
@@ -108,7 +108,7 @@ public partial struct FindTankPathJob : IJobEntity
     }
 
     [BurstCompile]
-    private int FindEndCandidate(int2 centerEndNode, float3 preciseEndPos, NativeArray<PathNode> tmpPathNodeArray)
+    private int FindEndCandidate(int2 pCenterEndNode, float3 pPreciseEndPos, NativeArray<PathNode> pTmpPathNodeArray)
     {
         NativeArray<int2> movementArray = new (5, Allocator.Temp);
         movementArray[0] = new int2(-1, 1); //Left Up
@@ -123,7 +123,7 @@ public partial struct FindTankPathJob : IJobEntity
             int numberOfCellsInDistance = 4 + 4 * (distance * 2 - 1);
             NativeList<int> freeCells = new (numberOfCellsInDistance, Allocator.Temp);
 
-            int2 neighbourPos = centerEndNode + new int2(distance * movementArray[0].x, distance * movementArray[0].y);
+            int2 neighbourPos = pCenterEndNode + new int2(distance * movementArray[0].x, distance * movementArray[0].y);
 
             for (int side = 1; side <= 4; side++)
             {
@@ -135,7 +135,7 @@ public partial struct FindTankPathJob : IJobEntity
                     {
                         continue;
                     }
-                    PathNode neighbourNode = tmpPathNodeArray[neighbourNodeIndex];
+                    PathNode neighbourNode = pTmpPathNodeArray[neighbourNodeIndex];
                     if (neighbourNode.isWalkable)
                     {
                         freeCells.Add(neighbourNodeIndex);
@@ -149,9 +149,9 @@ public partial struct FindTankPathJob : IJobEntity
                 int shortestDistancePathNodeIndex = -1;
                 for (int i = 0; i < freeCells.Length; i++)
                 {
-                    PathNode endNodeCandidate = tmpPathNodeArray[freeCells[i]];
+                    PathNode endNodeCandidate = pTmpPathNodeArray[freeCells[i]];
                     float3 worldPos = GetWorldPositionXZ(endNodeCandidate.x, endNodeCandidate.z) + cellMiddleOffset;
-                    float currentDistance = math.lengthsq(preciseEndPos - worldPos);
+                    float currentDistance = math.lengthsq(pPreciseEndPos - worldPos);
 
                     if (currentDistance < shortestDistance)
                     {
@@ -170,13 +170,13 @@ public partial struct FindTankPathJob : IJobEntity
     }
 
     [BurstCompile]
-    private bool IsPositionInsideGrid(int2 gridPosition)
+    private bool IsPositionInsideGrid(int2 pGridPosition)
     {
         return
-            gridPosition.x >= 0 &&
-            gridPosition.y >= 0 &&
-            gridPosition.x < gridSize.x &&
-            gridPosition.y < gridSize.y;
+            pGridPosition.x >= 0 &&
+            pGridPosition.y >= 0 &&
+            pGridPosition.x < gridSize.x &&
+            pGridPosition.y < gridSize.y;
     }
 
     [BurstCompile]
@@ -220,15 +220,15 @@ public partial struct FindTankPathJob : IJobEntity
     }
 
     [BurstCompile]
-    private void ValidateGridPosition(int pLength, ref int x, ref int y)
+    private void ValidateGridPosition(int pLength, ref int pX, ref int pY)
     {
-        x = math.clamp(x, 0, gridWidth - 1);
-        y = math.clamp(y, 0, pLength - 1);
+        pX = math.clamp(pX, 0, gridWidth - 1);
+        pY = math.clamp(pY, 0, pLength - 1);
     }
 
     [BurstCompile]
-    private int CalculateIndex(int x, int y)
+    private int CalculateIndex(int pX, int pY)
     {
-        return x + y * gridWidth;
+        return pX + pY * gridWidth;
     }
 }

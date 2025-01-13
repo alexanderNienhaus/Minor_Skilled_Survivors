@@ -1,4 +1,3 @@
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -29,11 +28,11 @@ public partial class TimerSystem : SystemBase
         currentBuildTime += SystemAPI.Time.DeltaTime;
         EventBus<OnTimeChangedEvent>.Publish(new OnTimeChangedEvent((int)math.floor(timer.maxBuildTime - currentBuildTime), true));
 
-        if (currentBuildTime > timer.maxBuildTime - 1)
-        {
-            isFighting = true;
-            waveSystem.NextWave();
-        }
+        if (currentBuildTime <= timer.maxBuildTime - 1)
+            return;
+
+        isFighting = true;
+        waveSystem.NextWave();
     }
 
     private void BuildPhaseEnd()

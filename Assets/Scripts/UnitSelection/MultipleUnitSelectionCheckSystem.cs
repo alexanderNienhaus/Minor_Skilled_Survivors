@@ -12,13 +12,13 @@ public partial struct MultipleUnitSelectionCheckSystem : ISystem
     [ReadOnly] private ComponentLookup<SelectionVolumeTag> allSelectionVolumeTags;
 
     [BurstCompile]
-    public void OnCreate(ref SystemState systemState)
+    public void OnCreate(ref SystemState pSystemState)
     {
-        systemState.RequireForUpdate<SelectedUnitTag>();
-        systemState.RequireForUpdate<SelectionVolumeTag>();
+        pSystemState.RequireForUpdate<SelectedUnitTag>();
+        pSystemState.RequireForUpdate<SelectionVolumeTag>();
 
-        allSelectedUnitTags = systemState.GetComponentLookup<SelectedUnitTag>(true);
-        allSelectionVolumeTags = systemState.GetComponentLookup<SelectionVolumeTag>(true);
+        allSelectedUnitTags = pSystemState.GetComponentLookup<SelectedUnitTag>(true);
+        allSelectionVolumeTags = pSystemState.GetComponentLookup<SelectionVolumeTag>(true);
     }
 
     [BurstCompile]

@@ -36,9 +36,7 @@ public class GridObjectPlacementManager : MonoBehaviour
     public bool GetCanBuild()
     {
         if (placedObjectTypeSO == null)
-        {
             return false;
-        }
 
         grid.GetXZ(GetMouseWorldPos(), out int x, out int z);
         List<Vector2Int> gridPosList = placedObjectTypeSO?.GetGridPosList(new Vector2Int(x, z), direction);
@@ -81,14 +79,14 @@ public class GridObjectPlacementManager : MonoBehaviour
         placedObjectTypeSO = placedObjectTypeSOList[pType];
     }
 
-    public List<Vector2Int> GetGridPosList(int x, int z)
+    public List<Vector2Int> GetGridPosList(int pX, int pZ)
     {
-        return placedObjectTypeSO.GetGridPosList(new Vector2Int(x, z), direction);
+        return placedObjectTypeSO.GetGridPosList(new Vector2Int(pX, pZ), direction);
     }
 
-    public void GetGridPosFromWorldPos(Vector3 worldPos, out int x, out int z)
+    public void GetGridPosFromWorldPos(Vector3 pWorldPos, out int pX, out int pZ)
     {
-        grid.GetXZ(worldPos, out x, out z);
+        grid.GetXZ(pWorldPos, out pX, out pZ);
     }
 
     private void Awake()
@@ -161,7 +159,7 @@ public class GridObjectPlacementManager : MonoBehaviour
         }
     }
 
-    private void BuildIfPreconditionsMatch(int x, int z, List<Vector2Int> gridPosList)
+    private void BuildIfPreconditionsMatch(int pX, int pZ, List<Vector2Int> pGridPosList)
     {
         if (!World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<TimerSystem>().IsBuildTime())
         {
@@ -169,7 +167,7 @@ public class GridObjectPlacementManager : MonoBehaviour
             return;
         }
 
-        if (!CanBuild(gridPosList))
+        if (!CanBuild(pGridPosList))
         {
             EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent(cantBuildHere));
             return;
@@ -187,12 +185,12 @@ public class GridObjectPlacementManager : MonoBehaviour
         if (placedObjectTypeSO.type == AttackableUnitType.RadioStation)
             World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<WaveSystem>().QueueRadioStationSpawn();
 
-        PlaceBuilding(x, z, gridPosList);
+        PlaceBuilding(pX, pZ, pGridPosList);
     }
 
-    private bool CanBuild(List<Vector2Int> gridPosList)
+    private bool CanBuild(List<Vector2Int> pGridPosList)
     {
-        foreach (Vector2Int gridPos in gridPosList)
+        foreach (Vector2Int gridPos in pGridPosList)
         {
             GridObject gridObject = grid.GetGridObject(gridPos.x, gridPos.y);
             if (gridObject != null && !gridObject.CanBuild())
@@ -203,14 +201,14 @@ public class GridObjectPlacementManager : MonoBehaviour
         return true;
     }
 
-    public void PlaceBuilding(int x, int z, List<Vector2Int> gridPosList, bool pCreateEntity = true)
+    public void PlaceBuilding(int pX, int pZ, List<Vector2Int> pGridPosList, bool pCreateEntity = true)
     {
         Vector2Int rotationOffset = placedObjectTypeSO.GetRotationOffset(direction);
         float cellSize = grid.GetCellSize();
 
-        Vector3 placedObjectWorldPos = grid.GetWorldPositionXZ(x, z)
+        Vector3 placedObjectWorldPos = grid.GetWorldPositionXZ(pX, pZ)
             + new Vector3(rotationOffset.x, 0, rotationOffset.y) * cellSize - new Vector3(0.5f, 0, 0.5f) * cellSize;
-        PlacedObject placedObject = new PlacedObject(placedObjectTypeSO, new Vector2Int(x, z), direction);
+        PlacedObject placedObject = new PlacedObject(placedObjectTypeSO, new Vector2Int(pX, pZ), direction);
 
         int id = placedObjectIndex++;
 
@@ -220,17 +218,15 @@ public class GridObjectPlacementManager : MonoBehaviour
                 Quaternion.Euler(0, PlacableObjectTypeSO.GetRotationAngle(direction), 0), placedObjectTypeSO.scale, id);
         }
 
-        ProjectOntoPathfindingGrid(placedObject.GetPlacedObjectTypeSO(), gridPosList, false);
+        ProjectOntoPathfindingGrid(placedObject.GetPlacedObjectTypeSO(), pGridPosList, false);
         placedObject.SetId(id);
 
-        foreach (Vector2Int gridPos in gridPosList)
+        foreach (Vector2Int gridPos in pGridPosList)
         {
             GridObject gridObject = grid.GetGridObject(gridPos.x, gridPos.y);
             if(gridObject == null)
-            {
-                //Debug.Log("SKIP");
                 continue;
-            }
+
             gridObject.SetPlacedObject(placedObject);
         }
 
@@ -242,15 +238,11 @@ public class GridObjectPlacementManager : MonoBehaviour
     {
         GridObject gridObject = grid.GetGridObject(GetMouseWorldPos());
         if (gridObject == null)
-        {
             return;
-        }
 
         PlacedObject placedObject = gridObject.GetPlacedObject();
         if (placedObject == null)
-        {
             return;
-        }
 
         List<Vector2Int> gridPosList = placedObject.GetGridPosList();
         foreach (Vector2Int gridPos in gridPosList)
@@ -283,10 +275,8 @@ public class GridObjectPlacementManager : MonoBehaviour
             {
                 GridNode gridNode = pathfindingGrid.GetGridObject(x, z);
                 if (gridNode == null)
-                {
-                    //Debug.Log("SKIP");
                     continue;
-                }
+
                 gridNode.SetIsWalkable(pSetIsWalkable);
             }
         }

@@ -71,7 +71,7 @@ public partial class DronePathFindingSystem : SystemBase
     }
 
     [BurstCompile]
-    public NativeList<PathPositions> FindPath(float3 startPos)
+    public NativeList<PathPositions> FindPath(float3 pStartPos)
     {
         GridXZ<GridNode> grid = PathfindingGridSetup.Instance.pathfindingGrid;
         int2 gridSize = new (grid.GetWidth(), grid.GetLength());
@@ -80,11 +80,11 @@ public partial class DronePathFindingSystem : SystemBase
         float3 cellMiddleOffset = new float3(1, 0, 1) * gridCellSize * 0.5f;
         int gridWidth = gridSize.x;
 
-        int2 startNodePos = GetNearestCornerXZ(startPos, gridOriginPos, gridCellSize, gridWidth);
+        int2 startNodePos = GetNearestCornerXZ(pStartPos, gridOriginPos, gridCellSize);
         ValidateGridPosition(gridSize[1], gridWidth, ref startNodePos.x, ref startNodePos.y);
         int startNodeIndex = CalculateIndex(gridWidth, startNodePos.x, startNodePos.y);
 
-        int2 endNodePos = GetNearestCornerXZ(SystemAPI.GetSingleton<Base>().position, gridOriginPos, gridCellSize, gridWidth);
+        int2 endNodePos = GetNearestCornerXZ(SystemAPI.GetSingleton<Base>().position, gridOriginPos, gridCellSize);
         ValidateGridPosition(gridSize[1], gridWidth, ref endNodePos.x, ref endNodePos.y);
         int endNodeIndex = CalculateIndex(gridWidth, endNodePos.x, endNodePos.y);
 
@@ -93,7 +93,7 @@ public partial class DronePathFindingSystem : SystemBase
         NativeArray<PathNode> tmpPathNodeArray = GetPathNodeArray(grid, gridSize);
         thetaStar.FindPath(ref tmpPathNodeArray);
 
-        NativeList<PathPositions> path = new(gridSize.x * gridSize.y, Allocator.Persistent);
+        NativeList<PathPositions> path = new (gridSize.x * gridSize.y, Allocator.Persistent);
         PathNode endNode = tmpPathNodeArray[endNodeIndex];
         if (endNode.cameFromNodeIndex == -1)
         {
@@ -127,44 +127,44 @@ public partial class DronePathFindingSystem : SystemBase
     }
 
     [BurstCompile]
-    private void ValidateGridPosition(int pLength, int pGridWidth, ref int x, ref int y)
+    private void ValidateGridPosition(int pLength, int pGridWidth, ref int pX, ref int pZ)
     {
-        x = math.clamp(x, 0, pGridWidth - 1);
-        y = math.clamp(y, 0, pLength - 1);
+        pX = math.clamp(pX, 0, pGridWidth - 1);
+        pZ = math.clamp(pZ, 0, pLength - 1);
     }
 
     [BurstCompile]
-    private int CalculateIndex(int pGridWidth, int x, int y)
+    private int CalculateIndex(int pGridWidth, int pX, int pZ)
     {
-        return x + y * pGridWidth;
+        return pX + pZ * pGridWidth;
     }
 
     [BurstCompile]
-    private int2 GetNearestCornerXZ(float3 pWorldPos, float3 gridOriginPos, float gridCellSize, int gridWidth)
+    private int2 GetNearestCornerXZ(float3 pWorldPos, float3 pGridOriginPos, float pGridCellSize)
     {
-        int2 cellPosBotLeft = new ((int)math.floor((pWorldPos - gridOriginPos).x / gridCellSize), (int)math.floor((pWorldPos - gridOriginPos).z / gridCellSize));
-        float3 worldPosBotLeft = GetWorldPositionXZ(cellPosBotLeft.x, cellPosBotLeft.y, gridOriginPos, gridCellSize);
-        float3 woldPosCenter = worldPosBotLeft + new float3(gridCellSize / 2, 0, gridCellSize / 2);
+        int2 cellPosBotLeft = new ((int)math.floor((pWorldPos - pGridOriginPos).x / pGridCellSize), (int)math.floor((pWorldPos - pGridOriginPos).z / pGridCellSize));
+        float3 worldPosBotLeft = GetWorldPositionXZ(cellPosBotLeft.x, cellPosBotLeft.y, pGridOriginPos, pGridCellSize);
+        float3 woldPosCenter = worldPosBotLeft + new float3(pGridCellSize / 2, 0, pGridCellSize / 2);
 
         if (pWorldPos.x > woldPosCenter.x)
         {
             if (pWorldPos.y > woldPosCenter.y)
             {
-                float3 worldPosTopRight = worldPosBotLeft + new float3(gridCellSize, 0, gridCellSize);
-                return new int2((int)math.floor((worldPosTopRight - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosTopRight - gridOriginPos).z / gridCellSize));
+                float3 worldPosTopRight = worldPosBotLeft + new float3(pGridCellSize, 0, pGridCellSize);
+                return new int2((int)math.floor((worldPosTopRight - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosTopRight - pGridOriginPos).z / pGridCellSize));
             }
             else
             {
-                float3 worldPosBotRight = worldPosBotLeft + new float3(gridCellSize, 0, 0);
-                return new int2((int)math.floor((worldPosBotRight - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosBotRight - gridOriginPos).z / gridCellSize));
+                float3 worldPosBotRight = worldPosBotLeft + new float3(pGridCellSize, 0, 0);
+                return new int2((int)math.floor((worldPosBotRight - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosBotRight - pGridOriginPos).z / pGridCellSize));
             }
         }
         else
         {
             if (pWorldPos.y > woldPosCenter.y)
             {
-                float3 worldPosTopLeft = worldPosBotLeft + new float3(0, 0, gridCellSize);
-                return new int2((int)math.floor((worldPosTopLeft - gridOriginPos).x / gridCellSize), (int)math.floor((worldPosTopLeft - gridOriginPos).z / gridCellSize));
+                float3 worldPosTopLeft = worldPosBotLeft + new float3(0, 0, pGridCellSize);
+                return new int2((int)math.floor((worldPosTopLeft - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosTopLeft - pGridOriginPos).z / pGridCellSize));
             }
             else
             {
@@ -174,13 +174,13 @@ public partial class DronePathFindingSystem : SystemBase
     }
 
     [BurstCompile]
-    private void CalculatePath(NativeArray<PathNode> pathNodeArray, PathNode endNode, ref NativeList<PathPositions> path, float3 pGridOriginPos, float pGridCellSize)
+    private void CalculatePath(NativeArray<PathNode> pPathNodeArray, PathNode pEndNode, ref NativeList<PathPositions> pPath, float3 pGridOriginPos, float pGridCellSize)
     {
-        PathNode currentNode = endNode;
+        PathNode currentNode = pEndNode;
         while (currentNode.cameFromNodeIndex != -1)
         {
-            PathNode cameFromNode = pathNodeArray[currentNode.cameFromNodeIndex];
-            path.Add(new PathPositions
+            PathNode cameFromNode = pPathNodeArray[currentNode.cameFromNodeIndex];
+            pPath.Add(new PathPositions
             {
                 pos = GetWorldPositionXZ(cameFromNode.x, cameFromNode.z, pGridOriginPos, pGridCellSize)
             });

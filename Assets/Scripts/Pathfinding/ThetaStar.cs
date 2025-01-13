@@ -29,20 +29,20 @@ public struct ThetaStar
     }
 
     [BurstCompile]
-    public void FindPath(ref NativeArray<PathNode> tmpPathNodeArray)
+    public void FindPath(ref NativeArray<PathNode> pTmpPathNodeArray)
     {
         //Get start pos
-        PathNode startNode = tmpPathNodeArray[startNodeIndex];
+        PathNode startNode = pTmpPathNodeArray[startNodeIndex];
         startNode.gCost = 0;
         startNode.CalculateFCost();
-        tmpPathNodeArray[startNodeIndex] = startNode;
+        pTmpPathNodeArray[startNodeIndex] = startNode;
 
-        for (int i = 0; i < tmpPathNodeArray.Length; i++)
+        for (int i = 0; i < pTmpPathNodeArray.Length; i++)
         {
-            PathNode pathNode = tmpPathNodeArray[i];
+            PathNode pathNode = pTmpPathNodeArray[i];
             pathNode.hCost = CalculateDistanceCost(new int2(pathNode.x, pathNode.z), endNodePos);
             pathNode.cameFromNodeIndex = -1;
-            tmpPathNodeArray[i] = pathNode;
+            pTmpPathNodeArray[i] = pathNode;
         }
 
         NativeArray<int2> neighbourOffsetArray = new (8, Allocator.Temp);
@@ -60,8 +60,8 @@ public struct ThetaStar
 
         while (openList.Length > 0)
         {
-            int currentNodeIndex = GetLowestCostFNodeIndex(openList, tmpPathNodeArray);
-            PathNode currentNode = tmpPathNodeArray[currentNodeIndex];
+            int currentNodeIndex = GetLowestCostFNodeIndex(openList, pTmpPathNodeArray);
+            PathNode currentNode = pTmpPathNodeArray[currentNodeIndex];
 
             if (currentNodeIndex == endNodeIndex)
                 break; //Reached Destination
@@ -83,11 +83,11 @@ public struct ThetaStar
                 if (closedList.Contains(neighbourNodeIndex))
                     continue; //Already searched neighbor
 
-                PathNode neighbourNode = tmpPathNodeArray[neighbourNodeIndex];
-                if (!HasLineOfSight(currentNode, neighbourNode, tmpPathNodeArray))
+                PathNode neighbourNode = pTmpPathNodeArray[neighbourNodeIndex];
+                if (!HasLineOfSight(currentNode, neighbourNode, pTmpPathNodeArray))
                     continue;
 
-                UpdateVertix(ref tmpPathNodeArray, ref openList, currentNode, neighbourPos, neighbourNodeIndex, neighbourNode);
+                UpdateVertix(ref pTmpPathNodeArray, ref openList, currentNode, neighbourPos, neighbourNodeIndex, neighbourNode);
             }
         }
 
@@ -97,61 +97,62 @@ public struct ThetaStar
         //tmpPathNodeArray.Dispose();
     }
 
-    private static NativeList<int> RemoveNodeFromList(NativeList<int> openList, int currentNodeIndex)
+    private static NativeList<int> RemoveNodeFromList(NativeList<int> pOpenList, int pCurrentNodeIndex)
     {
-        for (int i = 0; i < openList.Length; i++)
+        for (int i = 0; i < pOpenList.Length; i++)
         {
-            if (openList[i] != currentNodeIndex)
+            if (pOpenList[i] != pCurrentNodeIndex)
                 continue;
 
-            openList.RemoveAtSwapBack(i);
+            pOpenList.RemoveAtSwapBack(i);
             break;
         }
 
-        return openList;
+        return pOpenList;
     }
 
     [BurstCompile]
-    private void UpdateVertix(ref NativeArray<PathNode> tmpPathNodeArray, ref NativeList<int> openList, PathNode currentNode, int2 neighbourPos, int neighbourNodeIndex, PathNode neighbourNode)
+    private void UpdateVertix(ref NativeArray<PathNode> pTmpPathNodeArray, ref NativeList<int> pOpenList, PathNode pCurrentNode, int2 pNeighbourPos, int pNeighbourNodeIndex,
+        PathNode pNeighbourNode)
     {
         PathNode fromNode;
-        if (currentNode.cameFromNodeIndex != -1 && HasLineOfSight(tmpPathNodeArray[currentNode.cameFromNodeIndex], neighbourNode, tmpPathNodeArray))
+        if (pCurrentNode.cameFromNodeIndex != -1 && HasLineOfSight(pTmpPathNodeArray[pCurrentNode.cameFromNodeIndex], pNeighbourNode, pTmpPathNodeArray))
         {
-            fromNode = tmpPathNodeArray[currentNode.cameFromNodeIndex];
+            fromNode = pTmpPathNodeArray[pCurrentNode.cameFromNodeIndex];
         }
         else
         {
-            fromNode = currentNode;
+            fromNode = pCurrentNode;
         }
 
         int2 fromNodePos = new int2(fromNode.x, fromNode.z);
-        int tentativeGCost = fromNode.gCost + CalculateDistanceCost(fromNodePos, neighbourPos);
+        int tentativeGCost = fromNode.gCost + CalculateDistanceCost(fromNodePos, pNeighbourPos);
 
-        if (tentativeGCost >= neighbourNode.gCost)
+        if (tentativeGCost >= pNeighbourNode.gCost)
             return;
 
         int fromNodeIndex = CalculateIndex(fromNodePos.x, fromNodePos.y);
-        neighbourNode.cameFromNodeIndex = fromNodeIndex;
-        neighbourNode.gCost = tentativeGCost;
-        neighbourNode.CalculateFCost();
-        tmpPathNodeArray[neighbourNodeIndex] = neighbourNode;
+        pNeighbourNode.cameFromNodeIndex = fromNodeIndex;
+        pNeighbourNode.gCost = tentativeGCost;
+        pNeighbourNode.CalculateFCost();
+        pTmpPathNodeArray[pNeighbourNodeIndex] = pNeighbourNode;
 
-        if (openList.Contains(neighbourNode.index))
+        if (pOpenList.Contains(pNeighbourNode.index))
             return;
         
-        openList.Add(neighbourNode.index);
+        pOpenList.Add(pNeighbourNode.index);
     }
 
     [BurstCompile]
-    private bool HasLineOfSight(PathNode node1, PathNode node2, NativeArray<PathNode> tmpPathNodeArray)
+    private bool HasLineOfSight(PathNode pNode1, PathNode pNode2, NativeArray<PathNode> pTmpPathNodeArray)
     {
-        int sx = node1.x;
-        int sy = node1.z;
+        int sx = pNode1.x;
+        int sy = pNode1.z;
 
         int x0 = sx;
         int y0 = sy;
-        int x1 = node2.x;
-        int y1 = node2.z;
+        int x1 = pNode2.x;
+        int y1 = pNode2.z;
 
         int dy = y1 - y0;
         int dx = x1 - x0;
@@ -185,22 +186,19 @@ public struct ThetaStar
                 f += dy;
                 if (f >= dx)
                 {
-                    if (!tmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
-                    {
+                    if (!pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
                         return false;
-                    }
+
                     y0 += sy;
                     f -= dx;
                 }
-                if (f != 0 && !tmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
-                {
+                if (f != 0 && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
                     return false;
-                }
-                if (dy == 0 && !tmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0)].isWalkable
-                            && !tmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 - 1)].isWalkable)
-                {
+
+                if (dy == 0 && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0)].isWalkable
+                            && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 - 1)].isWalkable)
                     return false;
-                }
+
                 x0 += sx;
             }
         }
@@ -211,22 +209,19 @@ public struct ThetaStar
                 f += dx;
                 if (f >= dy)
                 {
-                    if (!tmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
-                    {
+                    if (!pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
                         return false;
-                    }
+
                     x0 += sx;
                     f -= dy;
                 }
-                if (f != 0 && !tmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
-                {
+                if (f != 0 && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
                     return false;
-                }
-                if (dx == 0 && !tmpPathNodeArray[CalculateIndex(x0, y0 + ((sy - 1) / 2))].isWalkable
-                            && !tmpPathNodeArray[CalculateIndex(x0 - 1, y0 + ((sy - 1) / 2))].isWalkable)
-                {
+
+                if (dx == 0 && !pTmpPathNodeArray[CalculateIndex(x0, y0 + ((sy - 1) / 2))].isWalkable
+                            && !pTmpPathNodeArray[CalculateIndex(x0 - 1, y0 + ((sy - 1) / 2))].isWalkable)
                     return false;
-                }
+
                 y0 += sy;
             }
         }
@@ -247,27 +242,27 @@ public struct ThetaStar
     }
 
     [BurstCompile]
-    private int CalculateIndex(int x, int y)
+    private int CalculateIndex(int pX, int pY)
     {
-        return x + y * gridWidth;
+        return pX + pY * gridWidth;
     }
 
     [BurstCompile]
-    private int CalculateDistanceCost(int2 aPosition, int2 bPosition)
+    private int CalculateDistanceCost(int2 pAPosition, int2 pBPosition)
     {
-        int xDistance = math.abs(aPosition.x - bPosition.x);
-        int yDistance = math.abs(aPosition.y - bPosition.y);
+        int xDistance = math.abs(pAPosition.x - pBPosition.x);
+        int yDistance = math.abs(pAPosition.y - pBPosition.y);
         int remaining = math.abs(xDistance - yDistance);
         return MOVE_DIAGONAL_COST * math.min(xDistance, yDistance) + MOVE_STRAIGHT_COST * remaining;
     }
 
     [BurstCompile]
-    private int GetLowestCostFNodeIndex(NativeList<int> openList, NativeArray<PathNode> pathNodeArray)
+    private int GetLowestCostFNodeIndex(NativeList<int> pOpenList, NativeArray<PathNode> pPathNodeArray)
     {
-        PathNode lowestCostPathNode = pathNodeArray[openList[0]];
-        for (int i = 1; i < openList.Length; i++)
+        PathNode lowestCostPathNode = pPathNodeArray[pOpenList[0]];
+        for (int i = 1; i < pOpenList.Length; i++)
         {
-            PathNode testPathNode = pathNodeArray[openList[i]];
+            PathNode testPathNode = pPathNodeArray[pOpenList[i]];
             if (testPathNode.fCost < lowestCostPathNode.fCost)
             {
                 lowestCostPathNode = testPathNode;
@@ -277,13 +272,13 @@ public struct ThetaStar
     }
 
     [BurstCompile]
-    private bool IsPositionInsideGrid(int2 gridPosition, int2 gridSize)
+    private bool IsPositionInsideGrid(int2 pGridPosition, int2 pGridSize)
     {
         return
-            gridPosition.x >= 0 &&
-            gridPosition.y >= 0 &&
-            gridPosition.x < gridSize.x &&
-            gridPosition.y < gridSize.y;
+            pGridPosition.x >= 0 &&
+            pGridPosition.y >= 0 &&
+            pGridPosition.x < pGridSize.x &&
+            pGridPosition.y < pGridSize.y;
     }
 
 }

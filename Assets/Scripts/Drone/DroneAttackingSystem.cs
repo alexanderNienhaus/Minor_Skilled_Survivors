@@ -15,7 +15,7 @@ public partial class DroneAttackingSystem : SystemBase
     {
         RequireForUpdate<Drone>();
 
-        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
+        EntityQueryBuilder entityQueryDesc = new (Allocator.Temp);
         entityQueryDesc.WithAll<Attackable, LocalTransform>().WithNone<Drone, Boid>();
         query = GetEntityQuery(entityQueryDesc);
         entityQueryDesc.Dispose();

@@ -17,7 +17,8 @@ public partial class MulipleUnitSelectionSystem : SystemBase
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = endFixedEcbSystem.CreateCommandBuffer();
-        if (SystemAPI.TryGetSingletonEntity<SelectionVolumeTag>(out Entity selectionEntity) && selectionEntity != Entity.Null && SystemAPI.HasComponent<StepsToLiveData>(selectionEntity))
+        if (SystemAPI.TryGetSingletonEntity<SelectionVolumeTag>(out Entity selectionEntity) && selectionEntity != Entity.Null
+            && SystemAPI.HasComponent<StepsToLiveData>(selectionEntity))
         {
             StepsToLiveData stepsToLive = SystemAPI.GetComponent<StepsToLiveData>(selectionEntity);
             stepsToLive.value--;

@@ -31,19 +31,19 @@ public partial struct BoidTargetJob : IJobEntity
             Attackable attackableUnit = allAttackables[unitEntity];
 
             float distanceSq = math.lengthsq(localTransformUnit.Position - pLocalTransformBoid.Position);
-            if (shortestDistanceSq > distanceSq)
-            {
-                nearestTarget = unitEntity;
-                nearestTargetLocalTransform = localTransformUnit.Position;
-                nearestTargetAttackable = attackableUnit;
-                shortestDistanceSq = distanceSq;
-            }
+            if (shortestDistanceSq <= distanceSq)
+                continue;
+
+            nearestTarget = unitEntity;
+            nearestTargetLocalTransform = localTransformUnit.Position;
+            nearestTargetAttackable = attackableUnit;
+            shortestDistanceSq = distanceSq;
         }
 
-        if(shortestDistanceSq < float.MaxValue)
-        {
-            pBoid.target = nearestTarget;
-            pBoid.targetPosition = nearestTargetLocalTransform + nearestTargetAttackable.halfBounds;
-        }
+        if (shortestDistanceSq >= float.MaxValue)
+            return;
+
+        pBoid.target = nearestTarget;
+        pBoid.targetPosition = nearestTargetLocalTransform + nearestTargetAttackable.halfBounds;
     }
 }

@@ -8,19 +8,19 @@ using Unity.Transforms;
 partial struct WaveSpawnerSystem : ISystem
 {
     [BurstCompile]
-    public void OnCreate(ref SystemState state)
+    public void OnCreate(ref SystemState pSystemState)
     {
-        state.RequireForUpdate<WaveSpawning>();
+        pSystemState.RequireForUpdate<WaveSpawning>();
     }
 
     [BurstCompile]
-    public void OnUpdate(ref SystemState state)
+    public void OnUpdate(ref SystemState pSystemState)
     {
         RefRW<WaveSpawning> waveSpawning = SystemAPI.GetSingletonRW<WaveSpawning>();
         if (!waveSpawning.ValueRO.doSpawn)
             return;
 
-        NativeArray<Entity> instiatedEntities = state.EntityManager.Instantiate(waveSpawning.ValueRO.prefab, waveSpawning.ValueRO.amountToSpawn, Allocator.Temp);
+        NativeArray<Entity> instiatedEntities = pSystemState.EntityManager.Instantiate(waveSpawning.ValueRO.prefab, waveSpawning.ValueRO.amountToSpawn, Allocator.Temp);
 
         Random r = new ((uint)(waveSpawning.ValueRO.amountToSpawn + waveSpawning.ValueRO.spawnPosition.x));
         for (int i = 0; i < waveSpawning.ValueRO.amountToSpawn; i++)
@@ -47,7 +47,7 @@ partial struct WaveSpawnerSystem : ISystem
             {
                 case AttackableUnitType.Boid:
                     waveSpawning.ValueRW.currentNumberOfBoids++;
-                    state.EntityManager.SetComponentData(entity, new Boid {
+                    pSystemState.EntityManager.SetComponentData(entity, new Boid {
                         id = waveSpawning.ValueRO.currentNumberOfBoids,
                         velocity = facingDirection * (waveSpawning.ValueRO.boidSettings.minSpeed + waveSpawning.ValueRO.boidSettings.maxSpeed) / 2,
                         dmg = waveSpawning.ValueRO.boidSettings.dmg
@@ -57,33 +57,33 @@ partial struct WaveSpawnerSystem : ISystem
                 case AttackableUnitType.Drone:
                     if (math.all(waveSpawning.ValueRO.spawnPosition == waveSpawning.ValueRO.topSpawn))
                     {
-                        state.EntityManager.SetComponentData(entity, new Drone
+                        pSystemState.EntityManager.SetComponentData(entity, new Drone
                         {
                             spawnPoint = SpawnPoint.Top
                         });
                     }
                     else if (math.all(waveSpawning.ValueRO.spawnPosition == waveSpawning.ValueRO.midSpawn))
                     {
-                        state.EntityManager.SetComponentData(entity, new Drone
+                        pSystemState.EntityManager.SetComponentData(entity, new Drone
                         {
                             spawnPoint = SpawnPoint.Mid
                         });
                     }
                     else if (math.all(waveSpawning.ValueRO.spawnPosition == waveSpawning.ValueRO.botSpawn))
                     {
-                        state.EntityManager.SetComponentData(entity, new Drone
+                        pSystemState.EntityManager.SetComponentData(entity, new Drone
                         {
                             spawnPoint = SpawnPoint.Bot
                         });
                     }
-                    state.EntityManager.GetBuffer<PathPositions>(entity).Add(new PathPositions() { pos = worldPos });
+                    pSystemState.EntityManager.GetBuffer<PathPositions>(entity).Add(new PathPositions() { pos = worldPos });
                     break;
                 case AttackableUnitType.Tank:
                     rotation = quaternion.LookRotation(new float3(1, 0, 0), new float3(0, 1, 0));
                     break;
             }
 
-            state.EntityManager.SetComponentData(entity, new LocalTransform
+            pSystemState.EntityManager.SetComponentData(entity, new LocalTransform
             {
                 Position = worldPos,
                 Rotation = rotation,

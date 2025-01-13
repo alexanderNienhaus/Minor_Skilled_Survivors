@@ -66,9 +66,6 @@ public partial struct DroneAttackingJob : IJobEntity
             Scale = pAttackingDrone.projectileSize
         });
 
-        //ecb.AddComponent<Parent>(projectile);
-        //ecb.SetComponent(projectile, new Parent { Value = attacking.ValueRO.parent });
-
         float timeToLife = (pDistanceDroneToUnitSq + pBoundsRadius * pBoundsRadius) / (pAttackingDrone.projectileSpeed * pDeltaTime * pAttackingDrone.projectileSpeed * pDeltaTime);
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
 

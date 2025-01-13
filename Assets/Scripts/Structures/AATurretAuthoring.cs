@@ -1,8 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
 using Unity.Burst;
-using Unity.Mathematics;
-using Unity.Transforms;
 
 public class AATurretAuthoring : MonoBehaviour
 {

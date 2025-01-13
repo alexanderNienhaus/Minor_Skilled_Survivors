@@ -29,7 +29,6 @@ public enum CollisionLayers
 }
 
 [BurstCompile]
-//[UpdateAfter(typeof(UnitInformationSystem))]
 public partial class UnitSelectionSystem : SystemBase
 {
     private PhysicsWorld physicsWorld;
@@ -148,7 +147,7 @@ public partial class UnitSelectionSystem : SystemBase
         vertices.Dispose();
     }
 
-    private BlobAssetReference<Collider> CreateSelectionVolume(NativeArray<float3> vertices)
+    private BlobAssetReference<Collider> CreateSelectionVolume(NativeArray<float3> pVertices)
     {
         CollisionFilter collisionFilter = new ()
         {
@@ -166,7 +165,7 @@ public partial class UnitSelectionSystem : SystemBase
             SimplificationTolerance = 0
         };
 
-        return ConvexCollider.Create(vertices, convexHullGenerationParameters, collisionFilter, physicsMaterial);
+        return ConvexCollider.Create(pVertices, convexHullGenerationParameters, collisionFilter, physicsMaterial);
     }
 
     private void DeselectAllUnits()

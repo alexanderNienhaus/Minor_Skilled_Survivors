@@ -36,18 +36,15 @@ public class BoidSettingsAuthoring : MonoBehaviour
 public struct BoidSettings : IComponentData
 {
     public int dmg;
-
     public float minSpeed;
     public float maxSpeed;
     public float perceptionRadius;
     public float avoidanceRadius;
     public float maxSteerForce;
-
     public float alignWeight;
     public float cohesionWeight;
     public float seperateWeight;
     public float targetWeight;
-
     public LayerMask obstacleMask;
     public float boundsRadius;
     public float avoidCollisionWeight;

@@ -4,8 +4,6 @@ public class PlacedObjectGhost : MonoBehaviour
 {
     [SerializeField] private Material ghostMaterialBlue;
     [SerializeField] private Material ghostMaterialRed;
-    //[SerializeField] private int ghostLayerBlue = 11;
-    //[SerializeField] private int ghostLayerRed = 12;
     [SerializeField] private float lerpSpeed = 15f;
     [SerializeField] private float ghostY = 1f;
 
@@ -40,9 +38,7 @@ public class PlacedObjectGhost : MonoBehaviour
         }
 
         if (GridObjectPlacementManager.Instance == null)
-        {
             return;
-        }
 
         Vector3 targetPos = GridObjectPlacementManager.Instance.GetMouseWorldSnappedPos() - new Vector3(0.5f, 0, 0.5f) * GridObjectPlacementManager.Instance.GetCellSize();
         
@@ -77,25 +73,24 @@ public class PlacedObjectGhost : MonoBehaviour
         }
 
         PlacableObjectTypeSO placedObjectTypeSO = GridObjectPlacementManager.Instance?.GetPlacedObjectTypeSO();
+        if (placedObjectTypeSO == null)
+            return;
 
-        if (placedObjectTypeSO != null)
-        {
-            visual = Instantiate(placedObjectTypeSO.visual, Vector3.zero, Quaternion.identity);
-            visual.parent = transform;
-            visual.localPosition = Vector3.zero;
-            visual.localEulerAngles = Vector3.zero;
-        }
-    }    
+        visual = Instantiate(placedObjectTypeSO.visual, Vector3.zero, Quaternion.identity);
+        visual.parent = transform;
+        visual.localPosition = Vector3.zero;
+        visual.localEulerAngles = Vector3.zero;
+    }
     private void SetLayerRecursive(GameObject pTargetGameObject, int pLayer)
     {
         pTargetGameObject.layer = pLayer;
         foreach (Transform child in pTargetGameObject.transform)
         {
             child.gameObject.layer = pLayer;
-            if (child.GetComponentInChildren<Transform>() != null)
-            {
-                SetLayerRecursive(child.gameObject, pLayer);
-            }
+            if (child.GetComponentInChildren<Transform>() == null)
+                continue;
+
+            SetLayerRecursive(child.gameObject, pLayer);
         }
     }    
 }

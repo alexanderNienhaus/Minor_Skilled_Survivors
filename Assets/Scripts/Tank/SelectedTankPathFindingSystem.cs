@@ -48,11 +48,9 @@ public partial class SelectedTankPathFindingSystem : SystemBase
             if (math.all(mouseEndPos == float3.zero))
                 return;
 
-            //SelectedUnitInformationSystem selectedUnitCountSystem = World.GetOrCreateSystemManaged<SelectedUnitInformationSystem>();
-            //selectedUnitCountSystem.UpdateSelectedUnitInfo();
-            float3 groupStartPos = SystemAPI.GetSingleton<GroupPosition>().pos; //selectedUnitCountSystem.GetGroupStartPos();
+            float3 groupStartPos = SystemAPI.GetSingleton<GroupPosition>().pos;
             float3 currentGroupMovement = mouseEndPos - groupStartPos;
-            int selectedUnitCount = SystemAPI.GetSingleton<FriendlyUnitCount>().count; //selectedUnitCountSystem.GetSelectedUnitCount();
+            int selectedUnitCount = SystemAPI.GetSingleton<FriendlyUnitCount>().count;
             if (selectedUnitCount == 0)
                 return;
 
@@ -77,9 +75,9 @@ public partial class SelectedTankPathFindingSystem : SystemBase
         }
     }
 
-    private void SetEndPositions(NativeArray<float3> endPositions)
+    private void SetEndPositions(NativeArray<float3> pEndPositions)
     {
-        for (int i = 0; i < endPositions.Length; i++)
+        for (int i = 0; i < pEndPositions.Length; i++)
         {
             RefRW<FormationPosition> setFormation = default;
             float3 setPosition = float3.zero;
@@ -90,11 +88,11 @@ public partial class SelectedTankPathFindingSystem : SystemBase
                 if (formationPosition.ValueRO.isSet)
                     continue;
 
-                float currentDistance = math.lengthsq(endPositions[i] - localTransform.ValueRO.Position);
+                float currentDistance = math.lengthsq(pEndPositions[i] - localTransform.ValueRO.Position);
                 if (currentDistance < shortestDistance)
                 {
                     shortestDistance = currentDistance;
-                    setPosition = endPositions[i];
+                    setPosition = pEndPositions[i];
                     setFormation = formationPosition;
                 }
             }
@@ -152,19 +150,19 @@ public partial class SelectedTankPathFindingSystem : SystemBase
     }
 
     [BurstCompile]
-    private NativeArray<float3> CalculateEndPositionOffsetsPointRotation(int selectedUnitCount, float pSpread, float3 currentGroupMovement, float3 mousePos)
+    private NativeArray<float3> CalculateEndPositionOffsetsPointRotation(int pSelectedUnitCount, float pSpread, float3 pCurrentGroupMovement, float3 pMousePos)
     {
-        int boxSize = (int)math.ceil(math.sqrt(selectedUnitCount));
-        int excessPositions = boxSize * boxSize - selectedUnitCount;
+        int boxSize = (int)math.ceil(math.sqrt(pSelectedUnitCount));
+        int excessPositions = boxSize * boxSize - pSelectedUnitCount;
 
         NativeArray<float3> endPositionOffsets = new (boxSize * boxSize, Allocator.Temp);
         if (boxSize == 1)
         {
-            endPositionOffsets[0] = mousePos;
+            endPositionOffsets[0] = pMousePos;
             return endPositionOffsets;
         }
         
-        float groupRotation = math.atan2(currentGroupMovement.z, currentGroupMovement.x);
+        float groupRotation = math.atan2(pCurrentGroupMovement.z, pCurrentGroupMovement.x);
 
         int i = 0;
         int zMax = boxSize;
@@ -185,7 +183,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
                 pos -= offset;
                 pos *= pSpread;
                 float2 rotatedPos = RotatePoint(pos, groupRotation);
-                endPositionOffsets[i] = mousePos + new float3(rotatedPos.x, 0, rotatedPos.y);
+                endPositionOffsets[i] = pMousePos + new float3(rotatedPos.x, 0, rotatedPos.y);
                 i++;
             }
         }
@@ -194,11 +192,11 @@ public partial class SelectedTankPathFindingSystem : SystemBase
     }
 
     [BurstCompile]
-    private float2 RotatePoint(float2 pointToRotate, float angle)
+    private float2 RotatePoint(float2 pPointToRotate, float pAngle)
     {
-        float cosTheta = math.cos(angle);
-        float sinTheta = math.sin(angle);
-        return new float2(cosTheta * pointToRotate.x - sinTheta * pointToRotate.y,
-                          sinTheta * pointToRotate.x + cosTheta * pointToRotate.y);
+        float cosTheta = math.cos(pAngle);
+        float sinTheta = math.sin(pAngle);
+        return new float2(cosTheta * pPointToRotate.x - sinTheta * pPointToRotate.y,
+                          sinTheta * pPointToRotate.x + cosTheta * pPointToRotate.y);
     }
 }

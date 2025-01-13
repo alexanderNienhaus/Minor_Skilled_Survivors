@@ -5,6 +5,7 @@ public class FinalStateManager : MonoBehaviour
 {
     [SerializeField] private string wonScene;
     [SerializeField] private string lostScene;
+
     private float currentWaitTime = 0;
     private int maxWaitTime = 0;
     private OnEndGameEvent onEndGameEvent;
@@ -22,14 +23,14 @@ public class FinalStateManager : MonoBehaviour
 
     private void Update()
     {
-        if (onEndGameEvent != null)
-        {
-            currentWaitTime += Time.deltaTime;
-            if (currentWaitTime > maxWaitTime)
-            {
-                SceneManager.LoadScene(onEndGameEvent.won ? wonScene : lostScene);
-            }
-        }
+        if (onEndGameEvent == null)
+            return;
+
+        currentWaitTime += Time.deltaTime;
+        if (currentWaitTime <= maxWaitTime)
+            return;
+
+        SceneManager.LoadScene(onEndGameEvent.won ? wonScene : lostScene);
     }
 
     private void OnEndGame(OnEndGameEvent pOnEndGameEvent)

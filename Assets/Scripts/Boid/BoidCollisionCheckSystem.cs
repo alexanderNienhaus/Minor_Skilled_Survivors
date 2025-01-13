@@ -20,23 +20,23 @@ public partial struct BoidCollisionCheckSystem : ISystem
     }
 
     [BurstCompile]
-    public void OnUpdate(ref SystemState systemState)
+    public void OnUpdate(ref SystemState pSystemState)
     {
         EntityCommandBuffer ecb = new (Allocator.TempJob);
-        allBoids.Update(ref systemState);
-        allAttackables.Update(ref systemState);
+        allBoids.Update(ref pSystemState);
+        allAttackables.Update(ref pSystemState);
 
         BoidCollisionCheckJob triggerJob = new ()
         {
             allBoids = allBoids,
             allAttackables = allAttackables,
             ecb = ecb,
-            em = systemState.EntityManager
+            em = pSystemState.EntityManager
         };
 
-        systemState.Dependency = triggerJob.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), systemState.Dependency);
-        systemState.Dependency.Complete();
-        ecb.Playback(systemState.EntityManager);
+        pSystemState.Dependency = triggerJob.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), pSystemState.Dependency);
+        pSystemState.Dependency.Complete();
+        ecb.Playback(pSystemState.EntityManager);
         ecb.Dispose();
     }
 }
