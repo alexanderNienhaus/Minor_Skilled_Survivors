@@ -15,7 +15,6 @@ public class RadioStationAuthoring : MonoBehaviour
             AddComponent(entity, new RadioStation
             {
                 prefab = GetEntity(pAuthoring.spawn.prefab, TransformUsageFlags.Dynamic),
-                parent = GetEntity(pAuthoring.gameObject, TransformUsageFlags.Dynamic),
                 unitSize = pAuthoring.spawn.unitSize,
                 unitType = pAuthoring.spawn.unitType,
                 amountToSpawn = pAuthoring.spawn.amountToSpawn,
@@ -34,7 +33,6 @@ public struct RadioStation : IComponentData
 {
     public bool hasSpawned;
     public Entity prefab;
-    public Entity parent;
     public AttackableUnitType unitType;
     public float unitSize;
     public int amountToSpawn;

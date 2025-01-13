@@ -15,7 +15,7 @@ public class AATurretAuthoring : MonoBehaviour
     {
         public override void Bake(AATurretAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
+            Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new AATurret
             {
                 turnSpeed = pAuthoring.turnSpeed,

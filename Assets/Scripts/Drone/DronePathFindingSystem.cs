@@ -93,7 +93,7 @@ public partial class DronePathFindingSystem : SystemBase
         NativeArray<PathNode> tmpPathNodeArray = GetPathNodeArray(grid, gridSize);
         thetaStar.FindPath(ref tmpPathNodeArray);
 
-        NativeList<PathPositions> path = new(gridSize.x * gridSize.y, Allocator.TempJob);
+        NativeList<PathPositions> path = new(gridSize.x * gridSize.y, Allocator.Persistent);
         PathNode endNode = tmpPathNodeArray[endNodeIndex];
         if (endNode.cameFromNodeIndex == -1)
         {
@@ -109,7 +109,15 @@ public partial class DronePathFindingSystem : SystemBase
             CalculatePath(tmpPathNodeArray, endNode, ref path, gridOriginPos, gridCellSize);
         }
 
+        tmpPathNodeArray.Dispose();
         return path;
+    }
+
+    protected override void OnDestroy()
+    {
+        topPath.Dispose();
+        midPath.Dispose();
+        botPath.Dispose();
     }
 
     [BurstCompile]
@@ -183,7 +191,7 @@ public partial class DronePathFindingSystem : SystemBase
 
     private NativeArray<PathNode> GetPathNodeArray(GridXZ<GridNode> pGrid, int2 pGridSize)
     {
-        NativeArray<PathNode> pathNodeArray = new (pGridSize.x * pGridSize.y, Allocator.TempJob);
+        NativeArray<PathNode> pathNodeArray = new (pGridSize.x * pGridSize.y, Allocator.Temp);
 
         for (int x = 0; x < pGridSize.x; x++)
         {

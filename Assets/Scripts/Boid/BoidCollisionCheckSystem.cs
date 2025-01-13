@@ -13,6 +13,8 @@ public partial struct BoidCollisionCheckSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState pSystemState)
     {
+        pSystemState.RequireForUpdate<Boid>();
+
         allBoids = pSystemState.GetComponentLookup<Boid>(true);
         allAttackables = pSystemState.GetComponentLookup<Attackable>(true);
     }
@@ -35,5 +37,6 @@ public partial struct BoidCollisionCheckSystem : ISystem
         systemState.Dependency = triggerJob.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), systemState.Dependency);
         systemState.Dependency.Complete();
         ecb.Playback(systemState.EntityManager);
+        ecb.Dispose();
     }
 }

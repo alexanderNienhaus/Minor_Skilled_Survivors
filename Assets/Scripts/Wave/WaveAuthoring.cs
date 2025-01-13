@@ -12,7 +12,7 @@ public class WaveAuthoring : MonoBehaviour
     {
         public override void Bake(WaveAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
+            Entity entity = GetEntity(TransformUsageFlags.None);
             AddBuffer<Spawn>(entity);
             AddBuffer<Wave>(entity);
             int waveNumber = 0;
@@ -31,7 +31,6 @@ public class WaveAuthoring : MonoBehaviour
                         waveNumber = waveNumber,
                         spawnNumber = spawnNumber,
                         prefab = GetEntity(spawn.prefab, TransformUsageFlags.Dynamic),
-                        parent = GetEntity(pAuthoring.gameObject, TransformUsageFlags.Dynamic),
                         unitSize = spawn.unitSize,
                         unitType = spawn.unitType,
                         amountToSpawn = spawn.amountToSpawn,
@@ -60,7 +59,6 @@ public struct Spawn : IBufferElementData
     public int waveNumber;
     public int spawnNumber;
     public Entity prefab;
-    public Entity parent;
     public AttackableUnitType unitType;
     public float unitSize;
     public int amountToSpawn;

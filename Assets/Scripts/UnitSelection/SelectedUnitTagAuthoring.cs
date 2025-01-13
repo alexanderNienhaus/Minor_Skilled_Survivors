@@ -8,7 +8,7 @@ public class SelectedUnitTagAuthoring : MonoBehaviour
     {
         public override void Bake(SelectedUnitTagAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
+            Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new SelectedUnitTag());
             SetComponentEnabled<SelectedUnitTag>(entity, false);
         }

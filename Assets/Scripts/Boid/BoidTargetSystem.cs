@@ -15,6 +15,7 @@ public partial struct BoidTargetSystem : ISystem
     public void OnCreate(ref SystemState pSystemState)
     {
         pSystemState.RequireForUpdate<BoidTarget>();
+        pSystemState.RequireForUpdate<Boid>();
 
         EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
         entityQueryDesc.WithAll<Attackable, LocalTransform>().WithNone<Drone, Boid, AATurret>();
@@ -31,13 +32,12 @@ public partial struct BoidTargetSystem : ISystem
         allAttackables.Update(ref pSystemState);
         allLocaltransforms.Update(ref pSystemState);
 
-        NativeArray<Entity> allUnitEntities = query.ToEntityArray(Allocator.TempJob);
         BoidTargetJob boidTargetJob = new()
         {
             em = pSystemState.EntityManager,
             allAttackables = allAttackables,
             allLocalTransforms = allLocaltransforms,
-            allUnitEntities = allUnitEntities
+            allUnitEntities = query.ToEntityArray(Allocator.TempJob)
         };
 
         pSystemState.Dependency = boidTargetJob.ScheduleParallel(pSystemState.Dependency);

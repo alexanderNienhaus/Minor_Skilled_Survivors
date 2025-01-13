@@ -142,17 +142,15 @@ public partial class UnitSelectionSystem : SystemBase
         }
         vertices[4] = Camera.main.transform.position;
 
-        BlobAssetReference<Collider> selectionVolume = CreateSelectionVolume(vertices);
-
         Entity selectionEntity = EntityManager.CreateEntity(selectionArchetype);
         EntityManager.SetName(selectionEntity, selectionVolumeName);
-        EntityManager.SetComponentData(selectionEntity, new PhysicsCollider { Value = selectionVolume });
+        EntityManager.SetComponentData(selectionEntity, new PhysicsCollider { Value = CreateSelectionVolume(vertices) });
         vertices.Dispose();
     }
 
     private BlobAssetReference<Collider> CreateSelectionVolume(NativeArray<float3> vertices)
     {
-        CollisionFilter collisionFilter = new CollisionFilter
+        CollisionFilter collisionFilter = new ()
         {
             BelongsTo = (uint)CollisionLayers.Selection,
             CollidesWith = (uint)CollisionLayers.Tanks
@@ -161,15 +159,14 @@ public partial class UnitSelectionSystem : SystemBase
         Material physicsMaterial = Material.Default;
         physicsMaterial.CollisionResponse = CollisionResponsePolicy.RaiseTriggerEvents;
 
-        ConvexHullGenerationParameters convexHullGenerationParameters = new ConvexHullGenerationParameters
+        ConvexHullGenerationParameters convexHullGenerationParameters = new ()
         {
             BevelRadius = 0,
             MinimumAngle = 0,
             SimplificationTolerance = 0
         };
 
-        BlobAssetReference<Collider> selectionCollider = ConvexCollider.Create(vertices, convexHullGenerationParameters, collisionFilter, physicsMaterial);
-        return selectionCollider;
+        return ConvexCollider.Create(vertices, convexHullGenerationParameters, collisionFilter, physicsMaterial);
     }
 
     private void DeselectAllUnits()
@@ -183,7 +180,7 @@ public partial class UnitSelectionSystem : SystemBase
     [BurstCompile]
     private bool Raycast(float3 pRayStart, float3 pRayEnd, out RaycastHit pRaycastHit)
     {
-        RaycastInput raycastInput = new RaycastInput
+        RaycastInput raycastInput = new ()
         {
             Start = pRayStart,
             End = pRayEnd,

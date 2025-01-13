@@ -1,6 +1,5 @@
 using UnityEngine;
 using System;
-using CodeMonkey.Utils;
 
 public class GridXZ<TGridObject>
 {
@@ -40,7 +39,7 @@ public class GridXZ<TGridObject>
             TextMesh[,] debugTextArray = new TextMesh[width, length];
 
             int steps = 2;
-            bool middleOfCell = false;
+            //bool middleOfCell = false;
             for (int x = 0; x < gridArray.GetLength(0); x += steps)
             {
                 for (int z = 0; z < gridArray.GetLength(1); z += steps)
@@ -56,9 +55,11 @@ public class GridXZ<TGridObject>
             OnGridValueChanged += (object sender, OnGridValueChangedEventArgs eventArgs) =>
             {
                 //debugTextArray[eventArgs.x, eventArgs.z].text = gridArray[eventArgs.x, eventArgs.z]?.ToString();
+                /*
                 UtilsClass.CreateWorldTextPopup(null, gridArray[eventArgs.x, eventArgs.z]?.ToString(), GetWorldPositionXZ(eventArgs.x, eventArgs.z)
                     + (middleOfCell ? new Vector3(cellSize, 0, cellSize) * 0.5f : Vector3.zero), pDebugTextSize, Color.white, GetWorldPositionXZ(eventArgs.x, eventArgs.z)
                     + (middleOfCell ? new Vector3(cellSize, 0, cellSize) * 0.5f : Vector3.zero), 1000);
+                */
                 //UtilsClass.CreateWorldText(gridArray[eventArgs.x, eventArgs.z]?.ToString(), null, GetWorldPositionXZ(eventArgs.x, eventArgs.z) + new Vector3(cellSize, cellSize) * 0.5f, pDebugTextSize, Color.white, TextAnchor.MiddleCenter);
             };
         }

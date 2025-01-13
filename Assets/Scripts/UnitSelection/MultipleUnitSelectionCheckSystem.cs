@@ -39,5 +39,6 @@ public partial struct MultipleUnitSelectionCheckSystem : ISystem
         pSystemState.Dependency = triggerJob.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), pSystemState.Dependency);
         pSystemState.Dependency.Complete();
         ecb.Playback(pSystemState.EntityManager);
+        ecb.Dispose();
     }
 }

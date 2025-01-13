@@ -11,11 +11,10 @@ public class AttackingAuthoring : MonoBehaviour
     {
         public override void Bake(AttackingAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
+            Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new Attacking
             {
                 projectilePrefab = GetEntity(pAuthoring.attackingSO.projectilePrefab, TransformUsageFlags.Dynamic),
-                parent = GetEntity(pAuthoring.gameObject, TransformUsageFlags.Dynamic),
                 dmg = pAuthoring.attackingSO.dmg,
                 range = pAuthoring.attackingSO.range,
                 attackSpeed = pAuthoring.attackingSO.attackSpeed,
@@ -32,7 +31,6 @@ public class AttackingAuthoring : MonoBehaviour
 public struct Attacking : IComponentData
 {
     public Entity projectilePrefab;
-    public Entity parent;
     public float dmg;
     public float range;
     public float attackSpeed;
