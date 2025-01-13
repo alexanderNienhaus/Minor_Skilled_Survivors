@@ -44,12 +44,19 @@ public partial struct AATurretAttackingJob : IJobEntity
             if (distanceAATurretToEnemySq - attackableEnemy.boundsRadius * attackableEnemy.boundsRadius >= pAttackingAATurret.range * pAttackingAATurret.range)
                 continue;
 
-            if (Raycast(localTransformEnemy.Position, enemyPos, out _))
+            Entity modelEntity = children.ElementAt(pAATurret.childNumberModel).Value;
+            Entity mountEntity = children.ElementAt(pAATurret.childNumberMount).Value;
+            Entity headEntity = children.ElementAt(pAATurret.childNumberHead).Value;
+            LocalTransform modelLocalTransform = allLocalTransforms.GetRefRW(modelEntity).ValueRW;
+            LocalTransform mountLocalTransform = allLocalTransforms.GetRefRW(mountEntity).ValueRW;
+            LocalTransform headLocalTransform = allLocalTransforms.GetRefRW(headEntity).ValueRW;
+            float3 spawnPos = pLocalTransformAATurret.Position + modelLocalTransform.Position + mountLocalTransform.Position + headLocalTransform.Position + pAttackingAATurret.projectileSpawnOffset;
+            if (Raycast(spawnPos, enemyPos, out _))
                 continue;
 
             pAttackingAATurret.currentTime = 0;
-            ecbParallelWriter = SpawnProjectile(ecbParallelWriter, pAATurret, pAttackingAATurret, pLocalTransformAATurret.Position, enemyPos,
-                physicsVelocityEnemy, deltaTime, pChunkIndexInQuery);
+            ecbParallelWriter = SpawnProjectile(ecbParallelWriter, pAttackingAATurret, enemyPos, physicsVelocityEnemy, spawnPos, mountLocalTransform, headLocalTransform,
+                mountEntity, headEntity, deltaTime, pChunkIndexInQuery);
 
             allAttackables.GetRefRW(enemyEntity).ValueRW.currentHp -= pAttackingAATurret.dmg;            
             if (attackableEnemy.currentHp - pAttackingAATurret.dmg > 0)
@@ -65,7 +72,7 @@ public partial struct AATurretAttackingJob : IJobEntity
     [BurstCompile]
     private bool Raycast(float3 pRayStart, float3 pRayEnd, out RaycastHit pRaycastHit)
     {
-        RaycastInput raycastInput = new RaycastInput
+        RaycastInput raycastInput = new ()
         {
             Start = pRayStart,
             End = pRayEnd,
@@ -79,37 +86,29 @@ public partial struct AATurretAttackingJob : IJobEntity
     }
 
     [BurstCompile]
-    private EntityCommandBuffer.ParallelWriter SpawnProjectile(EntityCommandBuffer.ParallelWriter pEcbParallelWriter, AATurret pAATurret,
-        Attacking pAttackingAATurret, float3 pAATurretPos, float3 pEnemyPos, PhysicsVelocity pEnemyVelocity, float pDeltaTime, int pChunkIndexInQuery)
+    private EntityCommandBuffer.ParallelWriter SpawnProjectile(EntityCommandBuffer.ParallelWriter pEcbParallelWriter, Attacking pAttackingAATurret, float3 pEnemyPos,
+        PhysicsVelocity pEnemyVelocity, float3 pSpawnPos, LocalTransform pMountLocalTransform, LocalTransform pHeadLocalTransform, Entity pMountEntity, Entity pHeadEntity,
+        float pDeltaTime, int pChunkIndexInQuery)
     {
         Entity projectile = pEcbParallelWriter.Instantiate(pChunkIndexInQuery, pAttackingAATurret.projectilePrefab);
 
-        Entity modelEntity = children.ElementAt(pAATurret.childNumberModel).Value;
-        Entity mountEntity = children.ElementAt(pAATurret.childNumberMount).Value;
-        Entity headEntity = children.ElementAt(pAATurret.childNumberHead).Value;
-
-        LocalTransform modelLocalTransform = allLocalTransforms.GetRefRW(modelEntity).ValueRW;
-        LocalTransform mountLocalTransform = allLocalTransforms.GetRefRW(mountEntity).ValueRW;
-        LocalTransform headLocalTransform = allLocalTransforms.GetRefRW(headEntity).ValueRW;
-
-        float3 spawnPos = pAATurretPos + modelLocalTransform.Position + mountLocalTransform.Position + headLocalTransform.Position + pAttackingAATurret.projectileSpawnOffset;
         float3 targetVelocity = pEnemyVelocity.Linear;
-        float3 unitToEnemy = pEnemyPos - spawnPos;
+        float3 unitToEnemy = pEnemyPos - pSpawnPos;
         float unitToEnemyDist = math.length(unitToEnemy);
         float timeAdjustedProjectileSpeed = pAttackingAATurret.projectileSpeed * pDeltaTime;
         if (timeAdjustedProjectileSpeed != 0)
         {
             float projectileFlightTime = unitToEnemyDist / timeAdjustedProjectileSpeed;
             pEnemyPos += targetVelocity * projectileFlightTime;
-            unitToEnemy = pEnemyPos - spawnPos;
+            unitToEnemy = pEnemyPos - pSpawnPos;
             float timeToLife = unitToEnemyDist / timeAdjustedProjectileSpeed;
             pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new Projectile { maxTimeToLife = timeToLife, currentTimeToLife = 0 });
         }
 
         pEcbParallelWriter.SetComponent(pChunkIndexInQuery, projectile, new LocalTransform
         {
-            Position = spawnPos,
-            Rotation = quaternion.LookRotationSafe(headLocalTransform.Up(), unitToEnemy),
+            Position = pSpawnPos,
+            Rotation = quaternion.LookRotationSafe(pHeadLocalTransform.Up(), unitToEnemy),
             Scale = pAttackingAATurret.projectileSize
         });
 
@@ -120,29 +119,29 @@ public partial struct AATurretAttackingJob : IJobEntity
         //ecb.SetComponent(projectile, new Parent { Value = children.ElementAt(6).Value });
         //6 10.5 13 Projectile spawn offset 0 0 4
 
-        float3 mountToEnemy = pEnemyPos - spawnPos;
+        float3 mountToEnemy = pEnemyPos - pSpawnPos;
         mountToEnemy.y = 0;
         mountToEnemy = math.normalizesafe(mountToEnemy, float3.zero);
         quaternion targetRotMount = quaternion.LookRotationSafe(mountToEnemy, new float3(0, 1, 0));
-        pEcbParallelWriter.SetComponent(pChunkIndexInQuery, mountEntity, new LocalTransform
+        pEcbParallelWriter.SetComponent(pChunkIndexInQuery, pMountEntity, new LocalTransform
         {
-            Position = mountLocalTransform.Position,
+            Position = pMountLocalTransform.Position,
             Rotation = targetRotMount,//math.slerp(mount.Rotation, targetRotMount, aaTurret.ValueRO.turnSpeed * SystemAPI.Time.DeltaTime),
-            Scale = mountLocalTransform.Scale
+            Scale = pMountLocalTransform.Scale
         });
 
-        float3 headToEnemy = pEnemyPos - spawnPos;
+        float3 headToEnemy = pEnemyPos - pSpawnPos;
         headToEnemy.z = math.abs(headToEnemy.z);
         headToEnemy = math.normalizesafe(headToEnemy, float3.zero);
         quaternion targetRotHead = quaternion.LookRotationSafe(headToEnemy, new float3(0, 1, 0));
         float3 targetRotHeadEuler = ComputeAngles(targetRotHead);
         targetRotHeadEuler.y = 0;
         targetRotHead = quaternion.Euler(targetRotHeadEuler);
-        pEcbParallelWriter.SetComponent(pChunkIndexInQuery, headEntity, new LocalTransform
+        pEcbParallelWriter.SetComponent(pChunkIndexInQuery, pHeadEntity, new LocalTransform
         {
-            Position = headLocalTransform.Position,
+            Position = pHeadLocalTransform.Position,
             Rotation = targetRotHead, //math.slerp(head.Rotation, targetRotHead, aaTurret.ValueRO.turnSpeed * SystemAPI.Time.DeltaTime),
-            Scale = headLocalTransform.Scale
+            Scale = pHeadLocalTransform.Scale
         });
 
         return pEcbParallelWriter;

@@ -120,10 +120,9 @@ public partial struct BoidMovementJob : IJobEntity
     [BurstCompile]
     private bool IsHeadingForCollision(LocalTransform localTransform, CollisionWorld collisionWorld, BoidSettings boidSettings)
     {
-        if (Raycast(localTransform.Position, localTransform.Position + localTransform.Forward() * boidSettings.collisionAvoidDst, out RaycastHit pRaycastHit)) //collisionWorld.SphereCast(localTransform.Position, boidSettings.boundsRadius, localTransform.Forward(), boidSettings.collisionAvoidDst, filter)
-        {
+        if (Raycast(localTransform.Position, localTransform.Position + localTransform.Forward() * boidSettings.collisionAvoidDst, out _)) //collisionWorld.SphereCast(localTransform.Position, boidSettings.boundsRadius, localTransform.Forward(), boidSettings.collisionAvoidDst, filter)
             return true;
-        }
+
         return false;
     }
 
@@ -136,9 +135,8 @@ public partial struct BoidMovementJob : IJobEntity
         {
             float3 dir = localTransform.TransformDirection(rayDirections[i]);
             if (!Raycast(localTransform.Position, localTransform.Position + dir * boidSettings.collisionAvoidDst, out _)) //collisionWorld.SphereCast(localTransform.Position, boidSettings.boundsRadius, dir, boidSettings.collisionAvoidDst, filter))
-            {
                 return dir;
-            }
+
         }
         rayDirections.Dispose();
         return localTransform.Forward();

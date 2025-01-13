@@ -111,6 +111,8 @@ public class GridObjectPlacementManager : MonoBehaviour
 
     private void Update()
     {
+        direction = PlacableObjectTypeSO.Dir.Down;
+
         if (Input.GetMouseButtonDown(0) && placedObjectTypeSO != null)
         {
             GetGridPosFromWorldPos(GetMouseWorldPos(), out int x, out int z);
