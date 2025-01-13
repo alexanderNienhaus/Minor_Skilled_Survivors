@@ -8,27 +8,36 @@ using Unity.Collections;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial struct MultipleUnitSelectionCheckSystem : ISystem
 {
+    [ReadOnly] private ComponentLookup<SelectedUnitTag> allSelectedUnitTags;
+    [ReadOnly] private ComponentLookup<SelectionVolumeTag> allSelectionVolumeTags;
+
     [BurstCompile]
     public void OnCreate(ref SystemState systemState)
     {
         systemState.RequireForUpdate<SelectedUnitTag>();
         systemState.RequireForUpdate<SelectionVolumeTag>();
+
+        allSelectedUnitTags = systemState.GetComponentLookup<SelectedUnitTag>(true);
+        allSelectionVolumeTags = systemState.GetComponentLookup<SelectionVolumeTag>(true);
     }
 
     [BurstCompile]
-    public void OnUpdate(ref SystemState systemState)
+    public void OnUpdate(ref SystemState pSystemState)
     {
         EntityCommandBuffer ecb = new (Allocator.TempJob);
 
+        allSelectedUnitTags.Update(ref pSystemState);
+        allSelectionVolumeTags.Update(ref pSystemState);
+
         MultipleUnitSelectionCheckJob triggerJob = new ()
         {
-            allSelectedUnits = systemState.GetComponentLookup<SelectedUnitTag>(true),
-            allSelectionVolumes = systemState.GetComponentLookup<SelectionVolumeTag>(true),
+            allSelectedUnitTags = allSelectedUnitTags,
+            allSelectionVolumeTags = allSelectionVolumeTags,
             ecb = ecb
         };
 
-        systemState.Dependency = triggerJob.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), systemState.Dependency);
-        systemState.Dependency.Complete();
-        ecb.Playback(systemState.EntityManager);
+        pSystemState.Dependency = triggerJob.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), pSystemState.Dependency);
+        pSystemState.Dependency.Complete();
+        ecb.Playback(pSystemState.EntityManager);
     }
 }

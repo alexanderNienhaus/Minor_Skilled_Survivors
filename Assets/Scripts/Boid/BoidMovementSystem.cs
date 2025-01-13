@@ -12,11 +12,13 @@ public partial struct BoidMovementSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState pSystemState)
     {
+        pSystemState.RequireForUpdate<BoidSettings>();
+        pSystemState.RequireForUpdate<Boid>();
+
         EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
         entityQueryDesc.WithAll<LocalTransform, Boid>();
         query = pSystemState.GetEntityQuery(entityQueryDesc);
-        pSystemState.RequireForUpdate<BoidSettings>();
-        pSystemState.RequireForUpdate<Boid>();
+        entityQueryDesc.Dispose();
     }
 
     [BurstCompile]
@@ -30,7 +32,7 @@ public partial struct BoidMovementSystem : ISystem
             boidSettings = SystemAPI.GetSingleton<BoidSettings>(),
             deltaTime = SystemAPI.Time.DeltaTime
         };
-        boidMovementJob.ScheduleParallel();
+        pSystemState.Dependency = boidMovementJob.ScheduleParallel(pSystemState.Dependency);
     }
 }
 

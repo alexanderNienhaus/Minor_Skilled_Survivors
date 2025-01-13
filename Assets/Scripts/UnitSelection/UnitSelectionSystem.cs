@@ -135,7 +135,7 @@ public partial class UnitSelectionSystem : SystemBase
             Camera.main.ScreenPointToRay(new Vector2(rect.xMax, rect.yMin))
         };
 
-        NativeArray<float3> vertices = new NativeArray<float3>(5, Allocator.Temp);
+        NativeArray<float3> vertices = new (5, Allocator.Temp);
         for (int i = 0; i < cornerRays.Length; i++)
         {
             vertices[i] = cornerRays[i].GetPoint(selectionAreaDepth);
@@ -174,8 +174,7 @@ public partial class UnitSelectionSystem : SystemBase
 
     private void DeselectAllUnits()
     {
-        foreach ((RefRO<SelectedUnitTag> selectedTag, Entity entity)
-            in SystemAPI.Query<RefRO<SelectedUnitTag>>().WithEntityAccess())
+        foreach ((RefRO<SelectedUnitTag> selectedTag, Entity entity) in SystemAPI.Query<RefRO<SelectedUnitTag>>().WithEntityAccess())
         {
             EntityManager.SetComponentEnabled<SelectedUnitTag>(entity, false);
         }

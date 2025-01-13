@@ -7,12 +7,18 @@ using Unity.Transforms;
 public partial class TankAttackingSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
+    private EntityQuery query;
 
     [BurstCompile]
     protected override void OnCreate()
     {
         RequireForUpdate<Resource>();
         RequireForUpdate<Tank>();
+
+        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
+        entityQueryDesc.WithAll<Attackable, LocalTransform>().WithAny<Drone>();
+        query = GetEntityQuery(entityQueryDesc);
+        entityQueryDesc.Dispose();
     }
 
     [BurstCompile]
@@ -21,28 +27,16 @@ public partial class TankAttackingSystem : SystemBase
         beginSimulationEcbSystem = World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginSimulationEcbSystem.CreateCommandBuffer();
 
-        GetEnemyEntityArray(out NativeArray<Entity> entityEnemyArray);
-
         TankAttackingJob tankAttackingJob = new()
         {
             ecbParallelWriter = ecb.AsParallelWriter(),
             allAttackables = GetComponentLookup<Attackable>(),
             allLocalTransforms = GetComponentLookup<LocalTransform>(true),
-            allEntityEnemies = entityEnemyArray,
+            allEntityEnemies = query.ToEntityArray(Allocator.TempJob),
             resource = SystemAPI.GetSingletonRW<Resource>(),
             deltaTime = SystemAPI.Time.DeltaTime
         };
         Dependency = tankAttackingJob.ScheduleParallel(Dependency);
         beginSimulationEcbSystem.AddJobHandleForProducer(Dependency);
-    }
-
-    [BurstCompile]
-    private void GetEnemyEntityArray(out NativeArray<Entity> pEntityEnemyArray)
-    {
-        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
-        entityQueryDesc.WithAll<Attackable, LocalTransform>().WithAny<Drone>();
-        EntityQuery query = GetEntityQuery(entityQueryDesc);
-        pEntityEnemyArray = query.ToEntityArray(Allocator.Persistent);
-        entityQueryDesc.Dispose();
     }
 }

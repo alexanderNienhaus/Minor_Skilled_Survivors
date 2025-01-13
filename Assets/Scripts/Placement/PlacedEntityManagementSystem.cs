@@ -28,19 +28,17 @@ public partial class PlacedEntityManagementSystem : SystemBase
         ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
         if (spawn)
         {
-            foreach (DynamicBuffer<PlacableEntityBuffer> gridObjectSpawner in SystemAPI.Query<DynamicBuffer<PlacableEntityBuffer>>())
+            DynamicBuffer<PlacableEntityBuffer> gridObjectSpawner = SystemAPI.GetSingletonBuffer<PlacableEntityBuffer>(true);
+            Entity placedEntity = ecb.Instantiate(gridObjectSpawner[index].prefab);
+            ecb.SetComponent(placedEntity, new LocalTransform
             {
-                Entity placedEntity = ecb.Instantiate(gridObjectSpawner[index].prefab);
-                ecb.SetComponent(placedEntity, new LocalTransform
-                {
-                    Position = worldPos,
-                    Rotation = rotation,
-                    Scale = scale
-                });
-                ecb.AddComponent<Parent>(placedEntity);
-                ecb.SetComponent(placedEntity, new Parent { Value = gridObjectSpawner[index].parent });
-                ecb.SetComponent(placedEntity, new PlacedObjectTag { id = id });
-            }
+                Position = worldPos,
+                Rotation = rotation,
+                Scale = scale
+            });
+            ecb.AddComponent<Parent>(placedEntity);
+            ecb.SetComponent(placedEntity, new Parent { Value = gridObjectSpawner[index].parent });
+            ecb.SetComponent(placedEntity, new PlacedObjectTag { id = id });
             spawn = false;
         }
 

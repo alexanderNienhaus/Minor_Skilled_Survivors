@@ -148,7 +148,7 @@ public partial struct BoidMovementJob : IJobEntity
     private NativeArray<float3> GetDirections()
     {
         int numViewDirections = 300;
-        NativeArray<float3> directions = new NativeArray<float3>(numViewDirections, Allocator.Temp);
+        NativeArray<float3> directions = new (numViewDirections, Allocator.Temp);
 
         float goldenRatio = (1 + math.sqrt(5)) / 2;
         float angleIncrement = math.PI * 2 * goldenRatio;

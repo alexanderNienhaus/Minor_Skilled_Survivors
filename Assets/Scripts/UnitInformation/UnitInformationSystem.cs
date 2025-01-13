@@ -6,35 +6,47 @@ using Unity.Transforms;
 
 partial struct UnitInformationSystem : ISystem
 {
+    private EntityQuery enemyUnitQuery;
+    private EntityQuery friendlyUnitQuery;
+
     [BurstCompile]
-    public void OnCreate(ref SystemState pState)
+    public void OnCreate(ref SystemState pSystemState)
     {
-        
+        pSystemState.RequireForUpdate<EnemyUnitCount>();
+        pSystemState.RequireForUpdate<FriendlyUnitCount>();
+        pSystemState.RequireForUpdate<GroupPosition>();
+
+        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
+        entityQueryDesc.WithAny<Boid, Drone>();
+        enemyUnitQuery = pSystemState.GetEntityQuery(entityQueryDesc);
+
+        entityQueryDesc = new(Allocator.Temp);
+        entityQueryDesc.WithAll<Attackable>().WithNone<Boid, Drone>();
+        friendlyUnitQuery = pSystemState.GetEntityQuery(entityQueryDesc);
+
+        entityQueryDesc.Dispose();
     }
 
     [BurstCompile]
-    public void OnUpdate(ref SystemState pState)
+    public void OnUpdate(ref SystemState pSystemState)
     {
-        /*
-        int enemyUnitCount = GetEnemyUnitCount(ref pState);
+        int enemyUnitCount = GetEnemyUnitCount(ref pSystemState);
         SystemAPI.GetSingletonRW<EnemyUnitCount>().ValueRW.count = enemyUnitCount;
 
-        int friendlyUnitCount = GetFriendlyUnitCount(ref pState);
+        int friendlyUnitCount = GetFriendlyUnitCount(ref pSystemState);
         SystemAPI.GetSingletonRW<FriendlyUnitCount>().ValueRW.count = friendlyUnitCount;
 
-        float3 groupPos = GetSelectedUnitGroupPosition(friendlyUnitCount, ref pState);
+        float3 groupPos = GetSelectedUnitGroupPosition(friendlyUnitCount, ref pSystemState);
         SystemAPI.GetSingletonRW<GroupPosition>().ValueRW.pos = groupPos;
-        */
     }
 
-    private float3 GetSelectedUnitGroupPosition(int friendlyUnitCount, ref SystemState pState)
+    private float3 GetSelectedUnitGroupPosition(int friendlyUnitCount, ref SystemState pSystemState)
     {
         if (friendlyUnitCount == 0)
             return float3.zero;
 
         float3 cumulativePos = float3.zero;
-        foreach ((RefRO<PathFollow> pathFollow, RefRO<LocalTransform> localTransform)
-            in SystemAPI.Query<RefRO<PathFollow>, RefRO<LocalTransform>>().WithAll<SelectedUnitTag>())
+        foreach ((RefRO<PathFollow> pathFollow, RefRO<LocalTransform> localTransform) in SystemAPI.Query<RefRO<PathFollow>, RefRO<LocalTransform>>().WithAll<SelectedUnitTag>())
         {
             cumulativePos += localTransform.ValueRO.Position;
         }
@@ -42,27 +54,13 @@ partial struct UnitInformationSystem : ISystem
          return cumulativePos / friendlyUnitCount;
     }
 
-    private int GetEnemyUnitCount(ref SystemState pState)
+    private int GetEnemyUnitCount(ref SystemState pSystemState)
     {
-        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
-        entityQueryDesc.WithAny<Boid, Drone>();
-        EntityQuery query = pState.GetEntityQuery(entityQueryDesc);
-        entityQueryDesc.Dispose();
-        return query.CalculateEntityCount();
+        return enemyUnitQuery.CalculateEntityCount();
     }
 
-    private int GetFriendlyUnitCount(ref SystemState pState)
+    private int GetFriendlyUnitCount(ref SystemState pSystemState)
     {
-        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
-        entityQueryDesc.WithAll<Attackable>().WithNone<Boid, Drone>();
-        EntityQuery query = pState.GetEntityQuery(entityQueryDesc);
-        entityQueryDesc.Dispose();
-        return query.CalculateEntityCount();
-    }
-
-    [BurstCompile]
-    public void OnDestroy(ref SystemState pState)
-    {
-        
+        return friendlyUnitQuery.CalculateEntityCount();
     }
 }

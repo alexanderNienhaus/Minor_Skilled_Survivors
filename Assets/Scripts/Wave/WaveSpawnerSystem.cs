@@ -20,7 +20,7 @@ partial struct WaveSpawnerSystem : ISystem
         if (!waveSpawning.ValueRO.doSpawn)
             return;
 
-        NativeArray<Entity> instiatedEntities = state.EntityManager.Instantiate(waveSpawning.ValueRO.prefab, waveSpawning.ValueRO.amountToSpawn, Allocator.Persistent);
+        NativeArray<Entity> instiatedEntities = state.EntityManager.Instantiate(waveSpawning.ValueRO.prefab, waveSpawning.ValueRO.amountToSpawn, Allocator.Temp);
 
         Random r = new ((uint)(waveSpawning.ValueRO.amountToSpawn + waveSpawning.ValueRO.spawnPosition.x));
         for (int i = 0; i < waveSpawning.ValueRO.amountToSpawn; i++)

@@ -1383,6 +1383,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 619246132}
+  - component: {fileID: 619246135}
   - component: {fileID: 619246134}
   - component: {fileID: 619246133}
   m_Layer: 5
@@ -1509,6 +1510,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 619246131}
   m_CullTransparentMesh: 1
+--- !u!114 &619246135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619246131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 485e1727af8ca044ba743af0620df617, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textField: {fileID: 619246133}
+  text: 'Unit count: '
 --- !u!1 &848025820
 GameObject:
   m_ObjectHideFlags: 0
@@ -1570,6 +1585,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 979252924}
+  - component: {fileID: 979252927}
   - component: {fileID: 979252926}
   - component: {fileID: 979252925}
   m_Layer: 5
@@ -1696,6 +1712,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 979252923}
   m_CullTransparentMesh: 1
+--- !u!114 &979252927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 979252923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e1a9d0c04decd45b3e75d3cc1ad8b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textField: {fileID: 979252925}
+  text: 'Enemy count: '
 --- !u!1 &1014963835
 GameObject:
   m_ObjectHideFlags: 0

@@ -45,7 +45,7 @@ public partial class WaveSystem : SystemBase
         topSpawn = new float3(225, 2, -185);
         midSpawn = new float3(225, 2, 0);
         botSpawn = new float3(225, 2, 185);
-        numberOfEnemiesPerWave = new NativeArray<int>(4, Allocator.Persistent);
+        numberOfEnemiesPerWave = new (4, Allocator.Persistent);
     }
 
     [BurstCompile]
@@ -176,8 +176,7 @@ public partial class WaveSystem : SystemBase
         if (!queueRadiostationSpawn)
             return;
 
-        foreach ((RefRW<RadioStation> radioStation, RefRO<LocalTransform> localTransform)
-            in SystemAPI.Query<RefRW<RadioStation>, RefRO<LocalTransform>>())
+        foreach ((RefRW<RadioStation> radioStation, RefRO<LocalTransform> localTransform) in SystemAPI.Query<RefRW<RadioStation>, RefRO<LocalTransform>>())
         {
             if (radioStation.ValueRO.hasSpawned)
                 continue;
@@ -198,5 +197,11 @@ public partial class WaveSystem : SystemBase
             radioStation.ValueRW.hasSpawned = true;
             queueRadiostationSpawn = false;
         }
+    }
+
+    [BurstCompile]
+    protected override void OnDestroy()
+    {
+        numberOfEnemiesPerWave.Dispose();
     }
 }

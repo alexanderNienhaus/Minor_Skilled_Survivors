@@ -17,6 +17,7 @@ public partial struct AATurretAttackingJob : IJobEntity
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Attackable> allAttackables;
     [NativeDisableContainerSafetyRestriction] [ReadOnly] public ComponentLookup<LocalTransform> allLocalTransforms;
     [ReadOnly] public ComponentLookup<PhysicsVelocity> allPhysicsVelocities;
+    [ReadOnly] public CollisionWorld collisionWorld;
     [NativeDisableUnsafePtrRestriction] public RefRW<Resource> resource;
     public float deltaTime;
 
@@ -25,6 +26,10 @@ public partial struct AATurretAttackingJob : IJobEntity
     [BurstCompile]
     public void Execute(ref LocalTransform pLocalTransformAATurret, ref AATurret pAATurret, ref Attacking pAttackingAATurret, Entity aaTurretEntity, [ChunkIndexInQuery] int pChunkIndexInQuery)
     {
+        pAttackingAATurret.currentTime += deltaTime;
+        if (pAttackingAATurret.currentTime <= pAttackingAATurret.attackSpeed)
+            return;
+
         children = em.GetBuffer<LinkedEntityGroup>(aaTurretEntity);
         for (int i = 0; i < allEntityEnemies.Length; i++)
         {
@@ -33,22 +38,20 @@ public partial struct AATurretAttackingJob : IJobEntity
             Attackable attackableEnemy = allAttackables[enemyEntity];
             PhysicsVelocity physicsVelocityEnemy = allPhysicsVelocities[enemyEntity];
 
-            float3 aaTurretToEnemy = localTransformEnemy.Position + attackableEnemy.halfBounds - pLocalTransformAATurret.Position;
-
+            float3 enemyPos = localTransformEnemy.Position + attackableEnemy.halfBounds;
+            float3 aaTurretToEnemy = enemyPos - pLocalTransformAATurret.Position;
             float distanceAATurretToEnemySq = math.lengthsq(aaTurretToEnemy);
             if (distanceAATurretToEnemySq - attackableEnemy.boundsRadius * attackableEnemy.boundsRadius >= pAttackingAATurret.range * pAttackingAATurret.range)
                 continue;
 
-            pAttackingAATurret.currentTime += deltaTime;
-            if (pAttackingAATurret.currentTime <= pAttackingAATurret.attackSpeed)
-                return;
+            if (Raycast(localTransformEnemy.Position, enemyPos, out _))
+                continue;
 
-            ecbParallelWriter = SpawnProjectile(ecbParallelWriter, pAATurret, pAttackingAATurret, pLocalTransformAATurret.Position, localTransformEnemy.Position,
-                physicsVelocityEnemy, deltaTime, pChunkIndexInQuery);
             pAttackingAATurret.currentTime = 0;
+            ecbParallelWriter = SpawnProjectile(ecbParallelWriter, pAATurret, pAttackingAATurret, pLocalTransformAATurret.Position, enemyPos,
+                physicsVelocityEnemy, deltaTime, pChunkIndexInQuery);
 
-            allAttackables.GetRefRW(enemyEntity).ValueRW.currentHp -= pAttackingAATurret.dmg;
-            
+            allAttackables.GetRefRW(enemyEntity).ValueRW.currentHp -= pAttackingAATurret.dmg;            
             if (attackableEnemy.currentHp - pAttackingAATurret.dmg > 0)
                 continue;
             
@@ -57,6 +60,22 @@ public partial struct AATurretAttackingJob : IJobEntity
 
             return;
         }
+    }
+
+    [BurstCompile]
+    private bool Raycast(float3 pRayStart, float3 pRayEnd, out RaycastHit pRaycastHit)
+    {
+        RaycastInput raycastInput = new RaycastInput
+        {
+            Start = pRayStart,
+            End = pRayEnd,
+            Filter = new CollisionFilter
+            {
+                BelongsTo = (uint)CollisionLayers.AATurret,
+                CollidesWith = (uint)(CollisionLayers.Building)
+            }
+        };
+        return collisionWorld.CastRay(raycastInput, out pRaycastHit);
     }
 
     [BurstCompile]

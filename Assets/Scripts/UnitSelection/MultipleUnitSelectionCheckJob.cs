@@ -8,8 +8,8 @@ public struct MultipleUnitSelectionCheckJob : ITriggerEventsJob
 {
     public EntityCommandBuffer ecb;
 
-    [ReadOnly] public ComponentLookup<SelectedUnitTag> allSelectedUnits;
-    [ReadOnly] public ComponentLookup<SelectionVolumeTag> allSelectionVolumes;
+    [ReadOnly] public ComponentLookup<SelectedUnitTag> allSelectedUnitTags;
+    [ReadOnly] public ComponentLookup<SelectionVolumeTag> allSelectionVolumeTags;
 
     [BurstCompile]
     public void Execute(TriggerEvent pTriggerEvent)
@@ -17,13 +17,13 @@ public struct MultipleUnitSelectionCheckJob : ITriggerEventsJob
         Entity entityA = pTriggerEvent.EntityA;
         Entity entityB = pTriggerEvent.EntityB;
 
-        if (!allSelectedUnits.HasComponent(entityA) || !allSelectedUnits.HasComponent(entityB))
+        if (!allSelectedUnitTags.HasComponent(entityA) || !allSelectedUnitTags.HasComponent(entityB))
         {
-            if (allSelectedUnits.HasComponent(entityA) && allSelectionVolumes.HasComponent(entityB))
+            if (allSelectedUnitTags.HasComponent(entityA) && allSelectionVolumeTags.HasComponent(entityB))
             {
                 ecb.SetComponentEnabled<SelectedUnitTag>(entityA, true);
             }
-            else if (allSelectedUnits.HasComponent(entityB) && allSelectionVolumes.HasComponent(entityA))
+            else if (allSelectedUnitTags.HasComponent(entityB) && allSelectionVolumeTags.HasComponent(entityA))
             {
                 ecb.SetComponentEnabled<SelectedUnitTag>(entityB, true);
             }

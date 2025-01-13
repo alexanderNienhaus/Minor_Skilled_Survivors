@@ -16,7 +16,7 @@ public partial class DestroySelectionIndicatorSystem : SystemBase
     {
         EntityCommandBuffer ecb = beginInitializationEcbSystem.CreateCommandBuffer();
 
-        foreach ((RefRO<SelectionIndicatorData> selectionIndicatorData, Entity entity)
+        foreach ((RefRO<SelectionIndicatorData> selectionIndicatorData, Entity entity) 
             in SystemAPI.Query<RefRO<SelectionIndicatorData>>().WithNone<SelectedUnitTag>().WithEntityAccess())
         {
             ecb.RemoveComponent<SelectionIndicatorData>(entity);

@@ -29,7 +29,7 @@ public partial struct FindTankPathJob : IJobEntity
         pathPositions[pEntity].Clear();
         cellMiddleOffset = new float3(1, 0, 1) * gridCellSize * 0.5f;
         gridWidth = gridSize.x;
-        NativeArray<PathNode> tmpPathNodeArray = new NativeArray<PathNode>(pathNodeArray, Allocator.Temp);
+        NativeArray<PathNode> tmpPathNodeArray = new (pathNodeArray, Allocator.Temp);
 
         //Get start pos
         int2 startNodePos = GetNearestCornerXZ(pLocalTransform.Position);
@@ -89,6 +89,7 @@ public partial struct FindTankPathJob : IJobEntity
             pathFollow.groupMovement = groupMovement;
             pathFollow.isInAttackMode = isInAttackMode;
         }
+        tmpPathNodeArray.Dispose();
     }
 
     [BurstCompile]
@@ -109,7 +110,7 @@ public partial struct FindTankPathJob : IJobEntity
     [BurstCompile]
     private int FindEndCandidate(int2 centerEndNode, float3 preciseEndPos, NativeArray<PathNode> tmpPathNodeArray)
     {
-        NativeArray<int2> movementArray = new NativeArray<int2>(5, Allocator.Temp);
+        NativeArray<int2> movementArray = new (5, Allocator.Temp);
         movementArray[0] = new int2(-1, 1); //Left Up
         movementArray[1] = new int2(0, -1); //Down
         movementArray[2] = new int2(1, 0); //Right
@@ -120,7 +121,7 @@ public partial struct FindTankPathJob : IJobEntity
         for (int distance = 1; distance < maxDistance; distance++)
         {
             int numberOfCellsInDistance = 4 + 4 * (distance * 2 - 1);
-            NativeList<int> freeCells = new NativeList<int>(numberOfCellsInDistance, Allocator.Temp);
+            NativeList<int> freeCells = new (numberOfCellsInDistance, Allocator.Temp);
 
             int2 neighbourPos = centerEndNode + new int2(distance * movementArray[0].x, distance * movementArray[0].y);
 
@@ -159,10 +160,12 @@ public partial struct FindTankPathJob : IJobEntity
                     }
                 }
                 freeCells.Dispose();
+                movementArray.Dispose();
                 return shortestDistancePathNodeIndex;
             }
             freeCells.Dispose();
         }
+        movementArray.Dispose();
         return -1;
     }
 

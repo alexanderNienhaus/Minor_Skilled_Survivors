@@ -45,7 +45,7 @@ public struct ThetaStar
             tmpPathNodeArray[i] = pathNode;
         }
 
-        NativeArray<int2> neighbourOffsetArray = new NativeArray<int2>(8, Allocator.Temp);
+        NativeArray<int2> neighbourOffsetArray = new (8, Allocator.Temp);
         neighbourOffsetArray[0] = new int2(-1, 0); //Left
         neighbourOffsetArray[1] = new int2(1, 0); //Right
         neighbourOffsetArray[2] = new int2(0, 1); //Up
@@ -54,8 +54,8 @@ public struct ThetaStar
         neighbourOffsetArray[5] = new int2(-1, 1); //Left Up
         neighbourOffsetArray[6] = new int2(1, 1); //Right Down
         neighbourOffsetArray[7] = new int2(1, 1); //Right Up
-        NativeList<int> openList = new NativeList<int>(Allocator.Temp);
-        NativeList<int> closedList = new NativeList<int>(Allocator.Temp);
+        NativeList<int> openList = new (Allocator.Temp);
+        NativeList<int> closedList = new (Allocator.Temp);
         openList.Add(startNodeIndex);
 
         while (openList.Length > 0)
@@ -91,9 +91,9 @@ public struct ThetaStar
             }
         }
 
-        //neighbourOffsetArray.Dispose();
-        //openList.Dispose();
-        //closedList.Dispose();
+        neighbourOffsetArray.Dispose();
+        openList.Dispose();
+        closedList.Dispose();
         //tmpPathNodeArray.Dispose();
     }
 

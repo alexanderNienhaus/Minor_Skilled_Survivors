@@ -27,16 +27,14 @@ public partial struct DroneAttackingJob : IJobEntity
             LocalTransform localTransformUnit = allLocalTransforms[unitEntity];
             Attackable attackableUnit = allAttackables[unitEntity];
 
-            if (unitEntity == null)
-                return;
-
-            float3 droneToUnit = localTransformUnit.Position + attackableUnit.halfBounds - pLocalTransformDrone.Position;
+            float3 unitPos = localTransformUnit.Position + attackableUnit.halfBounds;
+            float3 droneToUnit = unitPos - pLocalTransformDrone.Position;
 
             float distanceDroneToUnitSq = math.lengthsq(droneToUnit);
-            if (distanceDroneToUnitSq - attackableUnit.boundsRadius * attackableUnit.boundsRadius >= pAttackingDrone.range * pAttackingDrone.range)
+            if (distanceDroneToUnitSq - (attackableUnit.boundsRadius * attackableUnit.boundsRadius) >= (pAttackingDrone.range * pAttackingDrone.range))
                 continue;
 
-            pPathFollowDrone.enemyPos = localTransformUnit.Position;
+            pPathFollowDrone.enemyPos = unitPos;
 
             pAttackingDrone.currentTime += deltaTime;
             if (pAttackingDrone.currentTime <= pAttackingDrone.attackSpeed)

@@ -2,7 +2,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 public enum SpawnPoint
 {
@@ -11,6 +10,7 @@ public enum SpawnPoint
     Bot
 }
 
+[BurstCompile]
 [UpdateAfter(typeof(RegisterMapLayoutSystem))]
 public partial class DronePathFindingSystem : SystemBase
 {
@@ -23,12 +23,14 @@ public partial class DronePathFindingSystem : SystemBase
     private float3 botSpawn;
     private bool doOnce;
 
+    [BurstCompile]
     protected override void OnCreate()
     {
         doOnce = true;
         RequireForUpdate<Base>();
     }
 
+    [BurstCompile]
     protected override void OnUpdate()
     {
         if (doOnce)
@@ -45,8 +47,7 @@ public partial class DronePathFindingSystem : SystemBase
         beginFixedStepSimulationEcbSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginFixedStepSimulationEcbSystem.CreateCommandBuffer();
 
-        foreach ((RefRW<Drone> drone, Entity entity)
-            in SystemAPI.Query<RefRW<Drone>>().WithEntityAccess())
+        foreach ((RefRW<Drone> drone, Entity entity) in SystemAPI.Query<RefRW<Drone>>().WithEntityAccess())
         {
             if (drone.ValueRO.foundPath)
                 continue;
@@ -69,6 +70,7 @@ public partial class DronePathFindingSystem : SystemBase
         }
     }
 
+    [BurstCompile]
     public NativeList<PathPositions> FindPath(float3 startPos)
     {
         GridXZ<GridNode> grid = PathfindingGridSetup.Instance.pathfindingGrid;
@@ -91,7 +93,7 @@ public partial class DronePathFindingSystem : SystemBase
         NativeArray<PathNode> tmpPathNodeArray = GetPathNodeArray(grid, gridSize);
         thetaStar.FindPath(ref tmpPathNodeArray);
 
-        NativeList<PathPositions> path = new(gridSize.x * gridSize.y, Allocator.Persistent);
+        NativeList<PathPositions> path = new(gridSize.x * gridSize.y, Allocator.TempJob);
         PathNode endNode = tmpPathNodeArray[endNodeIndex];
         if (endNode.cameFromNodeIndex == -1)
         {
@@ -181,7 +183,7 @@ public partial class DronePathFindingSystem : SystemBase
 
     private NativeArray<PathNode> GetPathNodeArray(GridXZ<GridNode> pGrid, int2 pGridSize)
     {
-        NativeArray<PathNode> pathNodeArray = new NativeArray<PathNode>(pGridSize.x * pGridSize.y, Allocator.Persistent);
+        NativeArray<PathNode> pathNodeArray = new (pGridSize.x * pGridSize.y, Allocator.TempJob);
 
         for (int x = 0; x < pGridSize.x; x++)
         {

@@ -18,6 +18,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
     protected override void OnCreate()
     {
         RequireForUpdate<SelectedUnitTag>();
+        RequireForUpdate<FriendlyUnitCount>();
         nextMoveAttack = false;
         movementOrder = "Movement order issued for ";
         attackOrder = "Attack order issued for ";
@@ -47,11 +48,11 @@ public partial class SelectedTankPathFindingSystem : SystemBase
             if (math.all(mouseEndPos == float3.zero))
                 return;
 
-            SelectedUnitInformationSystem selectedUnitCountSystem = World.GetOrCreateSystemManaged<SelectedUnitInformationSystem>();
-            selectedUnitCountSystem.UpdateSelectedUnitInfo();
-            float3 groupStartPos = selectedUnitCountSystem.GetGroupStartPos();
+            //SelectedUnitInformationSystem selectedUnitCountSystem = World.GetOrCreateSystemManaged<SelectedUnitInformationSystem>();
+            //selectedUnitCountSystem.UpdateSelectedUnitInfo();
+            float3 groupStartPos = SystemAPI.GetSingleton<GroupPosition>().pos; //selectedUnitCountSystem.GetGroupStartPos();
             float3 currentGroupMovement = mouseEndPos - groupStartPos;
-            int selectedUnitCount = selectedUnitCountSystem.GetSelectedUnitCount();
+            int selectedUnitCount = SystemAPI.GetSingleton<FriendlyUnitCount>().count; //selectedUnitCountSystem.GetSelectedUnitCount();
             if (selectedUnitCount == 0)
                 return;
 
@@ -69,7 +70,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
                 thetaStar = new ThetaStar(),
                 isInAttackMode = nextMoveAttack
             };
-            findGroupPathJob.ScheduleParallel();
+            Dependency = findGroupPathJob.ScheduleParallel(Dependency);
 
             EventBus<OnInfoMenuTextChangeEvent>.Publish(new OnInfoMenuTextChangeEvent((nextMoveAttack ? attackOrder : movementOrder) + selectedUnitCount + untis));
             nextMoveAttack = false;
@@ -125,7 +126,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
 
     private NativeArray<PathNode> GetPathNodeArray(GridXZ<GridNode> pGrid, int2 pGridSize)
     {
-        NativeArray<PathNode> pathNodeArray = new(pGridSize.x * pGridSize.y, Allocator.Persistent);
+        NativeArray<PathNode> pathNodeArray = new(pGridSize.x * pGridSize.y, Allocator.TempJob);
 
         for (int x = 0; x < pGridSize.x; x++)
         {
@@ -156,7 +157,7 @@ public partial class SelectedTankPathFindingSystem : SystemBase
         int boxSize = (int)math.ceil(math.sqrt(selectedUnitCount));
         int excessPositions = boxSize * boxSize - selectedUnitCount;
 
-        NativeArray<float3> endPositionOffsets = new (boxSize * boxSize, Allocator.Persistent);
+        NativeArray<float3> endPositionOffsets = new (boxSize * boxSize, Allocator.Temp);
         if (boxSize == 1)
         {
             endPositionOffsets[0] = mousePos;

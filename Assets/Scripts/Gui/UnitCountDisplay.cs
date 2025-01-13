@@ -9,6 +9,6 @@ public class UnitCountDisplay : MonoBehaviour
 
     private void Update()
     {
-        //textField.SetText(text + SystemAPI.GetSingleton<EnemyUnitCount>());
+        textField.SetText(text + World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<UnitInformationBridgeSystem>().GetFriendlyUnitCount());
     }
 }

@@ -16,4 +16,4 @@ MonoBehaviour:
   startHp: 15000
   ressourceCost: 25
   halfBounds: {x: 6, y: 3, z: 6}
-  boundsRadius: 3
+  boundsRadius: 0

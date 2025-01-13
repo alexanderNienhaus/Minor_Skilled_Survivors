@@ -37,9 +37,7 @@ public partial class RegisterMapLayoutSystem : SystemBase
                     positionOffset = new float3(registerMapLayout.ValueRO.halfBoundsX * 2, 0, registerMapLayout.ValueRO.halfBoundsZ * 2);
                     break;
             }
-            gridObjectPlacementInstance.GetGridPosFromWorldPos(
-                localTransform.ValueRO.Position - positionOffset,
-                out int x, out int z);
+            gridObjectPlacementInstance.GetGridPosFromWorldPos(localTransform.ValueRO.Position - positionOffset, out int x, out int z);
             List<Vector2Int> gridPosList = gridObjectPlacementInstance.GetGridPosList(x, z);
 
             gridObjectPlacementInstance.PlaceBuilding(x, z, gridPosList, false);

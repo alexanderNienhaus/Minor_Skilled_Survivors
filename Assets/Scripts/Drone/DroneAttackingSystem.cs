@@ -8,11 +8,17 @@ using Unity.Transforms;
 public partial class DroneAttackingSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
+    private EntityQuery query;
 
     [BurstCompile]
     protected override void OnCreate()
     {
         RequireForUpdate<Drone>();
+
+        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
+        entityQueryDesc.WithAll<Attackable, LocalTransform>().WithNone<Drone, Boid>();
+        query = GetEntityQuery(entityQueryDesc);
+        entityQueryDesc.Dispose();
     }
 
     [BurstCompile]
@@ -21,27 +27,15 @@ public partial class DroneAttackingSystem : SystemBase
         beginSimulationEcbSystem = World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = beginSimulationEcbSystem.CreateCommandBuffer();
 
-        GetUnitEntityArray(out NativeArray<Entity> entityUnitArray);
-
         DroneAttackingJob droneAttackingJob = new()
         {
             ecbParallelWriter = ecb.AsParallelWriter(),
             allAttackables = GetComponentLookup<Attackable>(),
             allLocalTransforms = GetComponentLookup<LocalTransform>(true),
-            allUnitEntities = entityUnitArray,
+            allUnitEntities = query.ToEntityArray(Allocator.TempJob),
             deltaTime = SystemAPI.Time.DeltaTime
         };
         Dependency = droneAttackingJob.ScheduleParallel(Dependency);
         beginSimulationEcbSystem.AddJobHandleForProducer(Dependency);
-    }
-
-    [BurstCompile]
-    private void GetUnitEntityArray(out NativeArray<Entity> pEntityUnitArray)
-    {
-        EntityQueryBuilder entityQueryDesc = new(Allocator.Temp);
-        entityQueryDesc.WithAll<Attackable, LocalTransform>().WithNone<Drone, Boid>();
-        EntityQuery query = GetEntityQuery(entityQueryDesc);
-        pEntityUnitArray = query.ToEntityArray(Allocator.Persistent);
-        entityQueryDesc.Dispose();
     }
 }
