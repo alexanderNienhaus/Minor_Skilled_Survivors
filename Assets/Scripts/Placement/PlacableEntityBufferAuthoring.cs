@@ -11,7 +11,7 @@ public class PlacableEntityBufferAuthoring : MonoBehaviour
     {
         public override void Bake(PlacableEntityBufferAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.None);
+            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddBuffer<PlacableEntityBuffer>(entity);
             foreach (GameObject prefab in pAuthoring.prefabs)
             {

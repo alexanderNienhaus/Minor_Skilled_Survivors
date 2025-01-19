@@ -12,7 +12,7 @@ public class RegisterMapLayoutAuthoring : MonoBehaviour
     {
         public override void Bake(RegisterMapLayoutAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.None);
+            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new RegisterMapLayout
             {
                 type = pAuthoring.type,

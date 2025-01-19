@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using CodeMonkey;
 
 public class GridXZ<TGridObject>
 {
@@ -39,12 +40,12 @@ public class GridXZ<TGridObject>
             TextMesh[,] debugTextArray = new TextMesh[width, length];
 
             int steps = 2;
-            //bool middleOfCell = false;
+            bool middleOfCell = false;
             for (int x = 0; x < gridArray.GetLength(0); x += steps)
             {
                 for (int z = 0; z < gridArray.GetLength(1); z += steps)
                 {
-                    //debugTextArray[x, z] = UtilsClass.CreateWorldText(gridArray[x, z]?.ToString(), null, GetWorldPositionXZ(x, z) + (middleOfCell ? new Vector3(cellSize, 0, cellSize) * 0.5f : Vector3.zero), pDebugTextSize, Color.white, TextAnchor.MiddleCenter);
+                    debugTextArray[x, z] = CodeMonkey.Utils.UtilsClass.CreateWorldText(gridArray[x, z]?.ToString(), null, GetWorldPositionXZ(x, z) + (middleOfCell ? new Vector3(cellSize, 0, cellSize) * 0.5f : Vector3.zero), pDebugTextSize, Color.white, TextAnchor.MiddleCenter);
                     Debug.DrawLine(GetWorldPositionXZ(x, z), GetWorldPositionXZ(x, z + (int)cellSize), Color.white, 1000f);
                     Debug.DrawLine(GetWorldPositionXZ(x, z), GetWorldPositionXZ(x + (int)cellSize, z), Color.white, 1000f);
                 }

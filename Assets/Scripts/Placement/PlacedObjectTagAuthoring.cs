@@ -8,7 +8,7 @@ public class PlacedObjectTagAuthoring : MonoBehaviour
     {
         public override void Bake(PlacedObjectTagAuthoring pAuthoring)
         {
-            Entity entity = GetEntity(TransformUsageFlags.None);
+            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new PlacedObjectTag
             {
             });
