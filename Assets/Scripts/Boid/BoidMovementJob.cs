@@ -5,6 +5,7 @@ using Unity.Transforms;
 using Unity.Physics;
 using Unity.Collections;
 using RaycastHit = Unity.Physics.RaycastHit;
+using System.Numerics;
 
 [BurstCompile]
 public partial struct BoidMovementJob : IJobEntity
@@ -69,11 +70,11 @@ public partial struct BoidMovementJob : IJobEntity
 
             float3 alignmentForce = SteerTowards(pBoid.avgFlockHeading, pBoid, pBoidSettings) * pBoidSettings.alignWeight;
             float3 cohesionForce = SteerTowards(offsetToFlockmatesCentre, pBoid, pBoidSettings) * pBoidSettings.cohesionWeight;
-            float3 seperationForce = SteerTowards(pBoid.avgAvoidanceHeading, pBoid, pBoidSettings) * pBoidSettings.seperateWeight;
+            float3 avoidanceForce = SteerTowards(pBoid.avgAvoidanceHeading, pBoid, pBoidSettings) * pBoidSettings.seperateWeight;
 
             acceleration += alignmentForce;
             acceleration += cohesionForce;
-            acceleration += seperationForce;
+            acceleration += avoidanceForce;
         }
 
         if (IsHeadingForCollision(pLocalTransform, pBoidSettings))
@@ -103,7 +104,7 @@ public partial struct BoidMovementJob : IJobEntity
 
     [BurstCompile]
     private bool Raycast(float3 pRayStart, float3 pRayEnd, out RaycastHit pRaycastHit)
-    {
+    {        
         RaycastInput raycastInput = new RaycastInput
         {
             Start = pRayStart,

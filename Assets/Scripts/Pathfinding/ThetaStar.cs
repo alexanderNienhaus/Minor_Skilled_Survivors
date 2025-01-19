@@ -40,20 +40,20 @@ public struct ThetaStar
         for (int i = 0; i < pTmpPathNodeArray.Length; i++)
         {
             PathNode pathNode = pTmpPathNodeArray[i];
-            pathNode.hCost = CalculateDistanceCost(new int2(pathNode.x, pathNode.z), endNodePos);
+            pathNode.hCost = CalculateDistanceCost(new (pathNode.x, pathNode.z), endNodePos);
             pathNode.cameFromNodeIndex = -1;
             pTmpPathNodeArray[i] = pathNode;
         }
 
         NativeArray<int2> neighbourOffsetArray = new (8, Allocator.Temp);
-        neighbourOffsetArray[0] = new int2(-1, 0); //Left
-        neighbourOffsetArray[1] = new int2(1, 0); //Right
-        neighbourOffsetArray[2] = new int2(0, 1); //Up
-        neighbourOffsetArray[3] = new int2(0, -1); //Down
-        neighbourOffsetArray[4] = new int2(-1, -1); //Left Down
-        neighbourOffsetArray[5] = new int2(-1, 1); //Left Up
-        neighbourOffsetArray[6] = new int2(1, 1); //Right Down
-        neighbourOffsetArray[7] = new int2(1, 1); //Right Up
+        neighbourOffsetArray[0] = new (-1, 0); //Left
+        neighbourOffsetArray[1] = new (1, 0); //Right
+        neighbourOffsetArray[2] = new (0, 1); //Up
+        neighbourOffsetArray[3] = new (0, -1); //Down
+        neighbourOffsetArray[4] = new (-1, -1); //Left Down
+        neighbourOffsetArray[5] = new (-1, 1); //Left Up
+        neighbourOffsetArray[6] = new (1, 1); //Right Down
+        neighbourOffsetArray[7] = new (1, 1); //Right Up
         NativeList<int> openList = new (Allocator.Temp);
         NativeList<int> closedList = new (Allocator.Temp);
         openList.Add(startNodeIndex);
@@ -73,7 +73,7 @@ public struct ThetaStar
             for (int i = 0; i < neighbourOffsetArray.Length; i++)
             {
                 int2 neighbourOffset = neighbourOffsetArray[i];
-                int2 neighbourPos = new int2(currentNode.x + neighbourOffset.x, currentNode.z + neighbourOffset.y);
+                int2 neighbourPos = new (currentNode.x + neighbourOffset.x, currentNode.z + neighbourOffset.y);
 
                 if (!IsPositionInsideGrid(neighbourPos, gridSize))
                     continue; //Neighbor outside grid
@@ -125,7 +125,7 @@ public struct ThetaStar
             fromNode = pCurrentNode;
         }
 
-        int2 fromNodePos = new int2(fromNode.x, fromNode.z);
+        int2 fromNodePos = new (fromNode.x, fromNode.z);
         int tentativeGCost = fromNode.gCost + CalculateDistanceCost(fromNodePos, pNeighbourPos);
 
         if (tentativeGCost >= pNeighbourNode.gCost)

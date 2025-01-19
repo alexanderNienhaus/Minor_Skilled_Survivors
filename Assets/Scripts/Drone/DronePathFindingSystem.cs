@@ -151,12 +151,12 @@ public partial class DronePathFindingSystem : SystemBase
             if (pWorldPos.y > woldPosCenter.y)
             {
                 float3 worldPosTopRight = worldPosBotLeft + new float3(pGridCellSize, 0, pGridCellSize);
-                return new int2((int)math.floor((worldPosTopRight - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosTopRight - pGridOriginPos).z / pGridCellSize));
+                return new ((int)math.floor((worldPosTopRight - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosTopRight - pGridOriginPos).z / pGridCellSize));
             }
             else
             {
                 float3 worldPosBotRight = worldPosBotLeft + new float3(pGridCellSize, 0, 0);
-                return new int2((int)math.floor((worldPosBotRight - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosBotRight - pGridOriginPos).z / pGridCellSize));
+                return new ((int)math.floor((worldPosBotRight - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosBotRight - pGridOriginPos).z / pGridCellSize));
             }
         }
         else
@@ -164,7 +164,7 @@ public partial class DronePathFindingSystem : SystemBase
             if (pWorldPos.y > woldPosCenter.y)
             {
                 float3 worldPosTopLeft = worldPosBotLeft + new float3(0, 0, pGridCellSize);
-                return new int2((int)math.floor((worldPosTopLeft - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosTopLeft - pGridOriginPos).z / pGridCellSize));
+                return new ((int)math.floor((worldPosTopLeft - pGridOriginPos).x / pGridCellSize), (int)math.floor((worldPosTopLeft - pGridOriginPos).z / pGridCellSize));
             }
             else
             {
@@ -197,7 +197,7 @@ public partial class DronePathFindingSystem : SystemBase
         {
             for (int z = 0; z < pGridSize.y; z++)
             {
-                PathNode pathNode = new PathNode
+                PathNode pathNode = new ()
                 {
                     x = x,
                     z = z,
