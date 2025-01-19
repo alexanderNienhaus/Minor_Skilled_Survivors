@@ -3441,18 +3441,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 330585546}
-  slowSpeed: 0.125
-  normalSpeed: 0.5
-  fastSpeed: 2
+  slowSpeed: 12.5
+  normalSpeed: 50
+  fastSpeed: 200
   movementTime: 5
   moveLimit: {x: 200, y: 200}
-  slowRotationAmount: 0.125
-  normalRotationAmount: 0.5
-  fastRotationAmount: 2
-  rotaionSpeedMouse: 0.1
-  slowZoomAmount: {x: 0, y: -0.125, z: 0.125}
-  normalZoomAmount: {x: 0, y: -0.5, z: 0.5}
-  fastZoomAmount: {x: 0, y: -2, z: 2}
+  slowRotationAmount: 12.5
+  normalRotationAmount: 50
+  fastRotationAmount: 200
+  rotaionSpeedMouse: 10
+  slowZoomAmount: {x: 0, y: -12.5, z: 12.5}
+  normalZoomAmount: {x: 0, y: -50, z: 50}
+  fastZoomAmount: {x: 0, y: -200, z: 200}
   zoomLimit: {x: -45, y: 45}
   mouseZoomSpeedUp: 6
 --- !u!4 &2146624237

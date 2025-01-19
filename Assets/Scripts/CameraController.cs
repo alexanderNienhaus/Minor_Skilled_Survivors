@@ -55,29 +55,29 @@ public class CameraController : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            movementSpeed = fastSpeed;
-            rotationAmount = fastRotationAmount;
-            zoomAmount = fastZoomAmount;
+            movementSpeed = fastSpeed * Time.deltaTime;
+            rotationAmount = fastRotationAmount * Time.deltaTime;
+            zoomAmount = fastZoomAmount * Time.deltaTime;
         }
         else if (Input.GetKey(KeyCode.LeftControl))
         {
-            movementSpeed = slowSpeed;
-            rotationAmount = slowRotationAmount;
-            zoomAmount = slowZoomAmount;
+            movementSpeed = slowSpeed * Time.deltaTime;
+            rotationAmount = slowRotationAmount * Time.deltaTime;
+            zoomAmount = slowZoomAmount * Time.deltaTime;
         }
         else
         {
-            movementSpeed = normalSpeed;
-            rotationAmount = normalRotationAmount;
-            zoomAmount = normalZoomAmount;
+            movementSpeed = normalSpeed * Time.deltaTime;
+            rotationAmount = normalRotationAmount * Time.deltaTime;
+            zoomAmount = normalZoomAmount * Time.deltaTime;
         }
     }
 
     private void HandleMousePosition()
     {
-        if (Input. mouseScrollDelta.y != 0)
+        if (Input.mouseScrollDelta.y != 0)
         {
-            newZoom += Input.mouseScrollDelta.y * zoomAmount * mouseZoomSpeedUp;
+            newZoom += Input.mouseScrollDelta.y * mouseZoomSpeedUp * zoomAmount;
         }
 
         /*
@@ -112,7 +112,7 @@ public class CameraController : MonoBehaviour
             rotateCurrentPosition = Input.mousePosition;
             Vector3 difference = rotateStartPosition - rotateCurrentPosition;
             rotateStartPosition = rotateCurrentPosition;
-            newRotation *= Quaternion.Euler(transform.up * (-difference.x * rotaionSpeedMouse));
+            newRotation *= Quaternion.Euler(transform.up * (-difference.x * rotaionSpeedMouse * Time.deltaTime));
         }
     }
 

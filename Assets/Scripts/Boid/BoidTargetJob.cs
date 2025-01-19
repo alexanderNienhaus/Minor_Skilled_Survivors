@@ -16,8 +16,14 @@ public partial struct BoidTargetJob : IJobEntity
     [BurstCompile]
     public void Execute(ref Boid pBoid, ref LocalTransform pLocalTransformBoid)
     {
-        if (em.Exists(pBoid.target))
+        if (em.Exists(pBoid.target) && allLocalTransforms.HasComponent(pBoid.target) && allAttackables.HasComponent(pBoid.target))
+        {
+            pBoid.targetPosition = allLocalTransforms[pBoid.target].Position + allAttackables[pBoid.target].halfBounds;
             return;
+        }
+
+        pBoid.target = Entity.Null;
+        pBoid.targetPosition = float3.zero;
 
         float shortestDistanceSq = float.MaxValue;
         Entity nearestTarget = Entity.Null;
