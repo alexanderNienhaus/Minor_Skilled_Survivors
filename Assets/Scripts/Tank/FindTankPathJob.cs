@@ -89,7 +89,7 @@ public partial struct FindTankPathJob : IJobEntity
             pPathFollow.groupMovement = groupMovement;
             pPathFollow.isInAttackMode = isInAttackMode;
         }
-        tmpPathNodeArray.Dispose();
+        //tmpPathNodeArray.Dispose();
     }
 
     [BurstCompile]

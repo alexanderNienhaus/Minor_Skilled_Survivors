@@ -195,8 +195,7 @@ public struct ThetaStar
                 if (f != 0 && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
                     return false;
 
-                if (dy == 0 && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0)].isWalkable
-                            && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 - 1)].isWalkable)
+                if (dy == 0 && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0)].isWalkable  && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 - 1)].isWalkable)
                     return false;
 
                 x0 += sx;
@@ -218,8 +217,7 @@ public struct ThetaStar
                 if (f != 0 && !pTmpPathNodeArray[CalculateIndex(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2))].isWalkable)
                     return false;
 
-                if (dx == 0 && !pTmpPathNodeArray[CalculateIndex(x0, y0 + ((sy - 1) / 2))].isWalkable
-                            && !pTmpPathNodeArray[CalculateIndex(x0 - 1, y0 + ((sy - 1) / 2))].isWalkable)
+                if (dx == 0 && !pTmpPathNodeArray[CalculateIndex(x0, y0 + ((sy - 1) / 2))].isWalkable && !pTmpPathNodeArray[CalculateIndex(x0 - 1, y0 + ((sy - 1) / 2))].isWalkable)
                     return false;
 
                 y0 += sy;
